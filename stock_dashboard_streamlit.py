@@ -116,3 +116,18 @@ if ticker:
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.error(f"No data found for {ticker}. Try a different symbol.")
+# ----------------------
+# 📜 Disclaimer Section
+# ----------------------
+st.markdown("---")
+st.markdown(
+    """
+    **Disclaimer:**  
+    This dashboard is provided for **educational and informational purposes only**.  
+    It does **not constitute financial advice**.  
+    Always perform your own research or consult a licensed financial advisor before making investment decisions.  
+
+    © 2025 Raj Gupta — *AI Stock Signals Dashboard*
+    """,
+    unsafe_allow_html=True
+)
