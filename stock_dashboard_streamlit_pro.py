@@ -247,6 +247,11 @@ def explain_signal(ind, sentiment, signal_name):
     summary = ", ".join(reasons)
     return f"**Why {signal_name}:** {summary}"
 
+st.markdown(explain_signal(ind, sentiment, signal))
+confidence = min(abs(score) / 5, 1.0)
+st.progress(confidence)
+st.write(f"**Confidence:** {confidence*100:.0f}%")
+
 # ---------------------------------------------------------------
 # Disclaimer
 # ---------------------------------------------------------------
