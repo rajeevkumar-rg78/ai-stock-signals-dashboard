@@ -65,10 +65,13 @@ def compute_indicators(df: pd.DataFrame):
     out["MACD_Signal"] = out["MACD"].ewm(span=9, adjust=False).mean()
     out["MACD_Hist"] = out["MACD"] - out["MACD_Signal"]
 
-    # Bollinger Bands
-    out["BB_Mid"] = close.rolling(20).mean()
-    out["BB_Up"] = out["BB_Mid"] + 2 * close.rolling(20).std()
-    out["BB_Low"] = out["BB_Mid"] - 2 * close.rolling(20).std()
+    bb_mid = close.rolling(window=20, min_periods=1).mean()
+    bb_std = close.rolling(window=20, min_periods=1).std(ddof=0)
+
+    out["BB_Mid"] = bb_mid.astype(float)
+    out["BB_Up"] = (bb_mid + 2 * bb_std).astype(float)
+    out["BB_Low"] = (bb_mid - 2 * bb_std).astype(float)
+
 
     # ATR (volatility)
     prev_close = close.shift(1)
