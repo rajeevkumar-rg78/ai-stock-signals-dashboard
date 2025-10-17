@@ -221,6 +221,31 @@ if ticker:
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.error(f"No data found for {ticker}. Try a different symbol.")
+def explain_signal(ind, sentiment, signal_name):
+    last = ind.iloc[-1]
+    reasons = []
+    if last["RSI"] < 35:
+        reasons.append("RSI low → oversold condition")
+    elif last["RSI"] > 65:
+        reasons.append("RSI high → overbought condition")
+
+    if last["MA50"] > last["MA200"]:
+        reasons.append("MA50 > MA200 → bullish trend")
+    else:
+        reasons.append("MA50 < MA200 → bearish trend")
+
+    if last["MACD"] > last["MACD_Signal"]:
+        reasons.append("MACD above signal → upward momentum")
+    else:
+        reasons.append("MACD below signal → downward momentum")
+
+    if sentiment > 0.2:
+        reasons.append("Positive sentiment")
+    elif sentiment < -0.2:
+        reasons.append("Negative sentiment")
+
+    summary = ", ".join(reasons)
+    return f"**Why {signal_name}:** {summary}"
 
 # ---------------------------------------------------------------
 # Disclaimer
