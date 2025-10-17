@@ -82,14 +82,20 @@ def compute_indicators(df: pd.DataFrame):
     ], axis=1).max(axis=1)
     out["ATR"] = tr.rolling(14).mean()
 
-    # ADX (trend strength)
+    # ADX (trend strength) — safer version for Pandas >= 2.2
     plus_dm = (high - high.shift(1)).clip(lower=0)
     minus_dm = (low.shift(1) - low).clip(lower=0)
-    tr_smooth = tr.rolling(14).sum()
-    plus_di = 100 * (plus_dm.rolling(14).sum() / tr_smooth)
-    minus_di = 100 * (minus_dm.rolling(14).sum() / tr_smooth)
+    tr_smooth = tr.rolling(14, min_periods=1).sum()
+
+    plus_di = 100 * (plus_dm.rolling(14, min_periods=1).sum() / (tr_smooth + 1e-9))
+    minus_di = 100 * (minus_dm.rolling(14, min_periods=1).sum() / (tr_smooth + 1e-9))
+
+    # DX = |+DI - -DI| / (+DI + -DI)
     dx = (abs(plus_di - minus_di) / (plus_di + minus_di + 1e-9)) * 100
-    out["ADX"] = dx.rolling(14).mean()
+    dx = dx.astype(float).fillna(0)
+
+    out["ADX"] = dx.rolling(14, min_periods=1).mean().astype(float)
+
 
     # Volume spike
     vol_ma20 = vol.rolling(20).mean()
