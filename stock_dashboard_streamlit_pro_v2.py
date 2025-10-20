@@ -1,4 +1,4 @@
-# stock_dashboard_streamlit_pro_v2.py
+# stock_dashboard_streamlit_pro_v1.py
 import streamlit as st
 import yfinance as yf
 import pandas as pd
@@ -10,8 +10,8 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 # ---------------------------------------------------------------
 # Streamlit Config
 # ---------------------------------------------------------------
-st.set_page_config(page_title="AI Stock Signals PRO v2", layout="wide")
-st.title("📈 AI Stock Signals Dashboard — PRO v2")
+st.set_page_config(page_title="AI Stock Signals PRO v1", layout="wide")
+st.title("📈 AI Stock Signals Dashboard — PRO v1")
 st.caption("Enhanced BUY/SELL logic, 2-year trend analysis, ADX fix, and backtest preview.")
 
 # ---------------------------------------------------------------
