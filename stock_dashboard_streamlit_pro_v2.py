@@ -25,7 +25,8 @@ with c1:
 with c2:
     mode = st.radio("Trading Mode", ["Conservative", "Moderate", "Aggressive"], index=1, horizontal=True)
 
-api_key = "01f5ea1983054e12b649037d4655ec46"  # <-- Replace with your NewsAPI key
+#api_key = "01f5ea1983054e12b649037d4655ec46"  # <-- Replace with your NewsAPI key
+api_key = st.secrets["NEWS_API_KEY"]
 
 # ---------------------------------------------------------------
 # Data Fetch
