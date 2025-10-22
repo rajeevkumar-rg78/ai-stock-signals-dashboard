@@ -136,7 +136,7 @@ FINANCE_DOMAINS = [
 
 def newsapi_url(ticker: str, api_key: str) -> str:
     q = f"{ticker} AND (stock OR shares OR earnings OR guidance OR revenue OR profit OR forecast)"
-    domains = ","".join(FINANCE_DOMAINS)
+    domains = ",".join(FINANCE_DOMAINS)
     return (
         f"https://newsapi.org/v2/everything?"
         f"q={requests.utils.quote(q)}&language=en&sortBy=publishedAt&pageSize=20"
