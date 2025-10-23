@@ -6,4 +6,5 @@ plotly
 vaderSentiment
 scikit-learn
 requests
+feedparser
 
