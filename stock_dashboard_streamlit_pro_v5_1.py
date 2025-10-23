@@ -46,10 +46,25 @@ def compute_indicators(df):
     out["BB_Up"]=bb_mid+2*bb_std; out["BB_Low"]=bb_mid-2*bb_std
     tr=pd.concat([(h-l),(h-c.shift(1)).abs(),(l-c.shift(1)).abs()],axis=1).max(axis=1)
     out["ATR"]=tr.rolling(14).mean()
-    up_move=h.diff(); down_move=-l.diff()
-    plus_dm=np.where((up_move>down_move)&(up_move>0),up_move,0)
-    minus_dm=np.where((down_move>up_move)&(down_move>0),down_move,0)
-    plus_dm=pd.Series(plus_dm,index=df.index); minus_dm=pd.Series(minus_dm,index=df.index)
+    
+    # --- ADX (trend strength, safe flatten fix) ---
+    up_move = h.diff()
+    down_move = -l.diff()
+    
+    plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
+    minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0.0)
+    
+    # 🔒 Force flatten and cast to float64 for Streamlit Cloud
+    plus_dm = pd.Series(np.ravel(plus_dm).astype(float), index=df.index)
+    minus_dm = pd.Series(np.ravel(minus_dm).astype(float), index=df.index)
+    
+    atr_smooth = tr.rolling(14, min_periods=1).mean()
+    plus_di = 100 * (plus_dm.rolling(14, min_periods=1).sum() / (atr_smooth + 1e-9))
+    minus_di = 100 * (minus_dm.rolling(14, min_periods=1).sum() / (atr_smooth + 1e-9))
+    dx = (abs(plus_di - minus_di) / (plus_di + minus_di + 1e-9)) * 100
+    out["ADX"] = dx.rolling(14, min_periods=1).mean()
+
+    
     atr_smooth=tr.rolling(14).mean()
     plus_di=100*(plus_dm.rolling(14).sum()/(atr_smooth+1e-9))
     minus_di=100*(minus_dm.rolling(14).sum()/(atr_smooth+1e-9))
