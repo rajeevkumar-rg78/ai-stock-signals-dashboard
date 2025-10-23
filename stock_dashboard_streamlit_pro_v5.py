@@ -89,12 +89,12 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out["BB_Up"]  = bb_mid + 2 * bb_std
     out["BB_Low"] = bb_mid - 2 * bb_std
 
-# --- Fixed Bollinger Width ---
-try:
-    bb_width = (out["BB_Up"] - out["BB_Low"]) / c.replace(0, np.nan)
-    out["BB_W"] = pd.Series(bb_width.values, index=out.index).fillna(method="bfill").fillna(method="ffill")
-except Exception:
-    out["BB_W"] = pd.Series(0.0, index=out.index)
+    # --- Fixed Bollinger Width ---
+    try:
+        bb_width = (out["BB_Up"] - out["BB_Low"]) / c.replace(0, np.nan)
+        out["BB_W"] = pd.Series(bb_width.values, index=out.index).fillna(method="bfill").fillna(method="ffill")
+    except Exception:
+        out["BB_W"] = pd.Series(0.0, index=out.index)
 
 
     # ATR
