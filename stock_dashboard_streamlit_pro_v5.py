@@ -88,7 +88,12 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out["BB_Mid"] = bb_mid
     out["BB_Up"]  = bb_mid + 2 * bb_std
     out["BB_Low"] = bb_mid - 2 * bb_std
-    out["BB_W"]   = (out["BB_Up"] - out["BB_Low"]) / (c.replace(0,np.nan))
+    #out["BB_W"]   = (out["BB_Up"] - out["BB_Low"]) / (c.replace(0,np.nan))
+    # Bollinger Width (normalized)
+    bb_up = out["BB_Up"].reindex(out.index)
+    bb_low = out["BB_Low"].reindex(out.index)
+    bb_width = (bb_up - bb_low) / (df["Close"].reindex(out.index).replace(0, np.nan))
+    out["BB_W"] = bb_width.fillna(method="bfill").fillna(method="ffill")
 
     # ATR
     prev_close = c.shift(1)
