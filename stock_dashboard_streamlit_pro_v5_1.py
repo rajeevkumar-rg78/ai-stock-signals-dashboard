@@ -128,12 +128,24 @@ def generate_signal(ind,fund,news_s,mode):
 # ------------------------------------------------------------
 # Backtest preview
 # ------------------------------------------------------------
-def backtest(df,ind):
-    sig=(ind["RSI"]<35).astype(int)-(ind["RSI"]>65).astype(int)
-    nxt=df["Close"].shift(-5)
-    ret=(nxt-df["Close"])/df["Close"]
-    acc=(np.sign(ret[sig!=0])==sig[sig!=0]).mean() if (sig!=0).sum()>10 else 0
-    return round(acc*100,1)
+# ------------------------------------------------------------
+# Backtest preview (safe 1D fix)
+# ------------------------------------------------------------
+def backtest(df, ind):
+    sig = (ind["RSI"] < 35).astype(int) - (ind["RSI"] > 65).astype(int)
+    nxt = df["Close"].shift(-5)
+    ret = (nxt - df["Close"]) / df["Close"]
+
+    # Ensure both are 1D arrays to prevent alignment error
+    sig = np.ravel(sig.values)
+    ret = np.ravel(ret.values)
+
+    mask = sig != 0
+    if mask.sum() < 10:
+        return 0.0
+
+    acc = np.mean(np.sign(ret[mask]) == sig[mask])
+    return round(acc * 100, 1)
 
 # ------------------------------------------------------------
 # Plot
