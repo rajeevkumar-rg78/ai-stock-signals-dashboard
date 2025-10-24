@@ -49,14 +49,18 @@ def fetch_macro():
     vix = yf.download("^VIX", period="1mo", interval="1d", auto_adjust=True, progress=False)["Close"]
     macro["vix_last"] = float(vix.dropna().iloc[-1]) if not vix.empty else None
 
+        # --- S&P trend (safe scalar)
     spx = yf.download("^GSPC", period="6mo", interval="1d", auto_adjust=True, progress=False)["Close"].dropna()
-    if spx.empty:
-        macro["spx_trend"] = None
-        macro["spx_5d_vs_20d"] = None
+    if spx.empty or len(spx) < 20:
+        macro["spx_trend"], macro["spx_5d_vs_20d"] = None, None
     else:
-        ma5, ma20 = spx.rolling(5).mean(), spx.rolling(20).mean()
-        macro["spx_trend"] = "Bullish" if ma5.iloc[-1] > ma20.iloc[-1] else "Bearish"
-        macro["spx_5d_vs_20d"] = round(((ma5.iloc[-1]-ma20.iloc[-1]) / ma20.iloc[-1]) * 100, 2) if ma20.iloc[-1] else None
+        ma5 = spx.rolling(5).mean()
+        ma20 = spx.rolling(20).mean()
+        ma5_last = float(ma5.iloc[-1])
+        ma20_last = float(ma20.iloc[-1])
+        macro["spx_trend"] = "Bullish" if ma5_last > ma20_last else "Bearish"
+        macro["spx_5d_vs_20d"] = round(((ma5_last - ma20_last) / ma20_last) * 100, 2)
+
 
     # --- CPI YoY & unemployment from fredgraph.csv (no API key needed)
     def fred_csv_last(series_id: str) -> pd.DataFrame:
