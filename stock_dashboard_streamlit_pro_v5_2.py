@@ -222,31 +222,33 @@ def backtest_preview(df: pd.DataFrame, ind: pd.DataFrame) -> float:
 #   - BUY days: combine RSI & momentum filters
 # ------------------------------------------------------------
 def adaptive_dca_simulator(df: pd.DataFrame, ind: pd.DataFrame, cash_start: float):
+    # Align indices to avoid missing dates
+    df, ind = df.align(ind, join="inner", axis=0)
+
     cash = float(cash_start)
     shares = 0.0
     equity_curve = []
     trades = []
 
-    # signal rules per day
     for dt in df.index:
-        rsi   = ind.at[dt, "RSI"]
-        macd  = ind.at[dt, "MACD"]
-        macds = ind.at[dt, "MACD_Signal"]
-        ma20  = ind.at[dt, "MA20"]
-        ma50  = ind.at[dt, "MA50"]
-        price = df.at[dt, "Close"]
+        price = float(df.loc[dt, "Close"])
+        rsi   = float(ind.loc[dt, "RSI"])
+        macd  = float(ind.loc[dt, "MACD"])
+        macds = float(ind.loc[dt, "MACD_Signal"])
+        ma20  = float(ind.loc[dt, "MA20"])
+        ma50  = float(ind.loc[dt, "MA50"])
+        bb_low = float(ind.loc[dt, "BB_Low"])
 
         # BUY triggers
         momentum_buy = (macd > macds and ma20 > ma50)
-        oversold_buy = (rsi < 45) or (price < ind.at[dt, "BB_Low"])
+        oversold_buy = (rsi < 45) or (price < bb_low)
 
-        # adaptive allocation from remaining cash
+        # Adaptive allocation from remaining cash
         alloc = 0.0
         if momentum_buy or oversold_buy:
-            if rsi < 25:   alloc = 0.30  # very oversold
+            if rsi < 25:   alloc = 0.30
             elif rsi < 35: alloc = 0.20
             elif rsi < 45: alloc = 0.10
-            else:          alloc = 0.0
 
         invest = cash * alloc
         if invest > 0:
@@ -255,21 +257,18 @@ def adaptive_dca_simulator(df: pd.DataFrame, ind: pd.DataFrame, cash_start: floa
             cash   -= invest
             trades.append({
                 "date": dt.strftime("%Y-%m-%d"),
-                "price": round(float(price), 2),
-                "invested": round(float(invest), 2),
-                "shares": round(float(buy_shares), 6)
+                "price": round(price, 2),
+                "invested": round(invest, 2),
+                "shares": round(buy_shares, 6)
             })
 
-        # portfolio daily mark-to-market
         equity_curve.append(float(shares * price + cash))
 
-    # final stats
     final_value = shares * df["Close"].iloc[-1] + cash
     total_invested = cash_start - cash
     pnl = final_value - total_invested
     roi_pct = (pnl / total_invested * 100) if total_invested > 0 else 0.0
 
-    # max drawdown on equity curve
     ec = np.array(equity_curve, dtype=float)
     running_max = np.maximum.accumulate(ec)
     dd = (ec - running_max) / np.where(running_max == 0, 1, running_max)
