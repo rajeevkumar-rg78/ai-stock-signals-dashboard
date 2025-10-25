@@ -79,9 +79,11 @@ def compute_indicators(df):
     out["BB_Up"] = bb_mid + 2 * bb_std
     out["BB_Low"] = bb_mid - 2 * bb_std
     # ✅ Fix for 1-D alignment error
+    # Bollinger Band width — ensure aligned Series (no shape mismatch)
     bb_width = ((out["BB_Up"] - out["BB_Low"]) / c.replace(0, np.nan)).fillna(0)
-    bb_width = np.ravel(bb_width)  # <-- flatten to 1D
-    out["BB_Width"] = pd.Series(bb_width, index=df.index)
+    bb_width = pd.Series(bb_width, index=out.index)  # keep same index as indicators
+    out["BB_Width"] = bb_width
+
 
     prev_close = c.shift(1)
     tr = pd.concat([(h-l), (h-prev_close).abs(), (l-prev_close).abs()], axis=1).max(axis=1)
