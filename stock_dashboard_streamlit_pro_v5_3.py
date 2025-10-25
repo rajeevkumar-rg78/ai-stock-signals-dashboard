@@ -8,7 +8,7 @@ from plotly.subplots import make_subplots
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import requests, feedparser
 from datetime import datetime, timedelta
-
+from io import StringIO
 # ============================================================
 # Streamlit config
 # ============================================================
@@ -67,7 +67,7 @@ def fetch_macro():
         r = requests.get(url, timeout=10)
         r.raise_for_status()
         #df = pd.read_csv(pd.compat.StringIO(r.text))
-        from io import StringIO
+        
         df = pd.read_csv(StringIO(r.text))
 
         df["DATE"] = pd.to_datetime(df["DATE"], errors="coerce")
