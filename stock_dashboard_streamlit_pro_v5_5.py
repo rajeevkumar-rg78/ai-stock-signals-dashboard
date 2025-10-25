@@ -115,7 +115,7 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out = pd.DataFrame(index=df.index)
     c, h, l, v = df["Close"].astype(float), df["High"].astype(float), df["Low"].astype(float), df["Volume"].astype(float)
 
-    # MAs / EMA
+    # Moving Averages
     out["MA20"]  = c.rolling(20, min_periods=1).mean()
     out["MA50"]  = c.rolling(50, min_periods=1).mean()
     out["MA200"] = c.rolling(200, min_periods=1).mean()
@@ -137,36 +137,35 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out["MACD_Signal"] = out["MACD"].ewm(span=9, adjust=False).mean()
     out["MACD_Hist"]   = out["MACD"] - out["MACD_Signal"]
 
-    # Bollinger Bands
+    # Bollinger Bands (safe 1-D)
     bb_mid = c.rolling(20, min_periods=1).mean()
     bb_std = c.rolling(20, min_periods=1).std(ddof=0)
-    out["BB_Up"]  = bb_mid + 2*bb_std
-    out["BB_Low"] = bb_mid - 2*bb_std
-    # Optional width (1-D safe)
-    # Ensure 1-D aligned Series before assignment
-    bb_width = (out["BB_Up"].values - out["BB_Low"].values) / np.where(c.values != 0, c.values, np.nan)
+    bb_up  = bb_mid + 2*bb_std
+    bb_low = bb_mid - 2*bb_std
+    out["BB_Up"]  = bb_up
+    out["BB_Low"] = bb_low
+    bb_width = (bb_up.values - bb_low.values) / np.where(c.values != 0, c.values, np.nan)
     out["BB_Width"] = pd.Series(bb_width, index=df.index).fillna(0)
-
 
     # ATR
     prev_close = c.shift(1)
     tr = pd.concat([(h-l), (h-prev_close).abs(), (l-prev_close).abs()], axis=1).max(axis=1)
     out["ATR"] = tr.rolling(14, min_periods=1).mean()
 
-    # ADX (safe flatten)
+    # ADX
     up_move   = h.diff()
     down_move = -l.diff()
     plus_dm  = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
     minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0.0)
-    plus_dm  = pd.Series(np.ravel(plus_dm).astype(float),  index=df.index)
-    minus_dm = pd.Series(np.ravel(minus_dm).astype(float), index=df.index)
+    plus_dm  = pd.Series(np.ravel(plus_dm),  index=df.index)
+    minus_dm = pd.Series(np.ravel(minus_dm), index=df.index)
     atr_smooth = tr.rolling(14, min_periods=1).mean()
     plus_di  = 100 * (plus_dm.rolling(14, min_periods=1).sum()  / (atr_smooth + 1e-9))
     minus_di = 100 * (minus_dm.rolling(14, min_periods=1).sum() / (atr_smooth + 1e-9))
     dx = (abs(plus_di - minus_di) / (plus_di + minus_di + 1e-9)) * 100
     out["ADX"] = dx.rolling(14, min_periods=1).mean()
 
-    # Volume spike flag
+    # Volume spike
     vol_ma = v.rolling(20, min_periods=1).mean()
     out["Vol_Spike"] = (v > 2*vol_ma).astype(int)
 
