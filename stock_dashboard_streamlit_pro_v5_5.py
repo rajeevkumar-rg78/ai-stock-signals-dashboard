@@ -624,7 +624,7 @@ with tab2:
     st.subheader("AI Forecast (5-day)")
     m1, m2, m3 = st.columns(3)
     m1.metric("Predicted Move", f"{pred_pct:+.2f}%")
-    m2.metric("AI Confidence", f"{int(conf*100)}%")
+    m2.metric("AI Confidence", f"{int((conf if conf is not None and np.isfinite(conf) else 0)*100)}%")
     m3.metric("Price Now", f"${last_price:.2f}")
     st.caption(f"Expected range in 5d: **${lo:.2f} – ${hi:.2f}**")
 
