@@ -143,7 +143,10 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out["BB_Up"]  = bb_mid + 2*bb_std
     out["BB_Low"] = bb_mid - 2*bb_std
     # Optional width (1-D safe)
-    out["BB_Width"] = ((out["BB_Up"] - out["BB_Low"]) / c.replace(0, np.nan)).fillna(0)
+    # Ensure 1-D aligned Series before assignment
+    bb_width = (out["BB_Up"].values - out["BB_Low"].values) / np.where(c.values != 0, c.values, np.nan)
+    out["BB_Width"] = pd.Series(bb_width, index=df.index).fillna(0)
+
 
     # ATR
     prev_close = c.shift(1)
