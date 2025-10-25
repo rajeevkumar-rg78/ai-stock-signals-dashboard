@@ -66,7 +66,10 @@ def fetch_macro():
         url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"
         r = requests.get(url, timeout=10)
         r.raise_for_status()
-        df = pd.read_csv(pd.compat.StringIO(r.text))
+        #df = pd.read_csv(pd.compat.StringIO(r.text))
+        from io import StringIO
+        df = pd.read_csv(StringIO(r.text))
+
         df["DATE"] = pd.to_datetime(df["DATE"], errors="coerce")
         df = df.rename(columns={series_id: "value"}).dropna()
         df = df[df["value"] != "."]
