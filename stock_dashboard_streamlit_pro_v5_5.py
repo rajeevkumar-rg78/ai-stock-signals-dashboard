@@ -80,7 +80,8 @@ def compute_indicators(df):
     out["BB_Low"] = bb_mid - 2 * bb_std
     # ✅ Fix for 1-D alignment error
     bb_width = ((out["BB_Up"] - out["BB_Low"]) / c.replace(0, np.nan)).fillna(0)
-    out["BB_Width"] = pd.Series(bb_width.values, index=df.index)
+    bb_width = np.ravel(bb_width)  # <-- flatten to 1D
+    out["BB_Width"] = pd.Series(bb_width, index=df.index)
 
     prev_close = c.shift(1)
     tr = pd.concat([(h-l), (h-prev_close).abs(), (l-prev_close).abs()], axis=1).max(axis=1)
