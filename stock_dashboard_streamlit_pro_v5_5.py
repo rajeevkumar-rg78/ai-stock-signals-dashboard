@@ -113,46 +113,53 @@ def fetch_macro():
 # =========================
 def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out = pd.DataFrame(index=df.index)
-    c, h, l, v = df["Close"].astype(float), df["High"].astype(float), df["Low"].astype(float), df["Volume"].astype(float)
+    c, h, l, v = (
+        df["Close"].astype(float).squeeze(),
+        df["High"].astype(float).squeeze(),
+        df["Low"].astype(float).squeeze(),
+        df["Volume"].astype(float).squeeze()
+    )
 
-    # Moving Averages
+    # --- Moving Averages
     out["MA20"]  = c.rolling(20, min_periods=1).mean()
     out["MA50"]  = c.rolling(50, min_periods=1).mean()
     out["MA200"] = c.rolling(200, min_periods=1).mean()
     out["EMA20"] = c.ewm(span=20, adjust=False).mean()
 
-    # RSI (Wilder)
+    # --- RSI (Wilder)
     delta = c.diff()
     gain  = delta.clip(lower=0)
     loss  = -delta.clip(upper=0)
     avg_gain = gain.ewm(alpha=1/14, min_periods=14, adjust=False).mean()
     avg_loss = loss.ewm(alpha=1/14, min_periods=14, adjust=False).mean()
     rs  = avg_gain / (avg_loss + 1e-9)
-    out["RSI"] = (100 - (100/(1+rs))).fillna(50)
+    out["RSI"] = (100 - (100 / (1 + rs))).fillna(50)
 
-    # MACD
+    # --- MACD
     ema12 = c.ewm(span=12, adjust=False).mean()
     ema26 = c.ewm(span=26, adjust=False).mean()
     out["MACD"] = ema12 - ema26
     out["MACD_Signal"] = out["MACD"].ewm(span=9, adjust=False).mean()
     out["MACD_Hist"]   = out["MACD"] - out["MACD_Signal"]
 
-    # Bollinger Bands (safe 1-D)
+    # --- Bollinger Bands (flattened 1-D)
     bb_mid = c.rolling(20, min_periods=1).mean()
     bb_std = c.rolling(20, min_periods=1).std(ddof=0)
-    bb_up  = bb_mid + 2*bb_std
-    bb_low = bb_mid - 2*bb_std
+    bb_up  = (bb_mid + 2 * bb_std).astype(float).squeeze()
+    bb_low = (bb_mid - 2 * bb_std).astype(float).squeeze()
     out["BB_Up"]  = bb_up
     out["BB_Low"] = bb_low
-    bb_width = (bb_up.values - bb_low.values) / np.where(c.values != 0, c.values, np.nan)
-    out["BB_Width"] = pd.Series(bb_width, index=df.index).fillna(0)
 
-    # ATR
+    # Ensure np.array is strictly 1-D before Series creation
+    bb_width = np.ravel((bb_up - bb_low) / np.where(c != 0, c, np.nan))
+    out["BB_Width"] = pd.Series(bb_width, index=df.index, dtype=float).fillna(0.0)
+
+    # --- ATR
     prev_close = c.shift(1)
-    tr = pd.concat([(h-l), (h-prev_close).abs(), (l-prev_close).abs()], axis=1).max(axis=1)
+    tr = pd.concat([(h - l), (h - prev_close).abs(), (l - prev_close).abs()], axis=1).max(axis=1)
     out["ATR"] = tr.rolling(14, min_periods=1).mean()
 
-    # ADX
+    # --- ADX
     up_move   = h.diff()
     down_move = -l.diff()
     plus_dm  = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
@@ -165,12 +172,13 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     dx = (abs(plus_di - minus_di) / (plus_di + minus_di + 1e-9)) * 100
     out["ADX"] = dx.rolling(14, min_periods=1).mean()
 
-    # Volume spike
+    # --- Volume Spike
     vol_ma = v.rolling(20, min_periods=1).mean()
-    out["Vol_Spike"] = (v > 2*vol_ma).astype(int)
+    out["Vol_Spike"] = (v > 2 * vol_ma).astype(int)
 
     out["Close"] = c
     return out.bfill().ffill()
+
 
 # =========================
 # News + Sentiment (API or RSS fallback)
