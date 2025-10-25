@@ -454,8 +454,10 @@ def ai_forecast(df: pd.DataFrame, ind: pd.DataFrame):
     X, y = X[mask], y[mask]
     # simplify into up/down (0 for flat) for probability
     y = (y > 0).astype(int)
-    if len(X) < 200 or y.sum() == 0 or y.sum() == len(y):
+    y_arr = np.array(y, dtype=float)
+    if len(X) < 200 or np.nansum(y_arr) == 0 or np.nansum(y_arr) == len(y_arr):
         return None
+
     try:
         X_train, X_test, y_train, y_test = train_test_split(
             X.iloc[:-5], y.iloc[:-5], test_size=0.25, shuffle=False
