@@ -129,11 +129,14 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out["MACD_Signal"] = out["MACD"].ewm(span=9, adjust=False).mean()
     out["MACD_Hist"] = out["MACD"] - out["MACD_Signal"]
     # Bollinger
+    # Bollinger
     bb_mid = c.rolling(20, min_periods=1).mean()
     bb_std = c.rolling(20, min_periods=1).std(ddof=0)
-    out["BB_Up"]  = bb_mid + 2*bb_std
-    out["BB_Low"] = bb_mid - 2*bb_std
-    out["BB_Width"] = (out["BB_Up"] - out["BB_Low"]) / c.replace(0, np.nan)
+    bb_up  = bb_mid + 2*bb_std
+    bb_low = bb_mid - 2*bb_std
+    out["BB_Up"], out["BB_Low"] = bb_up, bb_low
+    out["BB_Width"] = (bb_up - bb_low) / c.replace(0, np.nan)
+
     # ATR
     prev_close = c.shift(1)
     tr = pd.concat([(h-l), (h-prev_close).abs(), (l-prev_close).abs()], axis=1).max(axis=1)
