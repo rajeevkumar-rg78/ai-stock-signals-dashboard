@@ -528,9 +528,9 @@ with st.expander("🗞️ Latest Headlines"):
 # ============================================================
 # 📘 Learn (Education)
 # ============================================================
-with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
-    st.markdown(
-        """
+
+def render_learn_section():
+    learn_md = """
 ### What you’re seeing
 - **Signal Tab** uses trend (MA, ADX), momentum (RSI, MACD), extremes (Bollinger), and news sentiment.  
 - **Forecast AI Tab** blends historical returns + Monte Carlo (bootstrap) with a probabilistic range.  
@@ -550,26 +550,29 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
 - **Double Bottom** — two similar lows with a mid-peak; breakout above the midpoint confirms reversal.  
 - **Bollinger Squeeze** — narrow bands often precede strong breakouts.  
 - **ADX** — measures trend strength; >25 = strong, <20 = range-bound.  
-        """
-    )
+"""
+    st.markdown(learn_md)
+
+with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
+    render_learn_section()
 
 # ============================================================
 # 🧾 Footer & Disclaimer
 # ============================================================
 
-# Explicit separator between Learn and Footer
-st.markdown("")
+# Force Streamlit to render a break and flush all open elements
+st.write("")
+st.divider()
 
 st.markdown(
     """
----
-<div style='text-align:center; color:gray; font-size:14px; line-height:1.5;'>
+<div style='text-align:center; color:gray; font-size:14px; line-height:1.5; margin-top:10px;'>
 <b>Disclaimer:</b><br>
-This dashboard is for <b>educational and informational purposes only</b> and <b>does not constitute financial advice</b>.<br>
+This dashboard is for <b>educational and informational purposes only</b> and 
+<b>does not constitute financial advice</b>.<br>
 Markets carry risk; always do your own research or consult a licensed financial advisor before investing.<br><br>
 © 2025 <b>Raj Gupta</b> — <i>AI Stock Signals PRO v5.5.1</i>
 </div>
     """,
     unsafe_allow_html=True,
 )
-
