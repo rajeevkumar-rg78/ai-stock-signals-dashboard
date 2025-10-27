@@ -8,6 +8,17 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import requests, feedparser
 from io import StringIO
 
+# ============= Utility functions =============
+def safe_fmt(val, fmt="{:.2f}", default="—"):
+    try:
+        if val is None or (isinstance(val, float) and np.isnan(val)):
+            return default
+        return fmt.format(val)
+    except Exception:
+        return default
+
+
+
 # ============= Page config =============
 st.set_page_config(page_title="AI Stock Signals — PRO v5.5.3", layout="wide")
 st.title("🧠📊 AI Stock Signals — PRO v5.5.3")
@@ -437,40 +448,32 @@ indices = fetch_major_indices()
 fund = fetch_fundamentals(ticker)
 
 # Earnings Date
-st.metric("Next Earnings Date", earnings_date if earnings_date else "—")
+with st.expander("📅 Earnings & Indices", expanded=False):
+    st.metric("Next Earnings Date", earnings_date if earnings_date else "—")
 
-# Major Indices
-idx_cols = st.columns(len(indices))
-def safe_fmt(val, fmt="{:.2f}", default="—"):
-    try:
-        if val is None or (isinstance(val, float) and np.isnan(val)):
-            return default
-        return fmt.format(val)
-    except Exception:
-        return default
+    idx_cols = st.columns(len(indices))
+    for i, (name, data) in enumerate(indices.items()):
+        if data:
+            idx_cols[i].metric(f"{name} Close", safe_fmt(data.get('Close')))
+            idx_cols[i].metric(f"{name} High", safe_fmt(data.get('High')))
+            idx_cols[i].metric(f"{name} Low", safe_fmt(data.get('Low')))
+            idx_cols[i].metric(f"{name} Volume", safe_fmt(data.get('Volume'), fmt="{:,}", default="—"))
 
-for i, (name, data) in enumerate(indices.items()):
-    if data:
-        idx_cols[i].metric(f"{name} Close", safe_fmt(data.get('Close')))
-        idx_cols[i].metric(f"{name} High", safe_fmt(data.get('High')))
-        idx_cols[i].metric(f"{name} Low", safe_fmt(data.get('Low')))
-        idx_cols[i].metric(f"{name} Volume", safe_fmt(data.get('Volume'), fmt="{:,}", default="—"))
+with st.expander("📊 Stock Fundamentals", expanded=False):
+    fcols = st.columns(13)
+    fcols[0].metric("Open", safe_fmt(fund.get('Open')))
+    fcols[1].metric("High", safe_fmt(fund.get('High')))
+    fcols[2].metric("Low", safe_fmt(fund.get('Low')))
+    fcols[3].metric("Volume", safe_fmt(fund.get('Volume'), fmt="{:,}", default="—"))
+    fcols[4].metric("P/E", safe_fmt(fund.get('P/E')))
+    fcols[5].metric("Market Cap", safe_fmt(fund.get('Market Cap'), fmt="${:,}", default="—"))
+    fcols[6].metric("52w High", safe_fmt(fund.get('52w High')))
+    fcols[7].metric("52w Low", safe_fmt(fund.get('52w Low')))
+    fcols[8].metric("Avg Vol", safe_fmt(fund.get('Avg Vol'), fmt="{:,}", default="—"))
+    fcols[9].metric("Yield", safe_fmt(fund.get('Yield')))
+    fcols[10].metric("Beta", safe_fmt(fund.get('Beta')))
+    fcols[11].metric("EPS", safe_fmt(fund.get('EPS')))
 
-
-# Fundamentals
-fcols = st.columns(13)
-fcols[0].metric("Open", f"${fund.get('Open', '—')}")
-fcols[1].metric("High", f"${fund.get('High', '—')}")
-fcols[2].metric("Low", f"${fund.get('Low', '—')}")
-fcols[3].metric("Volume", f"{fund.get('Volume', '—')}")
-fcols[4].metric("P/E", f"{fund.get('P/E', '—')}")
-fcols[5].metric("Market Cap", f"${fund.get('Market Cap', '—'):,}" if fund.get("Market Cap") else "—")
-fcols[6].metric("52w High", f"${fund.get('52w High', '—')}")
-fcols[7].metric("52w Low", f"${fund.get('52w Low', '—')}")
-fcols[8].metric("Avg Vol", f"{fund.get('Avg Vol', '—')}")
-fcols[9].metric("Yield", f"{fund.get('Yield', '—')}")
-fcols[10].metric("Beta", f"{fund.get('Beta', '—')}")
-fcols[11].metric("EPS", f"{fund.get('EPS', '—')}")
 
 
 
