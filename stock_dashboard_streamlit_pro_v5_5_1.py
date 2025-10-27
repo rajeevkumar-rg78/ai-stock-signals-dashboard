@@ -249,19 +249,7 @@ def generate_signal(ind: pd.DataFrame, sentiment: float, horizon: str):
 def confidence_from_score(score: float) -> float:
     return float(min(abs(score) / 5.0, 1.0))
 
-def explain_signal_verbose(ind, sentiment, decision, horizon):
-    last = ind.iloc[-1]
-    reasons = []
-    reasons.append("✅ Long-term trend up (MA50>MA200)" if last["MA50"]>last["MA200"] else "⚠️ Trend weakening (MA50<MA200)")
-    reasons.append("✅ MACD bullish crossover" if last["MACD"]>last["MACD_Signal"] else "⚠️ MACD bearish")
-    if last["RSI"] < 35: reasons.append("✅ RSI oversold — potential rebound zone")
-    elif last["RSI"] > 65: reasons.append("⚠️ RSI overbought — caution on entries")
-    if last["Close"] < last["BB_Low"]: reasons.append("✅ Price below lower Bollinger (extreme)")
-    elif last["Close"] > last["BB_Up"]: reasons.append("⚠️ Price above upper Bollinger (stretched)")
-    if sentiment > 0.1: reasons.append(f"✅ Positive news sentiment ({sentiment:+.2f})")
-    elif sentiment < -0.1: reasons.append(f"⚠️ Negative news sentiment ({sentiment:+.2f})")
-    reasons.append("🎯 Short-term swing parameters" if "Short" in horizon else "📈 Long-term investor parameters")
-    return "\n".join(reasons)
+
 def explain_signal_verbose(ind, sentiment, decision, horizon):
     last = ind.iloc[-1]
     reasons = []
