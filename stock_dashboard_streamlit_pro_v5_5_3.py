@@ -101,7 +101,7 @@ def fetch_earnings_date(ticker: str):
     try:
         t = yf.Ticker(ticker)
         cal = t.calendar
-        # If calendar is a dict (as in your debug output)
+        # If calendar is a dict and has "Earnings Date"
         if isinstance(cal, dict) and "Earnings Date" in cal:
             val = cal["Earnings Date"]
             # If it's a list, get the first element
@@ -111,19 +111,9 @@ def fetch_earnings_date(ticker: str):
             if hasattr(val, "strftime"):
                 return val.strftime("%Y-%m-%d")
             return str(val)
-        # If calendar is a DataFrame (older yfinance), use .loc
-        if hasattr(cal, "loc") and "Earnings Date" in cal.index:
-            val = cal.loc["Earnings Date"].values[0]
-            if isinstance(val, (list, np.ndarray)):
-                val = val[0]
-            if hasattr(val, "strftime"):
-                return val.strftime("%Y-%m-%d")
-            return str(val)
         return None
     except Exception as e:
         st.write("Earnings date error:", e)
-        st.write("Calendar structure:", cal)
-
         return None
 
 
