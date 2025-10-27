@@ -430,6 +430,43 @@ m2.metric("S&P 5d vs 20d", f"{macro['spx_5d_vs_20d']:+.2f}%" if macro["spx_5d_vs
 m3.metric("CPI YoY", f"{macro['cpi_yoy']:.2f}%")
 m4.metric("Unemployment", f"{macro['unemp_rate']:.2f}%")
 
+# ============= Display Earnings Date, Major Indices, Fundamentals =============
+
+earnings_date = fetch_earnings_date(ticker)
+indices = fetch_major_indices()
+fund = fetch_fundamentals(ticker)
+
+# Earnings Date
+st.metric("Next Earnings Date", earnings_date if earnings_date else "—")
+
+# Major Indices
+idx_cols = st.columns(len(indices))
+for i, (name, data) in enumerate(indices.items()):
+    if data:
+        idx_cols[i].metric(f"{name} Close", f"{data['Close']:.2f}")
+        idx_cols[i].metric(f"{name} High", f"{data['High']:.2f}")
+        idx_cols[i].metric(f"{name} Low", f"{data['Low']:.2f}")
+        idx_cols[i].metric(f"{name} Volume", f"{int(data['Volume']):,}")
+
+# Fundamentals
+fcols = st.columns(13)
+fcols[0].metric("Open", f"${fund.get('Open', '—')}")
+fcols[1].metric("High", f"${fund.get('High', '—')}")
+fcols[2].metric("Low", f"${fund.get('Low', '—')}")
+fcols[3].metric("Volume", f"{fund.get('Volume', '—')}")
+fcols[4].metric("P/E", f"{fund.get('P/E', '—')}")
+fcols[5].metric("Market Cap", f"${fund.get('Market Cap', '—'):,}" if fund.get("Market Cap") else "—")
+fcols[6].metric("52w High", f"${fund.get('52w High', '—')}")
+fcols[7].metric("52w Low", f"${fund.get('52w Low', '—')}")
+fcols[8].metric("Avg Vol", f"{fund.get('Avg Vol', '—')}")
+fcols[9].metric("Yield", f"{fund.get('Yield', '—')}")
+fcols[10].metric("Beta", f"{fund.get('Beta', '—')}")
+fcols[11].metric("EPS", f"{fund.get('EPS', '—')}")
+
+
+
+
+
 # Snapshot metrics
 last = ind.iloc[-1]
 cA, cB, cC, cD, cE, cF = st.columns(6)
