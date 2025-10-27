@@ -499,7 +499,7 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic"):
 # ============================================================
 # 🧾 Footer & Disclaimer
 # ============================================================
-st.markdown("---")
+
 st.markdown("""
 **Disclaimer:**  
 This dashboard is for **educational and informational purposes only** and **does not constitute financial advice**.  
