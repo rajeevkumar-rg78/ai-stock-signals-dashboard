@@ -126,7 +126,9 @@ def fetch_major_indices():
     data = {}
     for name, symbol in indices.items():
         try:
+            # Use daily data for reliability
             df = yf.download(symbol, period="5d", interval="1d", progress=False)
+            st.write(f"DEBUG: {name} DataFrame", df)
             if df.empty:
                 data[name] = None
                 continue
@@ -138,9 +140,11 @@ def fetch_major_indices():
                 "Close": last["Close"],
                 "Volume": last["Volume"]
             }
-        except Exception:
+        except Exception as e:
+            st.write(f"DEBUG: Error fetching {name}: {e}")
             data[name] = None
     return data
+
 
 
 
