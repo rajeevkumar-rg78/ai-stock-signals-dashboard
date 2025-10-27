@@ -1,4 +1,4 @@
-# stock_dashboard_streamlit_pro_v5_5_1.py
+# stock_dashboard_streamlit_pro_v5_5_2.py
 # v5.5.1 – UX/Trust upgrades for v5.5 (targets, explanations, confidence, safe fallbacks)
 import streamlit as st
 import yfinance as yf
@@ -11,8 +11,8 @@ import requests, feedparser
 from io import StringIO
 
 # ============= Page config =============
-st.set_page_config(page_title="AI Stock Signals — PRO v5.5.1", layout="wide")
-st.title("🧠📊 AI Stock Signals — PRO v5.5.1")
+st.set_page_config(page_title="AI Stock Signals — PRO v5.5.2", layout="wide")
+st.title("🧠📊 AI Stock Signals — PRO v5.5.2")
 st.caption("Technicals • Macro • News • Analyst • Hybrid AI Forecast • Adaptive DCA")
 
 # ============= Inputs =============
