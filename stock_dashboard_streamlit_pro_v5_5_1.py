@@ -142,7 +142,16 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
 
     # Extras for UI
     width = (out["BB_Up"] - out["BB_Low"]) / c.replace(0,np.nan)
-    out["BB_Width"] = width.fillna(0)
+    #out["BB_Width"] = width.fillna(0)
+    # --- Bollinger width (safe 1-D Series)
+    try:
+        width = (out["BB_Up"] - out["BB_Low"]) / c.replace(0, np.nan)
+        if isinstance(width, pd.DataFrame):
+            width = width.iloc[:, 0]
+        out["BB_Width"] = pd.Series(width, index=df.index).astype(float).fillna(0)
+    except Exception:
+        out["BB_Width"] = pd.Series(0.0, index=df.index)
+
     out["Close"] = c
     return out.bfill().ffill()
 
