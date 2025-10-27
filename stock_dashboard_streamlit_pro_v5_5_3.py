@@ -9,8 +9,8 @@ import requests, feedparser
 from io import StringIO
 
 # ============= Page config =============
-st.set_page_config(page_title="AI Stock Signals — PRO v5.5.2", layout="wide")
-st.title("🧠📊 AI Stock Signals — PRO v5.5.2")
+st.set_page_config(page_title="AI Stock Signals — PRO v5.5.3", layout="wide")
+st.title("🧠📊 AI Stock Signals — PRO v5.5.3")
 st.caption("Technicals • Macro • News • Analyst • Hybrid AI Forecast • Adaptive DCA")
 
 # ============= Inputs =============
