@@ -143,6 +143,9 @@ def fetch_major_indices():
         except Exception as e:
             st.write(f"DEBUG: Error fetching {name}: {e}")
             data[name] = None
+          indices = fetch_major_indices()
+        st.write("DEBUG: indices =", indices)
+  
     return data
 
 
