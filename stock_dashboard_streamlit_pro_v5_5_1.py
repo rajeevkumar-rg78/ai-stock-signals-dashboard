@@ -461,15 +461,10 @@ c1.metric("Final Portfolio Value", f"${fv:,.2f}")
 c2.metric("Total Invested", f"${ti:,.2f}")
 c3.metric("ROI", f"{roi:.1f}%")
 c4.metric("Max Drawdown", f"{dd:.1f}%")
-
-
-
 if not sim["trades"].empty:
     st.dataframe(sim["trades"], use_container_width=True)
 else:
     st.info("No trades executed in this period by adaptive rules.")
-
-
 
 # Headlines
 with st.expander("🗞️ Latest Headlines"):
@@ -481,7 +476,7 @@ with st.expander("🗞️ Latest Headlines"):
             nice = pub[:10] if pub else ""
             st.markdown(f"- [{title}]({url}) — *{src}* {('• '+nice) if nice else ''}")
 
-st.markdown("---")
+#st.markdown("---")
 # ============================================================
 # 📘 Learn (Education)
 # ============================================================
