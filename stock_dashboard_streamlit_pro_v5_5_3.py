@@ -94,30 +94,38 @@ def fetch_prices_tf(ticker: str, period: str, interval: str) -> pd.DataFrame | N
     try: df.index = df.index.tz_localize(None)
     except Exception: pass
     return df
+
+
 @st.cache_data(ttl=86400)
 def fetch_earnings_date(ticker: str):
     try:
         t = yf.Ticker(ticker)
         cal = t.calendar
-        # Try to get "Earnings Date" from the calendar
-        if "Earnings Date" in cal.index:
-            val = cal.loc["Earnings Date"].values[0]
-            # If it's a list or array, get the first element
+        # If calendar is a dict (as in your debug output)
+        if isinstance(cal, dict) and "Earnings Date" in cal:
+            val = cal["Earnings Date"]
+            # If it's a list, get the first element
             if isinstance(val, (list, np.ndarray)):
                 val = val[0]
             # If it's a datetime.date, format it
             if hasattr(val, "strftime"):
                 return val.strftime("%Y-%m-%d")
-            # If it's a string, just return it
             return str(val)
-        # If not found, try to get from t.earnings_dates (yfinance >= 0.2.33)
-        if hasattr(t, "earnings_dates"):
-            ed = t.earnings_dates
-            if not ed.empty:
-                return str(ed.index[0].date())
+        # If calendar is a DataFrame (older yfinance), use .loc
+        if hasattr(cal, "loc") and "Earnings Date" in cal.index:
+            val = cal.loc["Earnings Date"].values[0]
+            if isinstance(val, (list, np.ndarray)):
+                val = val[0]
+            if hasattr(val, "strftime"):
+                return val.strftime("%Y-%m-%d")
+            return str(val)
         return None
-    except Exception:
+    except Exception as e:
+        st.write("Earnings date error:", e)
+        st.write("Calendar structure:", cal)
+
         return None
+
 
 @st.cache_data(ttl=3600)
 def fetch_major_indices():
