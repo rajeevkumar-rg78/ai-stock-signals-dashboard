@@ -491,17 +491,22 @@ earnings_date = fetch_earnings_date(ticker)
 indices = fetch_major_indices()
 fund = fetch_fundamentals(ticker)
 
-# Earnings Date
 with st.expander("📅 Earnings & Indices", expanded=False):
-    st.metric("Next Earnings Date", earnings_date if earnings_date else "—")
+    st.metric("Next Earnings Date", earnings_date if earnings_date else "Not available")
 
     idx_cols = st.columns(len(indices))
     for i, (name, data) in enumerate(indices.items()):
         if data:
-            idx_cols[i].metric(f"{name} Close", safe_fmt(data.get('Close')))
-            idx_cols[i].metric(f"{name} High", safe_fmt(data.get('High')))
-            idx_cols[i].metric(f"{name} Low", safe_fmt(data.get('Low')))
-            idx_cols[i].metric(f"{name} Volume", safe_fmt(data.get('Volume'), fmt="{:,}", default="—"))
+            idx_cols[i].metric(f"{name} Close", human_fmt(data.get('Close')))
+            idx_cols[i].metric(f"{name} High", human_fmt(data.get('High')))
+            idx_cols[i].metric(f"{name} Low", human_fmt(data.get('Low')))
+            idx_cols[i].metric(f"{name} Volume", human_fmt(data.get('Volume'), kind="vol"))
+        else:
+            idx_cols[i].metric(f"{name} Close", "Not available")
+            idx_cols[i].metric(f"{name} High", "Not available")
+            idx_cols[i].metric(f"{name} Low", "Not available")
+            idx_cols[i].metric(f"{name} Volume", "Not available")
+
 
 with st.expander("📊 Stock Fundamentals", expanded=False):
     fcols = st.columns(13)
