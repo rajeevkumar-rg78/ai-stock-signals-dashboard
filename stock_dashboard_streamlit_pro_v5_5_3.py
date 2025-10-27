@@ -66,7 +66,10 @@ with c2:
 with c3:
     invest_amount = st.slider("Simulation amount ($)", min_value=500, max_value=50_000, step=500, value=10_000)
 
-
+# ============= DEBUG: Print raw earnings calendar =============
+if ticker:
+    t = yf.Ticker(ticker)
+    st.write("Raw earnings calendar:", t.calendar)
 # ============= Chart Timeframe Selector =============
 timeframes = {
     "1D": ("1d", "1m"),
@@ -713,5 +716,4 @@ Markets carry risk; always do your own research or consult a licensed financial 
     unsafe_allow_html=True,
 )
 
-st.write("Raw earnings calendar:", t.calendar)
-st.write("Raw index data:", df)
+
