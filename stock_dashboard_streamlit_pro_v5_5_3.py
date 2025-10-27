@@ -406,7 +406,8 @@ def plot_dashboard(ind: pd.DataFrame, ticker: str, zones=True):
 if not ticker:
     st.stop()
 
-df = fetch_prices(ticker, horizon)
+df = fetch_prices_tf(ticker, period, interval)
+
 if df is None:
     st.error("No data found. Try another symbol.")
     st.stop()
