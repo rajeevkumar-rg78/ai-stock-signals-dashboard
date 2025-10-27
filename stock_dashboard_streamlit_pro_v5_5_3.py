@@ -94,14 +94,21 @@ def fetch_prices_tf(ticker: str, period: str, interval: str) -> pd.DataFrame | N
     try: df.index = df.index.tz_localize(None)
     except Exception: pass
     return df
-
 @st.cache_data(ttl=86400)
 def fetch_earnings_date(ticker: str):
     try:
         t = yf.Ticker(ticker)
         cal = t.calendar
         if "Earnings Date" in cal.index:
-            return str(cal.loc["Earnings Date"].values[0])
+            val = cal.loc["Earnings Date"].values[0]
+            # Handle if it's a Timestamp, list, or string
+            if isinstance(val, (list, np.ndarray)):
+                val = val[0]
+            if pd.isnull(val):
+                return None
+            if hasattr(val, "strftime"):
+                return val.strftime("%Y-%m-%d")
+            return str(val)
         return None
     except Exception:
         return None
@@ -115,7 +122,10 @@ def fetch_major_indices():
     data = {}
     for name, symbol in indices.items():
         try:
-            df = yf.download(symbol, period="1d", interval="1m", progress=False)
+            df = yf.download(symbol, period="5d", interval="1d", progress=False)
+            if df.empty:
+                data[name] = None
+                continue
             last = df.iloc[-1]
             data[name] = {
                 "Open": last["Open"],
@@ -127,6 +137,8 @@ def fetch_major_indices():
         except Exception:
             data[name] = None
     return data
+
+
 
 @st.cache_data(ttl=86400)
 def fetch_fundamentals(ticker: str):
