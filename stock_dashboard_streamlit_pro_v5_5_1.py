@@ -464,6 +464,19 @@ if not sim["trades"].empty:
 else:
     st.info("No trades executed in this period by adaptive rules.")
 
+
+
+# Headlines
+with st.expander("🗞️ Latest Headlines"):
+    if not headlines:
+        st.write("No headlines available.")
+    else:
+        for h in headlines:
+            title = h["title"]; url = h["url"]; src = h.get("source",""); pub = h.get("published","")
+            nice = pub[:10] if pub else ""
+            st.markdown(f"- [{title}]({url}) — *{src}* {('• '+nice) if nice else ''}")
+
+st.markdown("---")
 # ============================================================
 # 📘 Learn (Education)
 # ============================================================
@@ -483,22 +496,6 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic"):
 - **Markov chain** — probability that tomorrow continues today’s direction.  
 - **Random/Monte Carlo** — random resampling of historical returns to forecast potential future range.
 
----
-**Disclaimer (by Raj Gupta)** — Educational & informational only; not financial advice.  
-© 2025 Raj Gupta — AI Stock Signals PRO v5.5.2
-""")
-
-# Headlines
-with st.expander("🗞️ Latest Headlines"):
-    if not headlines:
-        st.write("No headlines available.")
-    else:
-        for h in headlines:
-            title = h["title"]; url = h["url"]; src = h.get("source",""); pub = h.get("published","")
-            nice = pub[:10] if pub else ""
-            st.markdown(f"- [{title}]({url}) — *{src}* {('• '+nice) if nice else ''}")
-
-st.markdown("---")
 
 # ================= Disclaimer =================
 st.markdown(
