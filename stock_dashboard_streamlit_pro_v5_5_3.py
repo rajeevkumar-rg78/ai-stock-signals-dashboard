@@ -121,7 +121,9 @@ def fetch_earnings_date(ticker: str):
 def fetch_major_indices():
     indices = {
         "Dow Jones": "^DJI",
-        "Nasdaq": "^IXIC"
+        "Nasdaq": "^IXIC",
+        "S&P 500": "^GSPC",
+        "VXN (Nasdaq Volatility)": "^VXN"
     }
     data = {}
     for name, symbol in indices.items():
