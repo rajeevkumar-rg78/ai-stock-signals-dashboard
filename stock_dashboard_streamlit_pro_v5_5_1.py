@@ -441,15 +441,23 @@ def adaptive_dca_simulator(df: pd.DataFrame, ind: pd.DataFrame, cash_start: floa
 
 # --- Run simulator
 sim = adaptive_dca_simulator(df, ind, invest_amount)
-fv  = float(sim.get("final_value", 0.0) or 0.0)
-ti  = float(sim.get("total_invested", 0.0) or 0.0)
-roi = float(sim.get("roi_pct", 0.0) or 0.0)
-dd  = float(sim.get("max_drawdown_pct", 0.0) or 0.0)
+def safe_float(x, default=0.0):
+    """Ensure numeric conversion from pandas/numpy scalars or None."""
+    try:
+        return float(x)
+    except Exception:
+        return default
+
+fv  = safe_float(sim.get("final_value"))
+ti  = safe_float(sim.get("total_invested"))
+roi = safe_float(sim.get("roi_pct"))
+dd  = safe_float(sim.get("max_drawdown_pct"))
 
 c1.metric("Final Portfolio Value", f"${fv:,.2f}")
 c2.metric("Total Invested", f"${ti:,.2f}")
 c3.metric("ROI", f"{roi:.1f}%")
 c4.metric("Max Drawdown", f"{dd:.1f}%")
+
 
 if not sim["trades"].empty:
     st.dataframe(sim["trades"], use_container_width=True)
