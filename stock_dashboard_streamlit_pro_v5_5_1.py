@@ -545,6 +545,12 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic"):
 - **Markov chain** — probability that tomorrow continues today’s direction.  
 - **Random/Monte Carlo** — random resampling of historical returns to forecast potential future range.
 """)
+st.markdown("""
+**Cup & Handle** — rounded base followed by shallow pullback; breakout confirms bullish continuation.  
+**Double Bottom** — two similar lows with a mid-peak; breakout above the midpoint confirms reversal.  
+**Bollinger Squeeze** — narrow bands often precede strong breakouts.  
+**ADX** — measures trend strength; >25 = strong, <20 = range-bound.  
+""")
 
 # ============================================================
 # 🧾 Footer & Disclaimer
