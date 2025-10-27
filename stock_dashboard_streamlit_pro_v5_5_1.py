@@ -262,6 +262,68 @@ def explain_signal_verbose(ind, sentiment, decision, horizon):
     elif sentiment < -0.1: reasons.append(f"⚠️ Negative news sentiment ({sentiment:+.2f})")
     reasons.append("🎯 Short-term swing parameters" if "Short" in horizon else "📈 Long-term investor parameters")
     return "\n".join(reasons)
+def explain_signal_verbose(ind, sentiment, decision, horizon):
+    last = ind.iloc[-1]
+    reasons = []
+
+    # --- Trend structure ---
+    if last["MA50"] > last["MA200"]:
+        reasons.append("✅ **Uptrend** — MA50 above MA200 (long-term strength).")
+    else:
+        reasons.append("⚠️ **Downtrend** — MA50 below MA200 (bearish bias).")
+
+    # --- MACD ---
+    if last["MACD"] > last["MACD_Signal"]:
+        reasons.append("✅ **MACD bullish crossover** — momentum improving.")
+    else:
+        reasons.append("⚠️ **MACD bearish** — momentum fading.")
+
+    # --- RSI ---
+    if last["RSI"] < 30:
+        reasons.append("✅ **RSI oversold** (<30) — potential rebound zone.")
+    elif last["RSI"] > 70:
+        reasons.append("⚠️ **RSI overbought** (>70) — may need cooldown.")
+    elif 45 <= last["RSI"] <= 55:
+        reasons.append("💤 **RSI neutral** — sideways momentum.")
+
+    # --- Bollinger analysis ---
+    bb_width = last.get("BB_Width", 0)
+    if bb_width < 0.05:
+        reasons.append("🔹 **Bollinger squeeze** — volatility contraction, breakout possible.")
+    elif last["Close"] < last["BB_Low"]:
+        reasons.append("✅ **Price below lower band** — mean reversion likely.")
+    elif last["Close"] > last["BB_Up"]:
+        reasons.append("⚠️ **Price above upper band** — extended move, possible pullback.")
+
+    # --- ADX (trend strength) ---
+    if last["ADX"] > 25:
+        reasons.append("✅ **Strong trend** (ADX>25) — price movement has conviction.")
+    else:
+        reasons.append("💤 **Weak trend** (ADX<25) — possible range-bound action.")
+
+    # --- Cup & Handle / Double Bottom heuristic ---
+    c = ind["Close"].tail(50)
+    if len(c) > 20:
+        lows = c.rolling(5).min()
+        if lows.iloc[-1] > lows.min() and lows.idxmin() < lows.index[-10]:
+            reasons.append("📈 **Possible Double Bottom** pattern forming (support retest).")
+        rolling_mean = c.rolling(20).mean()
+        if c.iloc[-1] > rolling_mean.iloc[-1] and (c.iloc[-1] - rolling_mean.iloc[-1]) / rolling_mean.iloc[-1] < 0.05:
+            reasons.append("☕ **Cup & Handle-like** recovery — consolidation breakout zone.")
+
+    # --- News & sentiment ---
+    if sentiment > 0.1:
+        reasons.append(f"📰 **Positive sentiment** ({sentiment:+.2f}) — news tone supportive.")
+    elif sentiment < -0.1:
+        reasons.append(f"⚠️ **Negative sentiment** ({sentiment:+.2f}) — cautious outlook.")
+    else:
+        reasons.append("📄 **Neutral news sentiment** — limited bias from headlines.")
+
+    # --- Horizon context ---
+    reasons.append("🎯 Strategy tuned for **short-term swing** moves (3–10d)." if "Short" in horizon
+                   else "🏦 Strategy tuned for **long-term accumulation** (>3mo).")
+
+    return "\n".join(reasons)
 
 # ============= AI Forecast (robust, no NaN) =============
 def ai_forecast(df: pd.DataFrame, ind: pd.DataFrame):
