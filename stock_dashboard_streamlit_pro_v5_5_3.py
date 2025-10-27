@@ -8,6 +8,38 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import requests, feedparser
 from io import StringIO
 
+def human_fmt(val, kind=None):
+    try:
+        if val is None or (isinstance(val, float) and np.isnan(val)):
+            return "—"
+        if kind == "vol":
+            # Volume: show as M or K
+            if val >= 1e9:
+                return f"{val/1e9:.2f}B"
+            elif val >= 1e6:
+                return f"{val/1e6:.2f}M"
+            elif val >= 1e3:
+                return f"{val/1e3:.2f}K"
+            else:
+                return f"{val:.0f}"
+        if kind == "cap":
+            # Market Cap: show as T, B, M
+            if val >= 1e12:
+                return f"{val/1e12:.3f}T"
+            elif val >= 1e9:
+                return f"{val/1e9:.2f}B"
+            elif val >= 1e6:
+                return f"{val/1e6:.2f}M"
+            else:
+                return f"{val:.0f}"
+        if kind == "pct":
+            # Percent
+            return f"{val*100:.2f}%"
+        return f"{val:.2f}"
+    except Exception:
+        return "—"
+
+
 # ============= Utility functions =============
 def safe_fmt(val, fmt="{:.2f}", default="—"):
     try:
@@ -461,19 +493,18 @@ with st.expander("📅 Earnings & Indices", expanded=False):
 
 with st.expander("📊 Stock Fundamentals", expanded=False):
     fcols = st.columns(13)
-    fcols[0].metric("Open", safe_fmt(fund.get('Open')))
-    fcols[1].metric("High", safe_fmt(fund.get('High')))
-    fcols[2].metric("Low", safe_fmt(fund.get('Low')))
-    fcols[3].metric("Volume", safe_fmt(fund.get('Volume'), fmt="{:,}", default="—"))
-    fcols[4].metric("P/E", safe_fmt(fund.get('P/E')))
-    fcols[5].metric("Market Cap", safe_fmt(fund.get('Market Cap'), fmt="${:,}", default="—"))
-    fcols[6].metric("52w High", safe_fmt(fund.get('52w High')))
-    fcols[7].metric("52w Low", safe_fmt(fund.get('52w Low')))
-    fcols[8].metric("Avg Vol", safe_fmt(fund.get('Avg Vol'), fmt="{:,}", default="—"))
-    fcols[9].metric("Yield", safe_fmt(fund.get('Yield')))
-    fcols[10].metric("Beta", safe_fmt(fund.get('Beta')))
-    fcols[11].metric("EPS", safe_fmt(fund.get('EPS')))
-
+    fcols[0].metric("Open", human_fmt(fund.get('Open')))
+    fcols[1].metric("High", human_fmt(fund.get('High')))
+    fcols[2].metric("Low", human_fmt(fund.get('Low')))
+    fcols[3].metric("Volume", human_fmt(fund.get('Volume'), kind="vol"))
+    fcols[4].metric("P/E", human_fmt(fund.get('P/E')))
+    fcols[5].metric("Market Cap", human_fmt(fund.get('Market Cap'), kind="cap"))
+    fcols[6].metric("52w High", human_fmt(fund.get('52w High')))
+    fcols[7].metric("52w Low", human_fmt(fund.get('52w Low')))
+    fcols[8].metric("Avg Vol", human_fmt(fund.get('Avg Vol'), kind="vol"))
+    fcols[9].metric("Yield", human_fmt(fund.get('Yield'), kind="pct"))
+    fcols[10].metric("Beta", human_fmt(fund.get('Beta')))
+    fcols[11].metric("EPS", human_fmt(fund.get('EPS')))
 
 
 
