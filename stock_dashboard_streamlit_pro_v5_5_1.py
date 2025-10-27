@@ -476,7 +476,6 @@ with st.expander("🗞️ Latest Headlines"):
             nice = pub[:10] if pub else ""
             st.markdown(f"- [{title}]({url}) — *{src}* {('• '+nice) if nice else ''}")
 
-#st.markdown("---")
 # ============================================================
 # 📘 Learn (Education)
 # ============================================================
@@ -495,12 +494,16 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic"):
 - **ATR** — volatility; for stop/target bands.  
 - **Markov chain** — probability that tomorrow continues today’s direction.  
 - **Random/Monte Carlo** — random resampling of historical returns to forecast potential future range.
+""")
 
-
-
+# ============================================================
+# 🧾 Footer & Disclaimer
+# ============================================================
+st.markdown("---")
+st.markdown("""
 **Disclaimer:**  
 This dashboard is for **educational and informational purposes only** and **does not constitute financial advice**.  
 Markets carry risk; always do your own research or consult a licensed financial advisor before investing.  
-© 2025 **Raj Gupta** — AI Stock Signals PRO v5.5.1
-"""
-)
+
+© 2025 **Raj Gupta** — *AI Stock Signals PRO v5.5.1*
+""")
