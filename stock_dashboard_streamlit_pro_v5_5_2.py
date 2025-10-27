@@ -562,7 +562,7 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
 
 # Force Streamlit to render a break and flush all open elements
 st.write("")
-st.divider()
+#st.divider()
 
 st.markdown(
     """
