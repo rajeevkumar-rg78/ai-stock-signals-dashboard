@@ -12,6 +12,32 @@ from io import StringIO
 st.set_page_config(page_title="AI Stock Signals — PRO v5.5.3", layout="wide")
 st.title("🧠📊 AI Stock Signals — PRO v5.5.3")
 st.caption("Technicals • Macro • News • Analyst • Hybrid AI Forecast • Adaptive DCA")
+# ============= Earnings Date =============
+earnings_date = fetch_earnings_date(ticker)
+st.metric("Next Earnings Date", earnings_date if earnings_date else "—")
+
+# ============= Major Indices =============
+indices = fetch_major_indices()
+idx_cols = st.columns(len(indices))
+for i, (name, data) in enumerate(indices.items()):
+    if data:
+        idx_cols[i].metric(f"{name} Close", f"{data['Close']:.2f}")
+
+# ============= Fundamentals =============
+fund = fetch_fundamentals(ticker)
+fcols = st.columns(13)
+fcols[0].metric("Open", f"${fund.get('Open', '—')}")
+fcols[1].metric("High", f"${fund.get('High', '—')}")
+fcols[2].metric("Low", f"${fund.get('Low', '—')}")
+fcols[3].metric("Volume", f"{fund.get('Volume', '—')}")
+fcols[4].metric("P/E", f"{fund.get('P/E', '—')}")
+fcols[5].metric("Market Cap", f"${fund.get('Market Cap', '—'):,}" if fund.get("Market Cap") else "—")
+fcols[6].metric("52w High", f"${fund.get('52w High', '—')}")
+fcols[7].metric("52w Low", f"${fund.get('52w Low', '—')}")
+fcols[8].metric("Avg Vol", f"{fund.get('Avg Vol', '—')}")
+fcols[9].metric("Yield", f"{fund.get('Yield', '—')}")
+fcols[10].metric("Beta", f"{fund.get('Beta', '—')}")
+fcols[11].metric("EPS", f"{fund.get('EPS', '—')}")
 
 # ============= Inputs =============
 c1, c2, c3 = st.columns([2,2,3])
