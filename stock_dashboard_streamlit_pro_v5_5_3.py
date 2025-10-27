@@ -126,13 +126,13 @@ def fetch_major_indices():
     data = {}
     for name, symbol in indices.items():
         try:
-            # Use daily data for reliability
-            df = yf.download(symbol, period="5d", interval="1d", progress=False)
+            df = yf.download(symbol, period="1mo", interval="1d", progress=False)
             st.write(f"DEBUG: {name} DataFrame", df)
             if df.empty:
                 data[name] = None
                 continue
-            last = df.iloc[-1]
+            # Get the latest row by index
+            last = df.loc[df.index.max()]
             data[name] = {
                 "Open": last["Open"],
                 "High": last["High"],
@@ -144,6 +144,7 @@ def fetch_major_indices():
             st.write(f"DEBUG: Error fetching {name}: {e}")
             data[name] = None
     return data
+
 
 
 
