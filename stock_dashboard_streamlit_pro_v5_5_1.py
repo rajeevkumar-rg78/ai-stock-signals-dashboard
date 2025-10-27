@@ -502,9 +502,7 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic"):
 - **Random/Monte Carlo** — random resampling of historical returns to forecast potential future range.
 
 
-# ================= Disclaimer =================
-st.markdown(
-    """
+
 **Disclaimer:**  
 This dashboard is for **educational and informational purposes only** and **does not constitute financial advice**.  
 Markets carry risk; always do your own research or consult a licensed financial advisor before investing.  
