@@ -564,7 +564,7 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
 st.write("")
 st.divider()
 
-#st.markdown(
+st.markdown(
     """
 <div style='text-align:left; color:gray; font-size:14px; line-height:1.5; margin-top:10px;'>
 <b>Disclaimer:</b><br>
