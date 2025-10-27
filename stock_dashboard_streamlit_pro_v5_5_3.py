@@ -66,10 +66,7 @@ with c2:
 with c3:
     invest_amount = st.slider("Simulation amount ($)", min_value=500, max_value=50_000, step=500, value=10_000)
 
-# ============= DEBUG: Print raw earnings calendar =============
-if ticker:
-    t = yf.Ticker(ticker)
-    st.write("Raw earnings calendar:", t.calendar)
+
 # ============= Chart Timeframe Selector =============
 timeframes = {
     "1D": ("1d", "1m"),
@@ -102,16 +99,22 @@ def fetch_earnings_date(ticker: str):
     try:
         t = yf.Ticker(ticker)
         cal = t.calendar
+        # Try to get "Earnings Date" from the calendar
         if "Earnings Date" in cal.index:
             val = cal.loc["Earnings Date"].values[0]
-            # Handle if it's a Timestamp, list, or string
+            # If it's a list or array, get the first element
             if isinstance(val, (list, np.ndarray)):
                 val = val[0]
-            if pd.isnull(val):
-                return None
+            # If it's a datetime.date, format it
             if hasattr(val, "strftime"):
                 return val.strftime("%Y-%m-%d")
+            # If it's a string, just return it
             return str(val)
+        # If not found, try to get from t.earnings_dates (yfinance >= 0.2.33)
+        if hasattr(t, "earnings_dates"):
+            ed = t.earnings_dates
+            if not ed.empty:
+                return str(ed.index[0].date())
         return None
     except Exception:
         return None
