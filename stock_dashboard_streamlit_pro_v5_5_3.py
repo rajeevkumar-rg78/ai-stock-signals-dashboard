@@ -131,20 +131,19 @@ def fetch_major_indices():
             if df.empty:
                 data[name] = None
                 continue
-            # Get the latest row by index
-            last = df.loc[df.index.max()]
+            last_row = df.iloc[-1]
             data[name] = {
-                "Open": last["Open"],
-                "High": last["High"],
-                "Low": last["Low"],
-                "Close": last["Close"],
-                "Volume": last["Volume"]
+                "Open": float(last_row["Open"]),
+                "High": float(last_row["High"]),
+                "Low": float(last_row["Low"]),
+                "Close": float(last_row["Close"]),
+                "Volume": float(last_row["Volume"])
             }
         except Exception as e:
             st.write(f"DEBUG: Error fetching {name}: {e}")
             data[name] = None
-          
     return data
+
 indices = fetch_major_indices()
 st.write("DEBUG: indices =", indices)
 
