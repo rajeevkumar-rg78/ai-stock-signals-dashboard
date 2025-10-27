@@ -290,29 +290,3 @@ def generate_signal(ind: pd.DataFrame, sentiment: float, horizon: str):
 def confidence_from_score(score: float) -> float:
     return float(min(abs(score) / 5.0, 1.0))
 
-def explain_signal_verbose(ind, sentiment, decision, horizon):
-    last = ind.iloc[-1]
-    reasons = []
-    if last["MA50"] > last["MA200"]:
-        reasons.append("✅ **Uptrend** — MA50 above MA200 (long-term strength).")
-    else:
-        reasons.append("⚠️ **Downtrend** — MA50 below MA200 (bearish bias).")
-    if last["MACD"] > last["MACD_Signal"]:
-        reasons.append("✅ **MACD bullish crossover** — momentum improving.")
-    else:
-        reasons.append("⚠️ **MACD bearish** — momentum fading.")
-    if last["RSI"] < 30:
-        reasons.append("✅ **RSI oversold** (<30) — potential rebound zone.")
-    elif last["RSI"] > 70:
-        reasons.append("⚠️ **RSI overbought** (>70) — may need cooldown.")
-    elif 45 <= last["RSI"] <= 55:
-        reasons.append("💤 **RSI neutral** — sideways momentum.")
-    bb_width = last.get("BB_Width", 0)
-    if bb_width < 0.05:
-        reasons.append("🔹 **Bollinger squeeze** — volatility contraction, breakout possible.")
-    elif last["Close"] < last["BB_Low"]:
-        reasons.append("✅ **Price below lower band** — mean reversion likely.")
-    elif last["Close"] > last["BB_Up"]:
-        reasons.append("⚠️ **Price above upper band** — extended move, possible pullback.")
-    if last["ADX"] > 25:
-        reasons.append("✅ **Strong trend** (ADX>25)
