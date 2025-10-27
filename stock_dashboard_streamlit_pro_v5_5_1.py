@@ -392,7 +392,7 @@ st.markdown("---")
 # ================= Disclaimer =================
 st.markdown(
     """
-**Disclaimer (by Raj Gupta):**  
+**Disclaimer:**  
 This dashboard is for **educational and informational purposes only** and **does not constitute financial advice**.  
 Markets carry risk; always do your own research or consult a licensed financial advisor before investing.  
 © 2025 **Raj Gupta** — AI Stock Signals PRO v5.5.1
