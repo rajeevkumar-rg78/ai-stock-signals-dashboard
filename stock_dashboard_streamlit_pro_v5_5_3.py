@@ -144,11 +144,6 @@ def fetch_major_indices():
             data[name] = None
     return data
 
-indices = fetch_major_indices()
-st.write("DEBUG: indices =", indices)
-
-
-
 
 
 @st.cache_data(ttl=86400)
