@@ -546,7 +546,6 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic"):
 - **Random/Monte Carlo** — random resampling of historical returns to forecast potential future range.
 """)
 
-
 # ============================================================
 # 🧾 Footer & Disclaimer
 # ============================================================
