@@ -555,15 +555,12 @@ def render_learn_section():
 
 with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
     render_learn_section()
-
 # ============================================================
 # 🧾 Footer & Disclaimer
 # ============================================================
-
 # Force Streamlit to render a break and flush all open elements
 st.write("")
 #st.divider()
-
 st.markdown(
     """
 <div style='text-align:left; color:gray; font-size:14px; line-height:1.5; margin-top:10px;'>
