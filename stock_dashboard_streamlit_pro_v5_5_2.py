@@ -564,9 +564,9 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
 st.write("")
 st.divider()
 
-st.markdown(
+#st.markdown(
     """
-<div style='text-align:center; color:gray; font-size:14px; line-height:1.5; margin-top:10px;'>
+<div style='text-align:left; color:gray; font-size:14px; line-height:1.5; margin-top:10px;'>
 <b>Disclaimer:</b><br>
 This dashboard is for <b>educational and informational purposes only</b> and 
 <b>does not constitute financial advice</b>.<br>
