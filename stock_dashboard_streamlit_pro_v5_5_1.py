@@ -267,16 +267,24 @@ def explain_signal_verbose(ind, sentiment, decision, horizon):
 def ai_forecast(df: pd.DataFrame, ind: pd.DataFrame):
     """Tiny, robust forecaster: bootstrap last 120d daily returns to estimate 5d range."""
     r = df["Close"].pct_change().dropna()
+
+    # --- Guarantee 1-D numeric array ---
+    if isinstance(r, pd.DataFrame):
+        r = r.iloc[:, 0]
+    r = pd.to_numeric(r, errors="coerce").dropna()
+
     if len(r) < 30:
         return {"pred_move": 0.0, "conf": 0.0, "range": None}
-    r_hist = r.tail(120)
-    sims = np.random.choice(r_hist.values, size=(1000, 5), replace=True).sum(axis=1)
+
+    r_hist = r.tail(120).values.flatten()  # <— ensures 1D array
+    sims = np.random.choice(r_hist, size=(1000, 5), replace=True).sum(axis=1)
     mu = float(np.mean(sims))
     sd = float(np.std(sims))
-    low = mu - 1.96*sd
-    high = mu + 1.96*sd
-    conf = float(min(1.0, abs(mu)/ (sd+1e-9)))
+    low = mu - 1.96 * sd
+    high = mu + 1.96 * sd
+    conf = float(min(1.0, abs(mu) / (sd + 1e-9)))
     return {"pred_move": mu, "conf": conf, "range": (low, mu, high)}
+
 
 # ============= Chart =============
 def plot_dashboard(ind: pd.DataFrame, ticker: str, zones=True):
