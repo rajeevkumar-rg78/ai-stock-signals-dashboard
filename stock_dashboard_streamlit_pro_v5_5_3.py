@@ -441,12 +441,21 @@ st.metric("Next Earnings Date", earnings_date if earnings_date else "—")
 
 # Major Indices
 idx_cols = st.columns(len(indices))
+def safe_fmt(val, fmt="{:.2f}", default="—"):
+    try:
+        if val is None or (isinstance(val, float) and np.isnan(val)):
+            return default
+        return fmt.format(val)
+    except Exception:
+        return default
+
 for i, (name, data) in enumerate(indices.items()):
     if data:
-        idx_cols[i].metric(f"{name} Close", f"{data['Close']:.2f}")
-        idx_cols[i].metric(f"{name} High", f"{data['High']:.2f}")
-        idx_cols[i].metric(f"{name} Low", f"{data['Low']:.2f}")
-        idx_cols[i].metric(f"{name} Volume", f"{int(data['Volume']):,}")
+        idx_cols[i].metric(f"{name} Close", safe_fmt(data.get('Close')))
+        idx_cols[i].metric(f"{name} High", safe_fmt(data.get('High')))
+        idx_cols[i].metric(f"{name} Low", safe_fmt(data.get('Low')))
+        idx_cols[i].metric(f"{name} Volume", safe_fmt(data.get('Volume'), fmt="{:,}", default="—"))
+
 
 # Fundamentals
 fcols = st.columns(13)
