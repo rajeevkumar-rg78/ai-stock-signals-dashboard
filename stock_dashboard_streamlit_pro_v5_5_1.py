@@ -525,4 +525,51 @@ with st.expander("🗞️ Latest Headlines"):
             title = h["title"]; url = h["url"]; src = h.get("source",""); pub = h.get("published","")
             nice = pub[:10] if pub else ""
             st.markdown(f"- [{title}]({url}) — *{src}* {('• '+nice) if nice else ''}")
+# ============================================================
+# 📘 Learn (Education)
+# ============================================================
+with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
+    st.markdown(
+        """
+### What you’re seeing
+- **Signal Tab** uses trend (MA, ADX), momentum (RSI, MACD), extremes (Bollinger), and news sentiment.  
+- **Forecast AI Tab** blends historical returns + Monte Carlo (bootstrap) with a probabilistic range.  
+- **Simulator Tab** models Adaptive Dollar-Cost Averaging (DCA) + partial take-profit.  
+
+### Educational notes
+- **RSI** — <30 oversold, >70 overbought.  
+- **MACD** — momentum/trend crossovers.  
+- **Bollinger Bands** — ±2σ around 20D mean.  
+- **ADX** — trend strength (>25 = strong).  
+- **ATR** — volatility; for stop/target bands.  
+- **Markov chain** — probability that tomorrow continues today’s direction.  
+- **Random/Monte Carlo** — random resampling of historical returns to forecast potential future range.  
+
+### Chart Patterns
+- **Cup & Handle** — rounded base followed by shallow pullback; breakout confirms bullish continuation.  
+- **Double Bottom** — two similar lows with a mid-peak; breakout above the midpoint confirms reversal.  
+- **Bollinger Squeeze** — narrow bands often precede strong breakouts.  
+- **ADX** — measures trend strength; >25 = strong, <20 = range-bound.  
+        """
+    )
+
+# ============================================================
+# 🧾 Footer & Disclaimer
+# ============================================================
+
+# Explicit separator between Learn and Footer
+st.markdown("")
+
+st.markdown(
+    """
+---
+<div style='text-align:center; color:gray; font-size:14px; line-height:1.5;'>
+<b>Disclaimer:</b><br>
+This dashboard is for <b>educational and informational purposes only</b> and <b>does not constitute financial advice</b>.<br>
+Markets carry risk; always do your own research or consult a licensed financial advisor before investing.<br><br>
+© 2025 <b>Raj Gupta</b> — <i>AI Stock Signals PRO v5.5.1</i>
+</div>
+    """,
+    unsafe_allow_html=True,
+)
 
