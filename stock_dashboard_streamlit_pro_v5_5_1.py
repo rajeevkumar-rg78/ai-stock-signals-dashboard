@@ -545,11 +545,9 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic"):
 - **Markov chain** — probability that tomorrow continues today’s direction.  
 - **Random/Monte Carlo** — random resampling of historical returns to forecast potential future range.
 """)
-
 # ============================================================
 # 🧾 Footer & Disclaimer
 # ============================================================
-
 st.markdown("""
 **Disclaimer:**  
 This dashboard is for **educational and informational purposes only** and **does not constitute financial advice**.  
