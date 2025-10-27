@@ -713,3 +713,5 @@ Markets carry risk; always do your own research or consult a licensed financial 
     unsafe_allow_html=True,
 )
 
+st.write("Raw earnings calendar:", t.calendar)
+st.write("Raw index data:", df)
