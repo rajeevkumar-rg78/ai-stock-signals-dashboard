@@ -683,6 +683,10 @@ macro = fetch_macro()
 headlines, news_sent = fetch_news_and_sentiment(ticker)
 decision, color, score = generate_signal(ind, news_sent, horizon)
 
+
+render_header(decision)
+
+
 pulse = analyst_pulse(ticker)  # <-- Call the enhanced function here
 
 conf_overall = market_confidence(news_sent, pulse["buy"])
