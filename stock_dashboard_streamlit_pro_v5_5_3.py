@@ -191,7 +191,7 @@ def render_header(decision: str = "HOLD"):
     )
 
 # Render banner (use decision variable later if available)
-#render_header("HOLD")
+render_header("HOLD")
 
 
 # ============= Inputs =============
