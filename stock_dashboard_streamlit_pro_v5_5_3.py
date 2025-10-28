@@ -502,7 +502,11 @@ headlines, news_sent = fetch_news_and_sentiment(ticker)
 decision, color, score = generate_signal(ind, news_sent, horizon)
 
 pulse = analyst_pulse(ticker)  # <-- Call the enhanced function here
-
+# === ADD DEBUG LINES HERE ===
+t = yf.Ticker(ticker)
+st.write("DEBUG: recommendations DataFrame", t.recommendations)
+st.write("DEBUG: analyst pulse", pulse)
+# ============================
 conf_overall = market_confidence(news_sent, pulse["buy"])
 ai = ai_forecast(df, ind)
 
