@@ -324,10 +324,15 @@ def analyst_pulse(ticker: str):
             return {"buy": None, "hold": None, "sell": None, "neutral": None, "samples": 0}
         grades = df[col].astype(str).str.lower()
         total = len(grades)
-        buy = grades.str.contains("buy").sum()
-        hold = grades.str.contains("hold").sum()
-        sell = grades.str.contains("sell").sum()
-        neutral = grades.str.contains("neutral").sum()
+        # Synonyms for each category
+        buy_terms = ["buy", "strong buy", "outperform", "overweight", "add", "accumulate", "long-term buy", "top pick"]
+        hold_terms = ["hold", "neutral", "market perform", "equal weight", "sector perform", "peer perform"]
+        sell_terms = ["sell", "underperform", "underweight", "reduce", "weak hold", "short", "negative"]
+        neutral_terms = ["neutral", "market perform", "equal weight", "sector perform", "peer perform"]
+        buy = grades.str.contains("|".join(buy_terms)).sum()
+        hold = grades.str.contains("|".join(hold_terms)).sum()
+        sell = grades.str.contains("|".join(sell_terms)).sum()
+        neutral = grades.str.contains("|".join(neutral_terms)).sum()
         return {
             "buy": buy / total if total > 0 else None,
             "hold": hold / total if total > 0 else None,
@@ -337,6 +342,7 @@ def analyst_pulse(ticker: str):
         }
     except Exception:
         return {"buy": None, "hold": None, "sell": None, "neutral": None, "samples": 0}
+
 
 
 def market_confidence(sentiment: float, buy_ratio: float | None):
@@ -495,15 +501,20 @@ macro = fetch_macro()
 headlines, news_sent = fetch_news_and_sentiment(ticker)
 decision, color, score = generate_signal(ind, news_sent, horizon)
 
+pulse = analyst_pulse(ticker)  # <-- Call the enhanced function here
+
 conf_overall = market_confidence(news_sent, pulse["buy"])
 ai = ai_forecast(df, ind)
-if pulse["samples"] > 0:
+
+# Display Analyst Pulse with enhanced recommendations
+if pulse["samples"] > 0 and any(pulse[k] is not None for k in ["buy", "hold", "sell", "neutral"]):
     st.metric(
         "Analyst Pulse",
-        f"Buy: {int(pulse['buy']*100)}% | Hold: {int(pulse['hold']*100)}% | Sell: {int(pulse['sell']*100)}% | Neutral: {int(pulse['neutral']*100)}%"
+        f"Buy: {int((pulse['buy'] or 0)*100)}% | Hold: {int((pulse['hold'] or 0)*100)}% | Sell: {int((pulse['sell'] or 0)*100)}% | Neutral: {int((pulse['neutral'] or 0)*100)}%"
     )
 else:
     st.metric("Analyst Pulse", "No recent analyst recommendations")
+
 
 # Macro header
 m1, m2, m3, m4 = st.columns(4)
