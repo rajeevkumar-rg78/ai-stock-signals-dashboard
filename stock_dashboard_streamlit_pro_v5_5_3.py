@@ -682,9 +682,6 @@ ind = compute_indicators(df)
 macro = fetch_macro()
 headlines, news_sent = fetch_news_and_sentiment(ticker)
 decision, color, score = generate_signal(ind, news_sent, horizon)
-banner_placeholder = st.empty()
-banner_placeholder.empty()   # clear old placeholder
-render_header(decision)
 
 pulse = analyst_pulse(ticker)  # <-- Call the enhanced function here
 
