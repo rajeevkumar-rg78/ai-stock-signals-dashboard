@@ -494,9 +494,16 @@ ind = compute_indicators(df)
 macro = fetch_macro()
 headlines, news_sent = fetch_news_and_sentiment(ticker)
 decision, color, score = generate_signal(ind, news_sent, horizon)
-pulse = analyst_pulse(ticker)
+
 conf_overall = market_confidence(news_sent, pulse["buy_ratio"])
 ai = ai_forecast(df, ind)
+if pulse["samples"] > 0:
+    st.metric(
+        "Analyst Pulse",
+        f"Buy: {int(pulse['buy']*100)}% | Hold: {int(pulse['hold']*100)}% | Sell: {int(pulse['sell']*100)}% | Neutral: {int(pulse['neutral']*100)}%"
+    )
+else:
+    st.metric("Analyst Pulse", "No recent analyst recommendations")
 
 # Macro header
 m1, m2, m3, m4 = st.columns(4)
