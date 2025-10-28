@@ -8,6 +8,79 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import requests, feedparser
 from io import StringIO
 import plotly.graph_objects as go
+
+# ---------------- Banner Helpers ----------------
+import streamlit as st
+
+def _banner_theme(decision: str):
+    d = (decision or "HOLD").upper()
+    if "BUY" in d:
+        grad = "linear-gradient(90deg,#14532d,#15803d,#22c55e)"
+        accent = "#16a34a"; emoji = "🟢"; mood = "BUY"
+    elif "SELL" in d:
+        grad = "linear-gradient(90deg,#7f1d1d,#b91c1c,#ef4444)"
+        accent = "#dc2626"; emoji = "🔴"; mood = "SELL"
+    else:
+        grad = "linear-gradient(90deg,#0d47a1,#1976d2,#60a5fa)"
+        accent = "#2563eb"; emoji = "🟠"; mood = "HOLD"
+    return grad, accent, emoji, mood
+
+def render_header(slot, *, decision="HOLD", ticker="—", horizon="Long-term", conf=0.0, score=0.0):
+    grad, accent, emoji, mood = _banner_theme(decision)
+    conf_pct = int(max(0,min(1,float(conf))) * 100)
+
+    html = f"""
+    <div style="
+        background:{grad}; color:#fff; border-radius:16px;
+        padding:18px 22px; box-shadow:0 6px 20px rgba(0,0,0,.18); margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="font-size:38px">🧠</div>
+          <div>
+            <div style="font-size:22px;font-weight:800;letter-spacing:.3px;">
+              AI Stock Signals — <span style="opacity:.9">PRO v5.5.3</span>
+            </div>
+            <div style="opacity:.95;font-size:13.5px">
+              Technicals • Macro • News • Analyst • Hybrid AI Forecast • Adaptive DCA
+            </div>
+            <div style="opacity:.9;font-size:12.5px;margin-top:4px;font-style:italic;">
+              Real-time insights • AI-driven signals • Smarter decisions
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: status chips -->
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <span style="background:#fff1;border:1px solid #ffffff44;color:#fff;
+               padding:6px 10px;border-radius:999px;font-weight:700">
+            {emoji} {mood}
+          </span>
+          <span style="background:#fff;color:#111;padding:6px 10px;border-radius:999px;
+               font-weight:700;border:1px solid #ffffff55">
+            {ticker}
+          </span>
+          <span style="background:#fff1;border:1px solid #ffffff44;color:#fff;
+               padding:6px 10px;border-radius:999px;">
+            {horizon}
+          </span>
+          <span style="background:#fff;color:#111;padding:6px 10px;border-radius:999px;
+               border:1px solid #ffffff55">
+            Confidence: <b>{conf_pct}%</b>
+          </span>
+        </div>
+      </div>
+
+      <!-- Thin confidence bar -->
+      <div style="height:6px;border-radius:6px;background:#ffffff33;margin-top:12px;overflow:hidden;">
+        <div style="width:{conf_pct}%;height:100%;background:#fff;opacity:.95"></div>
+      </div>
+    </div>
+    """
+    slot.markdown(html, unsafe_allow_html=True)
+
+
+
+
 # ============= Page config =============
 st.set_page_config(page_title="AI Stock Signals — PRO v5.5.3", layout="wide")
 
