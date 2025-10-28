@@ -716,6 +716,9 @@ st.markdown(
 render_analyst_pulse(pulse)
 
 
+# --- Add Market Bias Banner ---
+render_market_bias_banner(pulse.get("buy"), pulse.get("hold"), pulse.get("sell"))
+
 
 # Signal banner with numeric target/stop
 st.markdown(f"### **Signal: {decision}** (Score {score:+.2f}, News {news_sent:+.2f})")
