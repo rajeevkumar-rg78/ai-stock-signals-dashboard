@@ -663,9 +663,27 @@ if pulse["samples"] > 0 and any(pulse[k] is not None for k in ["buy", "hold", "s
     )
 else:
     cF.metric("Analyst Pulse", "No recent analyst recommendations")
+# --- Decide accent color dynamically ---
+buy = pulse.get("buy") or 0
+hold = pulse.get("hold") or 0
+sell = pulse.get("sell") or 0
+if buy > hold and buy > sell:
+    accent = "#28a745"   # green
+    mood = "Bullish"
+elif sell > buy and sell > hold:
+    accent = "#dc3545"   # red
+    mood = "Bearish"
+else:
+    accent = "#f0ad4e"   # orange
+    mood = "Neutral"
 
-st.markdown("### 🧭 Analyst Pulse")
+st.markdown(
+    f"### 🧭 <span style='color:{accent};'>Analyst Pulse — {mood}</span>",
+    unsafe_allow_html=True,
+)
 render_analyst_pulse(pulse)
+
+
 
 # Signal banner with numeric target/stop
 st.markdown(f"### **Signal: {decision}** (Score {score:+.2f}, News {news_sent:+.2f})")
