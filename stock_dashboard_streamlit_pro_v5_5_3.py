@@ -310,18 +310,34 @@ def analyst_pulse(ticker: str):
     try:
         t = yf.Ticker(ticker)
         rec = getattr(t, "recommendations", None)
-        if rec is None or rec.empty: return {"buy_ratio": None, "samples": 0}
+        if rec is None or rec.empty:
+            return {"buy": None, "hold": None, "sell": None, "neutral": None, "samples": 0}
         df = rec.tail(200).copy()
         df.columns = [c.lower() for c in df.columns]
-        actions = df.get("action")
-        if actions is None: return {"buy_ratio": None, "samples": 0}
-        actions = actions.astype(str).str.lower()
-        ups = actions.str.contains("upgrade").sum()
-        downs = actions.str.contains("downgrade").sum()
-        tot = ups + downs
-        return {"buy_ratio": (ups/tot) if tot>0 else None, "samples": int(tot)}
+        # Use 'to grade' if available, else 'action'
+        col = None
+        for candidate in ["to grade", "action"]:
+            if candidate in df.columns:
+                col = candidate
+                break
+        if col is None:
+            return {"buy": None, "hold": None, "sell": None, "neutral": None, "samples": 0}
+        grades = df[col].astype(str).str.lower()
+        total = len(grades)
+        buy = grades.str.contains("buy").sum()
+        hold = grades.str.contains("hold").sum()
+        sell = grades.str.contains("sell").sum()
+        neutral = grades.str.contains("neutral").sum()
+        return {
+            "buy": buy / total if total > 0 else None,
+            "hold": hold / total if total > 0 else None,
+            "sell": sell / total if total > 0 else None,
+            "neutral": neutral / total if total > 0 else None,
+            "samples": total
+        }
     except Exception:
-        return {"buy_ratio": None, "samples": 0}
+        return {"buy": None, "hold": None, "sell": None, "neutral": None, "samples": 0}
+
 
 def market_confidence(sentiment: float, buy_ratio: float | None):
     sent_norm = (sentiment + 1) / 2
