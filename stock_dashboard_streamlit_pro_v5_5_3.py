@@ -10,7 +10,7 @@ from io import StringIO
 import plotly.graph_objects as go
 
 def render_analyst_pulse(pulse: dict):
-    """Ultra-compact Analyst Pulse — single-line display."""
+    """Ultra-compact Analyst Pulse with dynamic sentiment accent."""
     if not pulse or pulse.get("samples", 0) <= 0:
         st.info("No analyst data available.")
         return
@@ -21,11 +21,24 @@ def render_analyst_pulse(pulse: dict):
     total = max(buy + hold + sell, 1e-9)
     buy_pct, hold_pct, sell_pct = [round(x / total * 100, 1) for x in (buy, hold, sell)]
 
+    # --- Dynamic accent color ---
+    if buy > hold and buy > sell:
+        accent = "#28a745"     # green
+    elif sell > buy and sell > hold:
+        accent = "#dc3545"     # red
+    else:
+        accent = "#f0ad4e"     # orange
+
     st.markdown(f"""
-    <div style='background-color:#fff;border:1px solid #e5e5e5;border-radius:8px;
-                padding:6px 10px;margin-top:4px;box-shadow:0 1px 2px rgba(0,0,0,0.04);'>
+    <div style='background-color:#fff;
+                border:1.5px solid {accent};
+                border-radius:8px;
+                padding:6px 10px;
+                margin-top:4px;
+                box-shadow:0 0 6px 0 {accent}22;
+                transition:all 0.3s ease;'>
         <div style='display:flex;align-items:center;gap:10px;'>
-            <div style='font-size:13px;color:#666;white-space:nowrap;'>
+            <div style='font-size:13px;color:#555;white-space:nowrap;'>
                 <b>Analyst Pulse</b> • {pulse['samples']} ratings
             </div>
             <div style='flex:1;height:10px;border-radius:5px;overflow:hidden;display:flex;'>
@@ -39,7 +52,6 @@ def render_analyst_pulse(pulse: dict):
         </div>
     </div>
     """, unsafe_allow_html=True)
-
 
 def human_fmt(val, kind=None):
     try:
