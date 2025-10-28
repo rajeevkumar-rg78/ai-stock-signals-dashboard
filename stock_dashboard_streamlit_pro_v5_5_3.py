@@ -495,7 +495,7 @@ macro = fetch_macro()
 headlines, news_sent = fetch_news_and_sentiment(ticker)
 decision, color, score = generate_signal(ind, news_sent, horizon)
 
-conf_overall = market_confidence(news_sent, pulse["buy_ratio"])
+conf_overall = market_confidence(news_sent, pulse["buy"])
 ai = ai_forecast(df, ind)
 if pulse["samples"] > 0:
     st.metric(
