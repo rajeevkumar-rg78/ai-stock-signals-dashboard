@@ -307,41 +307,86 @@ def fetch_news_and_sentiment(ticker: str):
 # ============= Analyst pulse (best-effort) =============
 @st.cache_data(ttl=86400)
 def analyst_pulse(ticker: str):
+    """Enhanced analyst consensus detector with multiple fallbacks."""
     try:
         t = yf.Ticker(ticker)
+        # 1️⃣ Try official Yahoo recommendations
         rec = getattr(t, "recommendations", None)
-        if rec is None or rec.empty:
-            return {"buy": None, "hold": None, "sell": None, "neutral": None, "samples": 0}
-        df = rec.tail(200).copy()
-        df.columns = [c.lower() for c in df.columns]
-        # Use 'to grade' if available, else 'action'
-        col = None
-        for candidate in ["to grade", "action"]:
-            if candidate in df.columns:
-                col = candidate
-                break
-        if col is None:
-            return {"buy": None, "hold": None, "sell": None, "neutral": None, "samples": 0}
-        grades = df[col].astype(str).str.lower()
-        total = len(grades)
-        # Synonyms for each category
-        buy_terms = ["buy", "strong buy", "outperform", "overweight", "add", "accumulate", "long-term buy", "top pick"]
-        hold_terms = ["hold", "neutral", "market perform", "equal weight", "sector perform", "peer perform"]
-        sell_terms = ["sell", "underperform", "underweight", "reduce", "weak hold", "short", "negative"]
-        neutral_terms = ["neutral", "market perform", "equal weight", "sector perform", "peer perform"]
-        buy = grades.str.contains("|".join(buy_terms)).sum()
-        hold = grades.str.contains("|".join(hold_terms)).sum()
-        sell = grades.str.contains("|".join(sell_terms)).sum()
-        neutral = grades.str.contains("|".join(neutral_terms)).sum()
-        return {
-            "buy": buy / total if total > 0 else None,
-            "hold": hold / total if total > 0 else None,
-            "sell": sell / total if total > 0 else None,
-            "neutral": neutral / total if total > 0 else None,
-            "samples": total
-        }
-    except Exception:
+        if rec is not None and not rec.empty:
+            df = rec.tail(200).copy()
+            df.columns = [c.lower() for c in df.columns]
+            col = None
+            for candidate in ["to grade", "action"]:
+                if candidate in df.columns:
+                    col = candidate
+                    break
+            if col:
+                grades = df[col].astype(str).str.lower()
+                total = len(grades)
+                if total == 0:
+                    raise ValueError("Empty recs")
+
+                buy_terms = ["buy", "strong buy", "outperform", "overweight", "add", "accumulate", "long-term buy", "top pick"]
+                hold_terms = ["hold", "neutral", "market perform", "equal weight", "sector perform", "peer perform"]
+                sell_terms = ["sell", "underperform", "underweight", "reduce", "weak hold", "short", "negative"]
+
+                buy = grades.str.contains("|".join(buy_terms)).sum()
+                hold = grades.str.contains("|".join(hold_terms)).sum()
+                sell = grades.str.contains("|".join(sell_terms)).sum()
+
+                return {
+                    "buy": buy / total,
+                    "hold": hold / total,
+                    "sell": sell / total,
+                    "neutral": hold / total,
+                    "samples": total
+                }
+
+        # 2️⃣ Fallback: recommendationTrend (much more reliable recently)
+        trend = t.recommendations_summary if hasattr(t, "recommendations_summary") else None
+        if trend:
+            # e.g. {'buy': 22, 'hold': 8, 'sell': 3, 'strongBuy': 10, ...}
+            total = sum(v for v in trend.values() if isinstance(v, (int, float)))
+            if total > 0:
+                buy = (trend.get("buy", 0) + trend.get("strongBuy", 0)) / total
+                hold = trend.get("hold", 0) / total
+                sell = (trend.get("sell", 0) + trend.get("strongSell", 0)) / total
+                return {
+                    "buy": buy,
+                    "hold": hold,
+                    "sell": sell,
+                    "neutral": hold,
+                    "samples": total
+                }
+
+        # 3️⃣ Fallback: try to parse Yahoo Finance page (web API unofficial)
+        url = f"https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}?modules=recommendationTrend"
+        r = requests.get(url, timeout=10)
+        if r.ok:
+            js = r.json()
+            trend_list = js.get("quoteSummary", {}).get("result", [{}])[0].get("recommendationTrend", {}).get("trend", [])
+            if trend_list:
+                latest = trend_list[-1]
+                total = sum(latest.get(k, 0) for k in ["strongBuy","buy","hold","sell","strongSell"])
+                if total > 0:
+                    buy = (latest.get("buy",0)+latest.get("strongBuy",0)) / total
+                    hold = latest.get("hold",0) / total
+                    sell = (latest.get("sell",0)+latest.get("strongSell",0)) / total
+                    return {
+                        "buy": buy,
+                        "hold": hold,
+                        "sell": sell,
+                        "neutral": hold,
+                        "samples": total
+                    }
+
+        # 4️⃣ Default (no data)
         return {"buy": None, "hold": None, "sell": None, "neutral": None, "samples": 0}
+
+    except Exception as e:
+        st.write("Analyst pulse error:", e)
+        return {"buy": None, "hold": None, "sell": None, "neutral": None, "samples": 0}
+
 
 
 
