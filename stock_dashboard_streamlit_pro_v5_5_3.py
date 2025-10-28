@@ -575,7 +575,14 @@ cB.metric("RSI (14)", f"{last['RSI']:.1f}")
 cC.metric("MACD", f"{last['MACD']:.2f}")
 cD.metric("ADX", f"{last['ADX']:.1f}")
 cE.metric("ATR (14)", f"{last['ATR']:.2f}")
-cF.metric("Analyst Pulse", f"{int(pulse['buy_ratio']*100)}% buys" if pulse["buy_ratio"] is not None else "—")
+# Analyst Pulse in the last column
+if pulse["samples"] > 0 and any(pulse[k] is not None for k in ["buy", "hold", "sell", "neutral"]):
+    cF.metric(
+        "Analyst Pulse",
+        f"Buy: {int((pulse['buy'] or 0)*100)}% | Hold: {int((pulse['hold'] or 0)*100)}% | Sell: {int((pulse['sell'] or 0)*100)}% | Neutral: {int((pulse['neutral'] or 0)*100)}%"
+    )
+else:
+    cF.metric("Analyst Pulse", "No recent analyst recommendations")
 
 # Signal banner with numeric target/stop
 st.markdown(f"### **Signal: {decision}** (Score {score:+.2f}, News {news_sent:+.2f})")
