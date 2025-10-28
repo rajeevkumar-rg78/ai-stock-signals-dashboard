@@ -506,16 +506,6 @@ pulse = analyst_pulse(ticker)  # <-- Call the enhanced function here
 conf_overall = market_confidence(news_sent, pulse["buy"])
 ai = ai_forecast(df, ind)
 
-# Display Analyst Pulse with enhanced recommendations
-if pulse["samples"] > 0 and any(pulse[k] is not None for k in ["buy", "hold", "sell", "neutral"]):
-    cF.metric(
-        "Analyst Pulse",
-        f"Buy: {int((pulse['buy'] or 0)*100)}% | Hold: {int((pulse['hold'] or 0)*100)}% | Sell: {int((pulse['sell'] or 0)*100)}% | Neutral: {int((pulse['neutral'] or 0)*100)}%"
-    )
-else:
-    cF.metric("Analyst Pulse", "No recent analyst recommendations")
-
-
 
 # Macro header
 m1, m2, m3, m4 = st.columns(4)
