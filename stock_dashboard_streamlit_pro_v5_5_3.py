@@ -10,7 +10,7 @@ from io import StringIO
 import plotly.graph_objects as go
 
 def render_analyst_pulse(pulse: dict):
-    """Pretty Analyst Pulse block with text + pie chart + gauge."""
+    """Ultra-compact Analyst Pulse — single-line display."""
     if not pulse or pulse.get("samples", 0) <= 0:
         st.info("No analyst data available.")
         return
@@ -21,48 +21,25 @@ def render_analyst_pulse(pulse: dict):
     total = max(buy + hold + sell, 1e-9)
     buy_pct, hold_pct, sell_pct = [round(x / total * 100, 1) for x in (buy, hold, sell)]
 
-    col1, col2 = st.columns([1, 1])
-
-    # --- Left: Text + proportional bar ---
-    with col1:
-        st.markdown(f"""
-        <div style='background-color:#f8f9fa;border-radius:12px;padding:10px 14px;
-                    border:1px solid #ddd;box-shadow:0 1px 3px rgba(0,0,0,0.1);'>
-            <div style='font-size:15px;color:#666;'>Based on {pulse['samples']} ratings</div>
-            <div style='display:flex;height:20px;border-radius:8px;overflow:hidden;margin:6px 0;'>
+    st.markdown(f"""
+    <div style='background-color:#fff;border:1px solid #e5e5e5;border-radius:8px;
+                padding:6px 10px;margin-top:4px;box-shadow:0 1px 2px rgba(0,0,0,0.04);'>
+        <div style='display:flex;align-items:center;gap:10px;'>
+            <div style='font-size:13px;color:#666;white-space:nowrap;'>
+                <b>Analyst Pulse</b> • {pulse['samples']} ratings
+            </div>
+            <div style='flex:1;height:10px;border-radius:5px;overflow:hidden;display:flex;'>
                 <div style='width:{buy_pct}%;background-color:#28a745;'></div>
                 <div style='width:{hold_pct}%;background-color:#f0ad4e;'></div>
                 <div style='width:{sell_pct}%;background-color:#dc3545;'></div>
             </div>
-            <div style='font-size:16px;text-align:center;'>
-                🟢 {buy_pct}% | ⚪ {hold_pct}% | 🔴 {sell_pct}%
+            <div style='font-size:12.5px;color:#333;text-align:right;white-space:nowrap;'>
+                🟢 {buy_pct}% | ⚪ {hold_pct}% | 🔴 {sell_pct}%
             </div>
         </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
 
-    # --- Right: Mini pie chart ---
-    with col2:
-        fig = go.Figure(
-            data=[
-                go.Pie(
-                    labels=["Buy", "Hold", "Sell"],
-                    values=[buy_pct, hold_pct, sell_pct],
-                    hole=0.5,
-                    marker=dict(colors=["#28a745", "#f0ad4e", "#dc3545"]),
-                    textinfo="label+percent",
-                    textfont=dict(size=13),
-                )
-            ]
-        )
-        fig.update_layout(
-            height=240,
-            width=240,
-            title_text="Analyst Pulse Breakdown",
-            title_x=0.5,
-            showlegend=False,
-            margin=dict(t=40, b=0, l=0, r=0),
-        )
-        st.plotly_chart(fig, use_container_width=True)
 
 def human_fmt(val, kind=None):
     try:
