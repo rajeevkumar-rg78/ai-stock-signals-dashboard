@@ -52,6 +52,38 @@ def render_analyst_pulse(pulse: dict):
         </div>
     </div>
     """, unsafe_allow_html=True)
+def render_market_bias_banner(buy: float, hold: float, sell: float):
+    """Compact banner summarizing overall analyst market bias."""
+    if not any([buy, hold, sell]):
+        st.info("No market bias data.")
+        return
+
+    # --- Determine mood ---
+    if buy > hold and buy > sell:
+        accent = "#28a745"
+        mood = "Bullish"
+        emoji = "🟢"
+    elif sell > buy and sell > hold:
+        accent = "#dc3545"
+        mood = "Bearish"
+        emoji = "🔴"
+    else:
+        accent = "#f0ad4e"
+        mood = "Neutral"
+        emoji = "🟠"
+
+    st.markdown(f"""
+    <div style='background-color:{accent}11;
+                border-left:5px solid {accent};
+                border-radius:6px;
+                padding:6px 10px;
+                margin-top:8px;
+                font-size:13.5px;
+                color:{accent};
+                font-weight:600;'>
+        {emoji} Market Bias: <span style='color:{accent};'>{mood}</span>
+    </div>
+    """, unsafe_allow_html=True)
 
 def human_fmt(val, kind=None):
     try:
