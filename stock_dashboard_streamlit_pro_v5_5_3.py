@@ -993,6 +993,10 @@ else:
             ax.set_ylabel("Simulations")
             st.pyplot(fig)
 
+            # Sort the results for a smooth line
+            sorted_results = np.sort(dca_results)
+            st.line_chart(sorted_results)
+
 
 
    
