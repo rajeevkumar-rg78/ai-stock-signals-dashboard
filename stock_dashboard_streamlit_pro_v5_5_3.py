@@ -923,7 +923,15 @@ if df is None or df.empty or "Close" not in df.columns:
     st.info("Not enough data for future DCA simulation. Try a longer chart interval.")
 else:
     returns_series = df["Close"].pct_change().dropna()
-    if not isinstance(returns_series, pd.Series):
+    # Ensure 1D
+    if isinstance(returns_series, pd.DataFrame):
+        # If for some reason it's a DataFrame, take the first column
+        returns_series = returns_series.iloc[:, 0]
+    elif isinstance(returns_series, np.ndarray) and returns_series.ndim > 1:
+        # If it's a 2D array, flatten it
+        returns_series = pd.Series(returns_series.flatten())
+    elif not isinstance(returns_series, pd.Series):
+        # If it's not a Series, try to convert
         returns_series = pd.Series(returns_series)
     returns = pd.to_numeric(returns_series, errors="coerce").values
     returns = returns[~np.isnan(returns)]
@@ -935,7 +943,11 @@ else:
     else:
         def simulate_future_prices(df, days=10, n_sims=1000):
             returns_series = df["Close"].pct_change().dropna()
-            if not isinstance(returns_series, pd.Series):
+            if isinstance(returns_series, pd.DataFrame):
+                returns_series = returns_series.iloc[:, 0]
+            elif isinstance(returns_series, np.ndarray) and returns_series.ndim > 1:
+                returns_series = pd.Series(returns_series.flatten())
+            elif not isinstance(returns_series, pd.Series):
                 returns_series = pd.Series(returns_series)
             returns = pd.to_numeric(returns_series, errors="coerce").values
             returns = returns[~np.isnan(returns)]
@@ -980,7 +992,6 @@ else:
             ax.set_xlabel("Portfolio Value ($)")
             ax.set_ylabel("Simulations")
             st.pyplot(fig)
-
 
 
 
