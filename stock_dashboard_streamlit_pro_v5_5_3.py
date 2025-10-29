@@ -905,7 +905,6 @@ else:
 
 st.markdown(f"## 🔮 Future DCA Monte Carlo Simulator ({tf} interval)")
 
-# Map chart intervals to number of trading days
 future_periods = {
     "1D": 1,
     "1W": 5,
@@ -917,14 +916,17 @@ future_periods = {
     "2Y": 504,
     "5Y": 1260,
     "10Y": 2520,
-    "ALL": 252  # Default to 1 year for ALL
+    "ALL": 252
 }
 days = future_periods.get(tf, 21)
 
 def simulate_future_prices(df, days=10, n_sims=1000):
-    returns = df["Close"].pct_change().dropna().values  # Convert to NumPy array
-    if len(returns) < 1:
-        st.warning("Not enough historical data to simulate future prices. Try a longer chart interval.")
+    returns = df["Close"].pct_change().dropna().values
+    min_required = max(10, days // 3)
+    if len(returns) < min_required:
+        st.warning(f"Not enough historical data to simulate {days} days into the future. "
+                   f"Need at least {min_required} daily returns, but only have {len(returns)}. "
+                   "Try a longer chart interval.")
         return None
     last_price = df["Close"].iloc[-1]
     sims = []
@@ -951,10 +953,12 @@ def dca_on_simulated_paths(sim_prices, invest_amount, dca_freq=1):
         results.append(final_value)
     return np.array(results)
 
-# Only run simulation if enough data
 returns = df["Close"].pct_change().dropna().values
-if len(returns) < 1:
-    st.info("Not enough data for future DCA simulation. Try a longer chart interval.")
+min_required = max(10, days // 3)
+if len(returns) < min_required:
+    st.info(f"Not enough data for future DCA simulation. "
+            f"Need at least {min_required} daily returns, but only have {len(returns)}. "
+            "Try a longer chart interval.")
 else:
     sim_prices = simulate_future_prices(df, days=days, n_sims=1000)
     if sim_prices is not None:
@@ -965,7 +969,6 @@ else:
         st.write(f"5th percentile: ${np.percentile(dca_results, 5):,.2f}")
         st.write(f"95th percentile: ${np.percentile(dca_results, 95):,.2f}")
 
-        # Optional: Show a histogram of outcomes
         import matplotlib.pyplot as plt
         fig, ax = plt.subplots()
         ax.hist(dca_results, bins=30, color="#1976d2", alpha=0.7)
