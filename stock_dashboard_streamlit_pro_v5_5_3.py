@@ -754,19 +754,21 @@ cE.metric("ATR (14)", f"{last['ATR']:.2f}")
 
 # Analyst Pulse in the last column
 
-if pulse["samples"] > 0 and any(pulse[k] is not None for k in ["buy", "hold", "sell", "neutral"]):
-    st.markdown(
-        f"<div style='text-align:left; font-size:1.1em; font-weight:600;'>"
-        f"🧑‍💼 <b>Analyst Pulse:</b> "
-        f"Buy: {int(round((pulse['buy'] or 0)*100))}% | "
-        f"Hold: {int(round((pulse['hold'] or 0)*100))}% | "
-        f"Sell: {int(round((pulse['sell'] or 0)*100))}% | "
-        f"Neutral: {int(round((pulse['neutral'] or 0)*100))}%"
-        f"</div>",
-        unsafe_allow_html=True
-    )
-else:
-    st.markdown("<b>Analyst Pulse:</b> No recent analyst recommendations", unsafe_allow_html=True)
+cA, cB = st.columns([1, 3])
+with cB:
+    if pulse["samples"] > 0 and any(pulse[k] is not None for k in ["buy", "hold", "sell", "neutral"]):
+        st.markdown(
+            f"<div style='text-align:left; font-size:1.1em; font-weight:600;'>"
+            f"🧑‍💼 <b>Analyst Pulse:</b> "
+            f"Buy: {int(round((pulse['buy'] or 0)*100))}% | "
+            f"Hold: {int(round((pulse['hold'] or 0)*100))}% | "
+            f"Sell: {int(round((pulse['sell'] or 0)*100))}% | "
+            f"Neutral: {int(round((pulse['neutral'] or 0)*100))}%"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+    else:
+        st.markdown("<b>Analyst Pulse:</b> No recent analyst recommendations", unsafe_allow_html=True)
 
 
 
