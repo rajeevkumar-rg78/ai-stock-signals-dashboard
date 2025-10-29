@@ -997,6 +997,23 @@ else:
             sorted_results = np.sort(dca_results)
             st.line_chart(sorted_results)
 
+            import plotly.graph_objects as go
+
+            sorted_results = np.sort(dca_results)
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                y=sorted_results,
+                mode='lines',
+                line=dict(color="#1976d2"),
+                name="Simulated DCA Outcomes"
+            ))
+            fig.update_layout(
+                title=f"Future DCA Portfolio Value Distribution ({tf})",
+                xaxis_title="Simulation # (sorted)",
+                yaxis_title="Portfolio Value ($)",
+                template="plotly_white"
+            )
+            st.plotly_chart(fig, use_container_width=True)
 
 
    
