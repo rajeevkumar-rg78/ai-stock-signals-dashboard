@@ -921,14 +921,16 @@ future_periods = {
 days = future_periods.get(tf, 21)
 
 def simulate_future_prices(df, days=10, n_sims=1000):
-    returns = df["Close"].pct_change().dropna().values
+    # Ensure returns is a 1D numeric array
+    returns = pd.to_numeric(df["Close"].pct_change().dropna(), errors="coerce").values
+    returns = returns[~np.isnan(returns)]  # Remove any NaN
     min_required = max(10, days // 3)
     if len(returns) < min_required:
         st.warning(f"Not enough historical data to simulate {days} days into the future. "
                    f"Need at least {min_required} daily returns, but only have {len(returns)}. "
                    "Try a longer chart interval.")
         return None
-    last_price = df["Close"].iloc[-1]
+    last_price = float(df["Close"].iloc[-1])
     sims = []
     for _ in range(n_sims):
         sampled_returns = np.random.choice(returns, size=days, replace=True)
@@ -938,22 +940,8 @@ def simulate_future_prices(df, days=10, n_sims=1000):
         sims.append(prices[1:])
     return np.array(sims)
 
-def dca_on_simulated_paths(sim_prices, invest_amount, dca_freq=1):
-    n_sims, n_days = sim_prices.shape
-    results = []
-    for sim in sim_prices:
-        cash = invest_amount
-        shares = 0
-        for i in range(0, n_days, dca_freq):
-            price = sim[i]
-            buy_amt = cash / ((n_days - i) // dca_freq + 1)
-            shares += buy_amt / price
-            cash -= buy_amt
-        final_value = shares * sim[-1] + cash
-        results.append(final_value)
-    return np.array(results)
-
-returns = df["Close"].pct_change().dropna().values
+returns = pd.to_numeric(df["Close"].pct_change().dropna(), errors="coerce").values
+returns = returns[~np.isnan(returns)]
 min_required = max(10, days // 3)
 if len(returns) < min_required:
     st.info(f"Not enough data for future DCA simulation. "
@@ -976,7 +964,6 @@ else:
         ax.set_xlabel("Portfolio Value ($)")
         ax.set_ylabel("Simulations")
         st.pyplot(fig)
-
 
 
    
