@@ -928,6 +928,9 @@ days = future_periods.get(tf, 21)
 
 def simulate_future_prices(df, days=10, n_sims=1000):
     returns = df["Close"].pct_change().dropna()
+    if len(returns) == 0:
+        st.warning("Not enough historical data to simulate future prices. Try a longer chart interval.")
+        return None
     last_price = df["Close"].iloc[-1]
     sims = []
     for _ in range(n_sims):
@@ -953,25 +956,28 @@ def dca_on_simulated_paths(sim_prices, invest_amount, dca_freq=1):
         results.append(final_value)
     return np.array(results)
 
-# Run the simulation
-sim_prices = simulate_future_prices(df, days=days, n_sims=1000)
-dca_results = dca_on_simulated_paths(sim_prices, invest_amount)
+# Only run simulation if enough data
+if len(df) < 10:
+    st.info("Not enough data for future DCA simulation. Try a longer chart interval.")
+else:
+    sim_prices = simulate_future_prices(df, days=days, n_sims=1000)
+    if sim_prices is not None:
+        dca_results = dca_on_simulated_paths(sim_prices, invest_amount)
+        st.markdown(f"**Simulated DCA outcome for {tf} ({days} trading days):**")
+        st.write(f"Mean: ${np.mean(dca_results):,.2f}")
+        st.write(f"Median: ${np.median(dca_results):,.2f}")
+        st.write(f"5th percentile: ${np.percentile(dca_results, 5):,.2f}")
+        st.write(f"95th percentile: ${np.percentile(dca_results, 95):,.2f}")
 
-# Show results
-st.markdown(f"**Simulated DCA outcome for {tf} ({days} trading days):**")
-st.write(f"Mean: ${np.mean(dca_results):,.2f}")
-st.write(f"Median: ${np.median(dca_results):,.2f}")
-st.write(f"5th percentile: ${np.percentile(dca_results, 5):,.2f}")
-st.write(f"95th percentile: ${np.percentile(dca_results, 95):,.2f}")
+        # Optional: Show a histogram of outcomes
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots()
+        ax.hist(dca_results, bins=30, color="#1976d2", alpha=0.7)
+        ax.set_title(f"Future DCA Portfolio Value Distribution ({tf})")
+        ax.set_xlabel("Portfolio Value ($)")
+        ax.set_ylabel("Simulations")
+        st.pyplot(fig)
 
-# Optional: Show a histogram of outcomes
-import matplotlib.pyplot as plt
-fig, ax = plt.subplots()
-ax.hist(dca_results, bins=30, color="#1976d2", alpha=0.7)
-ax.set_title(f"Future DCA Portfolio Value Distribution ({tf})")
-ax.set_xlabel("Portfolio Value ($)")
-ax.set_ylabel("Simulations")
-st.pyplot(fig)
 
 
 
