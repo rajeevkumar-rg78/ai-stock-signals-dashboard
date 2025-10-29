@@ -73,9 +73,7 @@ def render_header(decision: str = "HOLD"):
     )
 
 # Render banner (use decision variable later if available)
-#render_header("HOLD")
-
-
+render_header("HOLD")
 
 
 def render_analyst_pulse(pulse: dict):
@@ -693,7 +691,6 @@ pulse = analyst_pulse(ticker)  # <-- Call the enhanced function here
 conf_overall = market_confidence(news_sent, pulse["buy"])
 ai = ai_forecast(df, ind)
 
-render_header(decision)
 
 
 # Macro header
