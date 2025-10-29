@@ -71,6 +71,11 @@ def render_header(decision: str = "HOLD"):
         """,
         unsafe_allow_html=True
     )
+
+# Render banner (use decision variable later if available)
+render_header("HOLD")
+
+
 def render_header(decision: str = "HOLD"):
     """Animated gradient banner with zig-zag SVG accent."""
     decision = (decision or "").upper()
