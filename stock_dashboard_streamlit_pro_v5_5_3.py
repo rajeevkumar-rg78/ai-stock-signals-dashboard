@@ -781,7 +781,7 @@ render_analyst_pulse(pulse)
 st.markdown("<div style='margin-top:-10px'></div>", unsafe_allow_html=True)
 
 # --- Add Market Bias Banner ---
-render_market_bias_banner(pulse.get("buy"), pulse.get("hold"), pulse.get("sell"))
+#render_market_bias_banner(pulse.get("buy"), pulse.get("hold"), pulse.get("sell"))
 
 
 # Signal banner with numeric target/stop
