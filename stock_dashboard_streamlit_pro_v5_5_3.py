@@ -1006,27 +1006,27 @@ else:
         sims.append(prices[1:])
     return np.array(sims)
 
-returns = df["Close"].pct_change().dropna().values
-if len(returns) < 1:
-    st.info("Not enough data for future DCA simulation. Try a longer chart interval.")
-else:
-    sim_prices = simulate_future_prices(df, days=days, n_sims=1000)
-    if sim_prices is not None:
-        dca_results = dca_on_simulated_paths(sim_prices, invest_amount)
-        st.markdown(f"**Simulated DCA outcome for {tf} ({days} trading days):**")
-        st.write(f"Mean: ${np.mean(dca_results):,.2f}")
-        st.write(f"Median: ${np.median(dca_results):,.2f}")
-        st.write(f"5th percentile: ${np.percentile(dca_results, 5):,.2f}")
-        st.write(f"95th percentile: ${np.percentile(dca_results, 95):,.2f}")
-
-        import matplotlib.pyplot as plt
-        fig, ax = plt.subplots()
-        ax.hist(dca_results, bins=30, color="#1976d2", alpha=0.7)
-        ax.set_title(f"Future DCA Portfolio Value Distribution ({tf})")
-        ax.set_xlabel("Portfolio Value ($)")
-        ax.set_ylabel("Simulations")
-        st.pyplot(fig)
-
+    returns = df["Close"].pct_change().dropna().values
+    if len(returns) < 1:
+        st.info("Not enough data for future DCA simulation. Try a longer chart interval.")
+    else:
+        sim_prices = simulate_future_prices(df, days=days, n_sims=1000)
+        if sim_prices is not None:
+            dca_results = dca_on_simulated_paths(sim_prices, invest_amount)
+            st.markdown(f"**Simulated DCA outcome for {tf} ({days} trading days):**")
+            st.write(f"Mean: ${np.mean(dca_results):,.2f}")
+            st.write(f"Median: ${np.median(dca_results):,.2f}")
+            st.write(f"5th percentile: ${np.percentile(dca_results, 5):,.2f}")
+            st.write(f"95th percentile: ${np.percentile(dca_results, 95):,.2f}")
+    
+            import matplotlib.pyplot as plt
+            fig, ax = plt.subplots()
+            ax.hist(dca_results, bins=30, color="#1976d2", alpha=0.7)
+            ax.set_title(f"Future DCA Portfolio Value Distribution ({tf})")
+            ax.set_xlabel("Portfolio Value ($)")
+            ax.set_ylabel("Simulations")
+            st.pyplot(fig)
+    
 
 
 
