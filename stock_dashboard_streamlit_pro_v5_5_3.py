@@ -693,6 +693,8 @@ pulse = analyst_pulse(ticker)  # <-- Call the enhanced function here
 conf_overall = market_confidence(news_sent, pulse["buy"])
 ai = ai_forecast(df, ind)
 
+render_header(decision)
+
 
 # Macro header
 m1, m2, m3, m4 = st.columns(4)
