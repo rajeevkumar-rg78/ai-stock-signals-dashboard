@@ -767,6 +767,13 @@ if pulse["samples"] > 0 and any(pulse[k] is not None for k in ["buy", "hold", "s
     )
 else:
     st.markdown("<b>Analyst Pulse:</b> No recent analyst recommendations", unsafe_allow_html=True)
+# Mood banner (optional, looks nice)
+st.markdown(
+    f"### 🧭 <span style='color:{accent};'>Analyst Pulse — {mood}</span>",
+    unsafe_allow_html=True,
+)
+# Visual bar/ratings block (compact, clear)
+render_analyst_pulse(pulse)
 
 
 # --- Decide accent color dynamically ---
