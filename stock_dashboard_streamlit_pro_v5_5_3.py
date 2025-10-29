@@ -919,51 +919,69 @@ future_periods = {
     "ALL": 252
 }
 days = future_periods.get(tf, 21)
-
-def simulate_future_prices(df, days=10, n_sims=1000):
-    # Ensure returns is a 1D numeric array
-    returns = pd.to_numeric(df["Close"].pct_change().dropna(), errors="coerce").values
-    returns = returns[~np.isnan(returns)]  # Remove any NaN
+if df is None or df.empty or "Close" not in df.columns:
+    st.info("Not enough data for future DCA simulation. Try a longer chart interval.")
+else:
+    returns_series = df["Close"].pct_change().dropna()
+    if not isinstance(returns_series, pd.Series):
+        returns_series = pd.Series(returns_series)
+    returns = pd.to_numeric(returns_series, errors="coerce").values
+    returns = returns[~np.isnan(returns)]
     min_required = max(10, days // 3)
     if len(returns) < min_required:
-        st.warning(f"Not enough historical data to simulate {days} days into the future. "
-                   f"Need at least {min_required} daily returns, but only have {len(returns)}. "
-                   "Try a longer chart interval.")
-        return None
-    last_price = float(df["Close"].iloc[-1])
-    sims = []
-    for _ in range(n_sims):
-        sampled_returns = np.random.choice(returns, size=days, replace=True)
-        prices = [last_price]
-        for r in sampled_returns:
-            prices.append(prices[-1] * (1 + r))
-        sims.append(prices[1:])
-    return np.array(sims)
+        st.info(f"Not enough data for future DCA simulation. "
+                f"Need at least {min_required} daily returns, but only have {len(returns)}. "
+                "Try a longer chart interval.")
+    else:
+        def simulate_future_prices(df, days=10, n_sims=1000):
+            returns_series = df["Close"].pct_change().dropna()
+            if not isinstance(returns_series, pd.Series):
+                returns_series = pd.Series(returns_series)
+            returns = pd.to_numeric(returns_series, errors="coerce").values
+            returns = returns[~np.isnan(returns)]
+            last_price = float(df["Close"].iloc[-1])
+            sims = []
+            for _ in range(n_sims):
+                sampled_returns = np.random.choice(returns, size=days, replace=True)
+                prices = [last_price]
+                for r in sampled_returns:
+                    prices.append(prices[-1] * (1 + r))
+                sims.append(prices[1:])
+            return np.array(sims)
 
-returns = pd.to_numeric(df["Close"].pct_change().dropna(), errors="coerce").values
-returns = returns[~np.isnan(returns)]
-min_required = max(10, days // 3)
-if len(returns) < min_required:
-    st.info(f"Not enough data for future DCA simulation. "
-            f"Need at least {min_required} daily returns, but only have {len(returns)}. "
-            "Try a longer chart interval.")
-else:
-    sim_prices = simulate_future_prices(df, days=days, n_sims=1000)
-    if sim_prices is not None:
-        dca_results = dca_on_simulated_paths(sim_prices, invest_amount)
-        st.markdown(f"**Simulated DCA outcome for {tf} ({days} trading days):**")
-        st.write(f"Mean: ${np.mean(dca_results):,.2f}")
-        st.write(f"Median: ${np.median(dca_results):,.2f}")
-        st.write(f"5th percentile: ${np.percentile(dca_results, 5):,.2f}")
-        st.write(f"95th percentile: ${np.percentile(dca_results, 95):,.2f}")
+        def dca_on_simulated_paths(sim_prices, invest_amount, dca_freq=1):
+            n_sims, n_days = sim_prices.shape
+            results = []
+            for sim in sim_prices:
+                cash = invest_amount
+                shares = 0
+                for i in range(0, n_days, dca_freq):
+                    price = sim[i]
+                    buy_amt = cash / ((n_days - i) // dca_freq + 1)
+                    shares += buy_amt / price
+                    cash -= buy_amt
+                final_value = shares * sim[-1] + cash
+                results.append(final_value)
+            return np.array(results)
 
-        import matplotlib.pyplot as plt
-        fig, ax = plt.subplots()
-        ax.hist(dca_results, bins=30, color="#1976d2", alpha=0.7)
-        ax.set_title(f"Future DCA Portfolio Value Distribution ({tf})")
-        ax.set_xlabel("Portfolio Value ($)")
-        ax.set_ylabel("Simulations")
-        st.pyplot(fig)
+        sim_prices = simulate_future_prices(df, days=days, n_sims=1000)
+        if sim_prices is not None:
+            dca_results = dca_on_simulated_paths(sim_prices, invest_amount)
+            st.markdown(f"**Simulated DCA outcome for {tf} ({days} trading days):**")
+            st.write(f"Mean: ${np.mean(dca_results):,.2f}")
+            st.write(f"Median: ${np.median(dca_results):,.2f}")
+            st.write(f"5th percentile: ${np.percentile(dca_results, 5):,.2f}")
+            st.write(f"95th percentile: ${np.percentile(dca_results, 95):,.2f}")
+
+            import matplotlib.pyplot as plt
+            fig, ax = plt.subplots()
+            ax.hist(dca_results, bins=30, color="#1976d2", alpha=0.7)
+            ax.set_title(f"Future DCA Portfolio Value Distribution ({tf})")
+            ax.set_xlabel("Portfolio Value ($)")
+            ax.set_ylabel("Simulations")
+            st.pyplot(fig)
+
+
 
 
    
