@@ -1067,7 +1067,7 @@ st.markdown(
 This dashboard is for <b>educational and informational purposes only</b> and 
 <b>does not constitute financial advice</b>.<br>
 Markets carry risk; always do your own research or consult a licensed financial advisor before investing.<br><br>
-© 2025 <b>Raj Gupta</b> — <i>AI Stock Signals PRO v5.5.2</i>
+© 2025 <b>Stock Signals LLC</b> — <i>AI Stock Signals PRO v5.5.2</i>
 </div>
     """,
     unsafe_allow_html=True,
