@@ -71,6 +71,77 @@ def render_header(decision: str = "HOLD"):
         """,
         unsafe_allow_html=True
     )
+def render_header(decision: str = "HOLD"):
+    """Animated gradient banner with zig-zag SVG accent."""
+    decision = (decision or "").upper()
+    if "BUY" in decision:
+        grad = "linear-gradient(90deg, #1b5e20 0%, #2e7d32 25%, #43a047 50%, #66bb6a 75%, #a5d6a7 100%)"
+        accent_emoji = "🟢"
+        svg_color = "#43a047"
+    elif "SELL" in decision:
+        grad = "linear-gradient(90deg, #b71c1c 0%, #c62828 25%, #d32f2f 50%, #ef5350 75%, #ef9a9a 100%)"
+        accent_emoji = "🔴"
+        svg_color = "#d32f2f"
+    else:
+        grad = "linear-gradient(90deg, #0d47a1 0%, #1565c0 25%, #1976d2 50%, #42a5f5 75%, #90caf9 100%)"
+        accent_emoji = "🟠"
+        svg_color = "#1976d2"
+
+    st.markdown(
+        f"""
+        <div style="
+            position:relative;
+            background: {grad};
+            background-size: 200% 200%;
+            animation: bannerShift 12s ease infinite;
+            padding: 32px 32px 38px 32px;
+            border-radius: 14px;
+            color: white;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+            margin-bottom: 20px;
+            overflow:hidden;
+        ">
+            <!-- Zig-zag SVG accent -->
+            <svg width="100%" height="38" viewBox="0 0 800 38" fill="none" xmlns="http://www.w3.org/2000/svg"
+                 style="position:absolute;bottom:0;left:0;z-index:0;">
+                <polyline points="0,19 50,38 100,0 150,38 200,0 250,38 300,0 350,38 400,0 450,38 500,0 550,38 600,0 650,38 700,0 750,38 800,19"
+                          stroke="{svg_color}" stroke-width="6" fill="none" />
+            </svg>
+            <div style="position:relative;z-index:1;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <span style="font-size:42px;">🧠</span>
+                        <div>
+                            <div style="font-size:28px;font-weight:800;letter-spacing:0.4px;">
+                                AI Stock Signals — <span style="opacity:0.9;">PRO v5.5.3</span>
+                            </div>
+                            <div style="font-size:15px;opacity:0.95;">
+                                Technicals • Macro • News • Analyst • Hybrid AI Forecast • Adaptive DCA
+                            </div>
+                            <div style="font-size:14px;opacity:0.85;margin-top:4px;font-style:italic;">
+                                Real-time insights • AI-driven signals • Smarter investing decisions
+                            </div>
+                        </div>
+                    </div>
+                    <div style="font-size:14px;text-align:right;opacity:0.95;">
+                        <b>© 2025 Raj Gupta</b><br>
+                        <span style="font-size:12.5px;opacity:0.9;">{accent_emoji} AI-powered Investing Intelligence</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+        @keyframes bannerShift {{
+          0% {{background-position: 0% 50%;}}
+          50% {{background-position: 100% 50%;}}
+          100% {{background-position: 0% 50%;}}
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+
 
 # Render banner (use decision variable later if available)
 render_header("HOLD")
