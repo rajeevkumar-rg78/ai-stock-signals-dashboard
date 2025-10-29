@@ -991,6 +991,14 @@ else:
             ax.set_xlabel("Portfolio Value ($)")
             ax.set_ylabel("Simulations")
             st.pyplot(fig)
+            import matplotlib.pyplot as plt
+            fig, ax = plt.subplots(figsize=(5, 2.5))  # You can adjust these numbers for size
+            ax.hist(dca_results, bins=30, color="#1976d2", alpha=0.7)
+            ax.set_title(f"Future DCA Portfolio Value Distribution ({tf})", fontsize=12)
+            ax.set_xlabel("Portfolio Value ($)", fontsize=10)
+            ax.set_ylabel("Simulations", fontsize=10)
+            plt.tight_layout()
+            st.pyplot(fig)
 
            
 
