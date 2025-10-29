@@ -55,7 +55,7 @@ def render_header(decision: str = "HOLD"):
                     </div>
                 </div>
                 <div style="font-size:14px;text-align:right;opacity:0.95;">
-                    <b>© 2025 StockPick AI LLC</b><br>
+                    <b>© 2025 Stock Signals LLC</b><br>
                     <span style="font-size:12.5px;opacity:0.9;">{accent_emoji} AI-powered Investing Intelligence</span>
                 </div>
             </div>
