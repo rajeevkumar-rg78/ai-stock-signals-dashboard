@@ -692,7 +692,6 @@ conf_overall = market_confidence(news_sent, pulse["buy"])
 ai = ai_forecast(df, ind)
 
 
-
 # Macro header
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("VIX (volatility)", f"{macro['vix_last']:.2f}" if macro["vix_last"] is not None else "—")
@@ -738,9 +737,6 @@ with st.expander("📊 Stock Fundamentals", expanded=False):
     fcols[9].metric("Yield", human_fmt(fund.get('Yield'), kind="pct"))
     fcols[10].metric("Beta", human_fmt(fund.get('Beta')))
     fcols[11].metric("EPS", human_fmt(fund.get('EPS')))
-
-
-
 
 
 # Snapshot metrics
@@ -1010,10 +1006,6 @@ else:
                 template="plotly_white"
             )
             st.plotly_chart(fig, use_container_width=True)
-
-
-   
-
 
 
 # Headlines
