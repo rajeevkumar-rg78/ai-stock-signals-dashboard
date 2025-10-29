@@ -478,19 +478,7 @@ def analyst_pulse(ticker: str):
                     "samples": total
                 }
 
-            # Analyst Pulse in the last column
-            if pulse["samples"] > 0 and any(pulse[k] is not None for k in ["buy", "hold", "sell", "neutral"]):
-                cF.metric(
-                    "Analyst Pulse",
-                    f"Buy: {int(round((pulse['buy'] or 0)*100))}% | "
-                    f"Hold: {int(round((pulse['hold'] or 0)*100))}% | "
-                    f"Sell: {int(round((pulse['sell'] or 0)*100))}% | "
-                    f"Neutral: {int(round((pulse['neutral'] or 0)*100))}%"
-                )
-            else:
-                cF.metric("Analyst Pulse", "No recent analyst recommendations")
-
-
+            
 
         
         # 2️⃣ Try the modern recommendations_summary
@@ -762,14 +750,22 @@ cB.metric("RSI (14)", f"{last['RSI']:.1f}")
 cC.metric("MACD", f"{last['MACD']:.2f}")
 cD.metric("ADX", f"{last['ADX']:.1f}")
 cE.metric("ATR (14)", f"{last['ATR']:.2f}")
+
+
 # Analyst Pulse in the last column
+
 if pulse["samples"] > 0 and any(pulse[k] is not None for k in ["buy", "hold", "sell", "neutral"]):
     cF.metric(
         "Analyst Pulse",
-        f"Buy: {int((pulse['buy'] or 0)*100)}% | Hold: {int((pulse['hold'] or 0)*100)}% | Sell: {int((pulse['sell'] or 0)*100)}% | Neutral: {int((pulse['neutral'] or 0)*100)}%"
+        f"Buy: {int(round((pulse['buy'] or 0)*100))}% | "
+        f"Hold: {int(round((pulse['hold'] or 0)*100))}% | "
+        f"Sell: {int(round((pulse['sell'] or 0)*100))}% | "
+        f"Neutral: {int(round((pulse['neutral'] or 0)*100))}%"
     )
 else:
     cF.metric("Analyst Pulse", "No recent analyst recommendations")
+
+
 # --- Decide accent color dynamically ---
 buy = pulse.get("buy") or 0
 hold = pulse.get("hold") or 0
