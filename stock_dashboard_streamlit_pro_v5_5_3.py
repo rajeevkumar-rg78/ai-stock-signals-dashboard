@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 st.set_page_config(page_title="AI Stock Signals — PRO v5.5.3", layout="wide")
 
 # ============= Dynamic Gradient Header =============
-def render_header(decision: str = "HOLD"):
+def render_header(decision: str = " "):
     """Animated gradient banner that adapts to BUY/HOLD/SELL signal."""
     decision = (decision or "").upper()
     if "BUY" in decision:
