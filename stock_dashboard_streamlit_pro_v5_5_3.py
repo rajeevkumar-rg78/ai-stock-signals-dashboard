@@ -745,7 +745,19 @@ with st.expander("📊 Stock Fundamentals", expanded=False):
 # Snapshot metrics
 last = ind.iloc[-1]
 cA, cB, cC, cD, cE, cF = st.columns(6)
-cA.metric("Price", f"${last['Close']:.2f}")
+#cA.metric("Price", f"${last['Close']:.2f}")
+
+# Calculate daily change
+last = ind.iloc[-1]
+prev = ind.iloc[-2] if len(ind) > 1 else last
+
+price = last["Close"]
+change = price - prev["Close"]
+change_pct = (change / prev["Close"]) * 100 if prev["Close"] != 0 else 0
+
+cA, cB, cC, cD, cE, cF = st.columns(6)
+cA.metric("Price", f"${price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
+
 cB.metric("RSI (14)", f"{last['RSI']:.1f}")
 cC.metric("MACD", f"{last['MACD']:.2f}")
 cD.metric("ADX", f"{last['ADX']:.1f}")
