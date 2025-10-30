@@ -55,7 +55,7 @@ def render_header(decision: str = "HOLD"):
                     </div>
                 </div>
                 <div style="font-size:14px;text-align:right;opacity:0.95;">
-                    <b>© 2025 MarketMinds AI LLC</b><br>
+                    <b>© 2025 MarketMinds LLC</b><br>
                     <span style="font-size:12.5px;opacity:0.9;">{accent_emoji} AI-powered Investing Intelligence</span>
                 </div>
             </div>
@@ -1079,7 +1079,7 @@ st.markdown(
 This dashboard is for <b>educational and informational purposes only</b> and 
 <b>does not constitute financial advice</b>.<br>
 Markets carry risk; always do your own research or consult a licensed financial advisor before investing.<br><br>
-© 2025 <b>SignalWave Analytics LLC</b> — <i>AI Stock Signals PRO v5.5.2</i>
+© 2025 <b>MarketMinds LLC</b> — <i>AI Stock Signals PRO v5.5.2</i>
 </div>
     """,
     unsafe_allow_html=True,
