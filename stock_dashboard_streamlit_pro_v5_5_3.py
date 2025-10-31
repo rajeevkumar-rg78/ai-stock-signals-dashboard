@@ -1044,20 +1044,21 @@ else:
                 return np.mean(window) - 2 * np.std(window)
             
             def adaptive_mc_dca_simulator(df, days, invest_amount, n_sims=500):
-            returns = df["Close"].pct_change().dropna().values
-            if not isinstance(returns, np.ndarray):
-                returns = np.array(returns)
-            returns = returns[~np.isnan(returns)]
-            if len(returns) < 2:
-                st.warning("Not enough historical data to simulate future prices. Try a longer chart interval.")
-                return {
-                    "mean_final_value": 0,
-                    "median_final_value": 0,
-                    "mean_avg_cost": 0,
-                    "all_results": []
-                }
-            last_price = float(df["Close"].iloc[-1])
-            
+                returns = df["Close"].pct_change().dropna().values
+                if not isinstance(returns, np.ndarray):
+                    returns = np.array(returns)
+                returns = returns[~np.isnan(returns)]
+                if len(returns) < 2:
+                    st.warning("Not enough historical data to simulate future prices. Try a longer chart interval.")
+                    return {
+                        "mean_final_value": 0,
+                        "median_final_value": 0,
+                        "mean_avg_cost": 0,
+                        "all_results": []
+                    }
+                last_price = float(df["Close"].iloc[-1])
+                # ... rest of your code ...
+
                 for sim in range(n_sims):
                     sampled_returns = np.random.choice(returns, size=days, replace=True)
                     prices = [last_price]
@@ -1143,8 +1144,19 @@ else:
                     "all_results": all_results
                 }
 
+           
             result = adaptive_mc_dca_simulator(df, days=days, invest_amount=invest_amount, n_sims=500)
-            
+            if result["all_results"]:
+                st.write(f"Mean final portfolio value: ${result['mean_final_value']:.2f}")
+                st.write(f"Median final portfolio value: ${result['median_final_value']:.2f}")
+                st.write(f"Mean average cost per share: ${result['mean_avg_cost']:.2f}")
+                sample_trades = result["all_results"][0]["trades"]
+                st.write("Sample trade log for one simulation:")
+                st.dataframe(pd.DataFrame(sample_trades))
+            else:
+                st.info("No adaptive DCA simulation results to show.")
+   
+
 
             st.write(f"Mean final portfolio value: ${result['mean_final_value']:.2f}")
             st.write(f"Median final portfolio value: ${result['median_final_value']:.2f}")
