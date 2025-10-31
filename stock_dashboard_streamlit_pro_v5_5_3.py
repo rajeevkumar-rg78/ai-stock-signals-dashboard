@@ -1016,6 +1016,123 @@ else:
             st.write(f"**95% confidence range:** ${low_price:.2f} — ${high_price:.2f}")
             st.write(f"**Expected gain/loss per share:** ${expected_gain:+.2f} ({expected_gain_pct:+.2f}%)")
 
+            import numpy as np
+            import pandas as pd
+            
+            def calc_rsi(prices, period=14):
+                if len(prices) < period + 1:
+                    return 50  # Neutral if not enough data
+                deltas = np.diff(prices[-(period+1):])
+                up = deltas[deltas > 0].sum() / period if (deltas > 0).any() else 0
+                down = -deltas[deltas < 0].sum() / period if (deltas < 0).any() else 0
+                rs = up / (down + 1e-9)
+                return 100 - (100 / (1 + rs))
+            
+            def calc_atr(prices, period=14):
+                if len(prices) < period + 1:
+                    return np.std(prices) / 2
+                highs = prices[-(period+1):]
+                lows = prices[-(period+1):]
+                closes = prices[-(period+1):]
+                tr = np.max([highs[1:] - lows[1:], np.abs(highs[1:] - closes[:-1]), np.abs(lows[1:] - closes[:-1])], axis=0)
+                return np.mean(tr)
+            
+            def calc_bb_low(prices, period=20):
+                if len(prices) < period:
+                    return np.min(prices)
+                window = prices[-period:]
+                return np.mean(window) - 2 * np.std(window)
+            
+            def adaptive_mc_dca_simulator(df, days, invest_amount, n_sims=500):
+                returns = df["Close"].pct_change().dropna().values
+                last_price = float(df["Close"].iloc[-1])
+                all_results = []
+            
+                for sim in range(n_sims):
+                    sampled_returns = np.random.choice(returns, size=days, replace=True)
+                    prices = [last_price]
+                    for r in sampled_returns:
+                        prices.append(prices[-1] * (1 + r))
+                    prices = np.array(prices)
+                    cash = invest_amount
+                    shares = 0
+                    avg_cost = 0
+                    trades = []
+                    last_buy_day = -10  # So you can buy on day 0
+                    peak_equity = invest_amount
+                    halt_buys = False
+            
+                    for i in range(1, len(prices)):
+                        # Calculate indicators
+                        rsi = calc_rsi(prices[:i+1])
+                        bb_low = calc_bb_low(prices[:i+1])
+                        atr = calc_atr(prices[:i+1])
+                        # Simple MACD: 12/26 EMA
+                        ema12 = pd.Series(prices[:i+1]).ewm(span=12, adjust=False).mean().iloc[-1]
+                        ema26 = pd.Series(prices[:i+1]).ewm(span=26, adjust=False).mean().iloc[-1]
+                        macd = ema12 - ema26
+                        macd_signal = pd.Series([ema12 - ema26 for ema12, ema26 in zip(
+                            pd.Series(prices[:i+1]).ewm(span=12, adjust=False).mean(),
+                            pd.Series(prices[:i+1]).ewm(span=26, adjust=False).mean()
+                        )]).ewm(span=9, adjust=False).mean().iloc[-1]
+            
+                        # --- BUY LOGIC ---
+                        can_buy = (not halt_buys) and cash > 0 and (i - last_buy_day > 2)
+                        buy_signal = (rsi < 40) or (prices[i] < bb_low) or (macd > macd_signal)
+                        buy_amt = 0
+                        if can_buy and buy_signal:
+                            if rsi < 30:
+                                buy_amt = cash * 0.25
+                            elif rsi < 40:
+                                buy_amt = cash * 0.15
+                            elif prices[i] < bb_low:
+                                buy_amt = cash * 0.10
+                        if buy_amt > 0:
+                            buy_shares = buy_amt / prices[i]
+                            shares += buy_shares
+                            cash -= buy_amt
+                            avg_cost = ((avg_cost * (shares - buy_shares)) + (buy_shares * prices[i])) / shares if shares > 0 else 0
+                            trades.append({"day": i, "side": "BUY", "price": prices[i], "shares": buy_shares})
+                            last_buy_day = i
+            
+                        # --- SELL LOGIC ---
+                        target_price = avg_cost + 2 * atr
+                        can_sell = shares > 0
+                        if can_sell and (prices[i] >= target_price or rsi > 70):
+                            if rsi > 75:
+                                sell_shares = shares  # Sell all
+                            else:
+                                sell_shares = shares * 0.5  # Sell half
+                            cash += sell_shares * prices[i]
+                            shares -= sell_shares
+                            trades.append({"day": i, "side": "SELL", "price": prices[i], "shares": sell_shares})
+            
+                        # --- Drawdown control ---
+                        equity = cash + shares * prices[i]
+                        peak_equity = max(peak_equity, equity)
+                        dd_pct = (equity - peak_equity) / (peak_equity if peak_equity else 1)
+                        if dd_pct < -0.30:
+                            halt_buys = True
+            
+                    final_value = cash + shares * prices[-1]
+                    all_results.append({
+                        "final_value": final_value,
+                        "avg_cost": avg_cost,
+                        "shares": shares,
+                        "trades": trades,
+                        "last_price": prices[-1]
+                    })
+            
+                # Aggregate results
+                final_values = [r["final_value"] for r in all_results]
+                avg_costs = [r["avg_cost"] for r in all_results if r["shares"] > 0]
+                return {
+                    "mean_final_value": np.mean(final_values),
+                    "median_final_value": np.median(final_values),
+                    "mean_avg_cost": np.mean(avg_costs) if avg_costs else 0,
+                    "all_results": all_results
+                }
+
             
             # Optional: Show a line chart of the sorted predicted prices
             
