@@ -1120,6 +1120,64 @@ with st.expander("🗞️ Latest Headlines"):
             title = h["title"]; url = h["url"]; src = h.get("source",""); pub = h.get("published","")
             nice = pub[:10] if pub else ""
             st.markdown(f"- [{title}]({url}) — *{src}* {('• '+nice) if nice else ''}")
+
+
+# ... your main ticker analysis code ...
+# (chart, metrics, daily action, DCA, etc.)
+
+# --- Insert the Tech Stock Recommendation Block Here ---
+
+import pandas as pd
+
+st.markdown("## 📋 Today's Top Tech Stock Buy Candidates")
+
+tech_watchlist = [
+    "AAPL", "MSFT", "GOOGL", "GOOG", "META", "AMZN", "NVDA", "TSLA", "CRM",
+    "ADBE", "ORCL", "INTC", "AMD", "CSCO", "NFLX", "AVGO", "QCOM", "IBM", "SHOP", "UBER"
+]
+
+buy_candidates = []
+
+for ticker in tech_watchlist:
+    try:
+        df = fetch_prices_tf(ticker, period, interval)
+        if df is None or len(df) < 30:
+            continue
+        ind = compute_indicators(df)
+        headlines, news_sent = fetch_news_and_sentiment(ticker)
+        signal, color, score = generate_signal(ind, news_sent, horizon)
+        earnings_date = fetch_earnings_date(ticker)
+        last = ind.iloc[-1]
+        price = last["Close"]
+        buy_zone = price - 1.5 * last["ATR"]
+        target_up = price + 2.0 * last["ATR"]
+        stop_loss = price - 2.5 * last["ATR"]
+
+        # Example filter: only BUY signals, price near or below buy zone, no earnings in next 3 days
+        if signal == "BUY" and price <= buy_zone * 1.05:
+            buy_candidates.append({
+                "Ticker": ticker,
+                "Price": f"${price:.2f}",
+                "Score": score,
+                "Buy Zone": f"${buy_zone:.2f}",
+                "Target": f"${target_up:.2f}",
+                "Stop": f"${stop_loss:.2f}",
+                "Earnings": earnings_date,
+                "News Sentiment": f"{news_sent:+.2f}"
+            })
+    except Exception as e:
+        st.write(f"Error processing {ticker}: {e}")
+
+# Sort by score (strongest first)
+buy_candidates = sorted(buy_candidates, key=lambda x: x["Score"], reverse=True)
+
+if buy_candidates:
+    st.dataframe(pd.DataFrame(buy_candidates))
+else:
+    st.info("No strong tech stock buy candidates found today based on your criteria.")
+
+# ... rest of your dashboard (headlines, learn, disclaimer, etc.) ...
+
 # ============================================================
 # 📘 Learn (Education)
 # ============================================================
