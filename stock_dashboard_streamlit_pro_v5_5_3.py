@@ -1044,7 +1044,7 @@ else:
                 line=dict(color="#1976d2"),
                 name="Simulated DCA Outcomes"
             ))
-            """
+"""
             fig.update_layout(
                 title=f"Future DCA Portfolio Value Distribution ({tf})",
                 xaxis_title="Simulation # (sorted)",
@@ -1052,7 +1052,7 @@ else:
                 template="plotly_white"
             )
             st.plotly_chart(fig, use_container_width=True)
-            """
+"""
 
 # Headlines
 with st.expander("🗞️ Latest Headlines"):
