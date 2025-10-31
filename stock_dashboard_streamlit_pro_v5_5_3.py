@@ -1018,10 +1018,10 @@ else:
 
             
             # Optional: Show a line chart of the sorted predicted prices
-            """
-            sorted_prices = np.sort(predicted_prices)
-            st.line_chart(sorted_prices)
-            """
+            
+            #sorted_prices = np.sort(predicted_prices)
+            #st.line_chart(sorted_prices)
+            
             
             import matplotlib.pyplot as plt
             fig, ax = plt.subplots(figsize=(5, 2.5))  # You can adjust these numbers for size
