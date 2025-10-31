@@ -1016,11 +1016,11 @@ else:
             st.write(f"**95% confidence range:** ${low_price:.2f} — ${high_price:.2f}")
             st.write(f"**Expected gain/loss per share:** ${expected_gain:+.2f} ({expected_gain_pct:+.2f}%)")
 
-            
+            """
             # Optional: Show a line chart of the sorted predicted prices
             sorted_prices = np.sort(predicted_prices)
             st.line_chart(sorted_prices)
-
+            """
             
             import matplotlib.pyplot as plt
             fig, ax = plt.subplots(figsize=(5, 2.5))  # You can adjust these numbers for size
@@ -1043,6 +1043,7 @@ else:
                 line=dict(color="#1976d2"),
                 name="Simulated DCA Outcomes"
             ))
+            """
             fig.update_layout(
                 title=f"Future DCA Portfolio Value Distribution ({tf})",
                 xaxis_title="Simulation # (sorted)",
@@ -1050,7 +1051,7 @@ else:
                 template="plotly_white"
             )
             st.plotly_chart(fig, use_container_width=True)
-
+            """
 
 # Headlines
 with st.expander("🗞️ Latest Headlines"):
