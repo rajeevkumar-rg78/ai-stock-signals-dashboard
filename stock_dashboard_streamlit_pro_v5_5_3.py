@@ -1000,21 +1000,22 @@ else:
              # --- Predicted future share price from Monte Carlo simulation ---
 
         if sim_prices is not None:
-            predicted_prices = sim_prices[:, -1]  # Final price in each simulation
+            predicted_prices = sim_prices[:, -1]
             mean_price = np.mean(predicted_prices)
             median_price = np.median(predicted_prices)
             low_price = np.percentile(predicted_prices, 2.5)
             high_price = np.percentile(predicted_prices, 97.5)
-            buy_price = df["Close"].iloc[-1]
+            buy_price = float(df["Close"].iloc[-1])  # Ensure this is a float, not a Series
             expected_gain = mean_price - buy_price
             expected_gain_pct = (expected_gain / buy_price) * 100 if buy_price != 0 else 0
-        
+            
             st.markdown(f"### 📈 Predicted Share Price in {days} Days ({tf})")
             st.write(f"**Current price:** ${buy_price:.2f}")
             st.write(f"**Predicted mean price:** ${mean_price:.2f}")
             st.write(f"**Median price:** ${median_price:.2f}")
             st.write(f"**95% confidence range:** ${low_price:.2f} — ${high_price:.2f}")
             st.write(f"**Expected gain/loss per share:** ${expected_gain:+.2f} ({expected_gain_pct:+.2f}%)")
+
         
             # Optional: Show a line chart of the sorted predicted prices
             sorted_prices = np.sort(predicted_prices)
