@@ -1057,7 +1057,18 @@ else:
                         "all_results": []
                     }
                 last_price = float(df["Close"].iloc[-1])
-                # ... rest of your code ...
+                all_results = []  # <--- Make sure this is here, before the for loop!
+                for sim in range(n_sims):
+                    # ... rest of your simulation code ...
+                    all_results.append({
+                        "final_value": final_value,
+                        "avg_cost": avg_cost,
+                        "shares": shares,
+                        "trades": trades,
+                        "last_price": prices[-1]
+                    })
+                # ... rest of your function ...
+
 
                 for sim in range(n_sims):
                     sampled_returns = np.random.choice(returns, size=days, replace=True)
