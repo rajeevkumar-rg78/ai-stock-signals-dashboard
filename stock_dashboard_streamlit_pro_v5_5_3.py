@@ -988,6 +988,7 @@ else:
             return np.array(results)
 
         sim_prices = simulate_future_prices(df, days=days, n_sims=1000)
+        """
         if sim_prices is not None:
             dca_results = dca_on_simulated_paths(sim_prices, invest_amount)
             st.markdown(f"**Simulated DCA outcome for {tf} ({days} trading days):**")
@@ -995,8 +996,30 @@ else:
             st.write(f"Median: ${np.median(dca_results):,.2f}")
             st.write(f"5th percentile: ${np.percentile(dca_results, 5):,.2f}")
             st.write(f"95th percentile: ${np.percentile(dca_results, 95):,.2f}")
+        """
+             # --- Predicted future share price from Monte Carlo simulation ---
 
-              
+        if sim_prices is not None:
+            predicted_prices = sim_prices[:, -1]  # Final price in each simulation
+            mean_price = np.mean(predicted_prices)
+            median_price = np.median(predicted_prices)
+            low_price = np.percentile(predicted_prices, 2.5)
+            high_price = np.percentile(predicted_prices, 97.5)
+            buy_price = df["Close"].iloc[-1]
+            expected_gain = mean_price - buy_price
+            expected_gain_pct = (expected_gain / buy_price) * 100 if buy_price != 0 else 0
+        
+            st.markdown(f"### 📈 Predicted Share Price in {days} Days ({tf})")
+            st.write(f"**Current price:** ${buy_price:.2f}")
+            st.write(f"**Predicted mean price:** ${mean_price:.2f}")
+            st.write(f"**Median price:** ${median_price:.2f}")
+            st.write(f"**95% confidence range:** ${low_price:.2f} — ${high_price:.2f}")
+            st.write(f"**Expected gain/loss per share:** ${expected_gain:+.2f} ({expected_gain_pct:+.2f}%)")
+        
+            # Optional: Show a line chart of the sorted predicted prices
+            sorted_prices = np.sort(predicted_prices)
+            st.line_chart(sorted_prices)
+         
             import matplotlib.pyplot as plt
             fig, ax = plt.subplots(figsize=(5, 2.5))  # You can adjust these numbers for size
             ax.hist(dca_results, bins=30, color="#1976d2", alpha=0.7)
