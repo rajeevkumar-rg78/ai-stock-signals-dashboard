@@ -1020,16 +1020,7 @@ else:
             
 
 
-            st.write(f"Mean final portfolio value: ${result['mean_final_value']:.2f}")
-            st.write(f"Median final portfolio value: ${result['median_final_value']:.2f}")
-            st.write(f"Mean average cost per share: ${result['mean_avg_cost']:.2f}")
-            
-            # Show a sample trade log from one simulation
-            sample_trades = result["all_results"][0]["trades"]
-            st.write("Sample trade log for one simulation:")
-            st.dataframe(pd.DataFrame(sample_trades))
-
-            
+           
             # Optional: Show a line chart of the sorted predicted prices
             
             #sorted_prices = np.sort(predicted_prices)
