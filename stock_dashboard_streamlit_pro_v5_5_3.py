@@ -837,24 +837,25 @@ stop_loss   = last["Close"] - 2.5*last["ATR"]
 st.write(f"📈 **Target (≈5d)**: ${target_up:.2f}  🟦 **Buy zone**: ${buy_zone:.2f}  🛑 **Stop**: ${stop_loss:.2f}")
 
 # Get today's values (after you have 'ind', 'news_sent', 'horizon', etc.)
-            last = ind.iloc[-1]
-            price = last["Close"]
-            buy_zone = price - 1.5 * last["ATR"]
-            target_up = price + 2.0 * last["ATR"]
-            stop_loss = price - 2.5 * last["ATR"]
-            signal, _, _ = generate_signal(ind, news_sent, horizon)
-            
-            # Example: assume you have no shares yet and full invest_amount
-            shares_held = 0
-            cash = invest_amount
-            
-            # Get today's action
-            today_action = daily_action_strategy(
-                price, buy_zone, target_up, stop_loss, signal, invest_amount, shares_held, cash
-            )
-            
-            # Display the action
-            st.markdown(today_action["msg"])
+last = ind.iloc[-1]
+price = last["Close"]
+buy_zone = price - 1.5 * last["ATR"]
+target_up = price + 2.0 * last["ATR"]
+stop_loss = price - 2.5 * last["ATR"]
+signal, _, _ = generate_signal(ind, news_sent, horizon)
+
+# Example: assume you have no shares yet and full invest_amount
+shares_held = 0
+cash = invest_amount
+
+# Get today's action
+today_action = daily_action_strategy(
+    price, buy_zone, target_up, stop_loss, signal, invest_amount, shares_held, cash
+)
+
+# Display the action
+st.markdown(today_action["msg"])
+
 
 
 
