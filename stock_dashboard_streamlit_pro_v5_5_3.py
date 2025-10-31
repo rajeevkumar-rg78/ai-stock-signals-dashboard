@@ -988,7 +988,7 @@ else:
             return np.array(results)
 
         sim_prices = simulate_future_prices(df, days=days, n_sims=1000)
-        """
+        
         if sim_prices is not None:
             dca_results = dca_on_simulated_paths(sim_prices, invest_amount)
             st.markdown(f"**Simulated DCA outcome for {tf} ({days} trading days):**")
@@ -996,7 +996,7 @@ else:
             st.write(f"Median: ${np.median(dca_results):,.2f}")
             st.write(f"5th percentile: ${np.percentile(dca_results, 5):,.2f}")
             st.write(f"95th percentile: ${np.percentile(dca_results, 95):,.2f}")
-        """
+        
              # --- Predicted future share price from Monte Carlo simulation ---
 
         if sim_prices is not None:
