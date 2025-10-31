@@ -1046,7 +1046,7 @@ else:
             ))
 """
             fig.update_layout(
-                title=f"Future DCA Portfolio Value Distribution ({tf})",
+            #    title=f"Future DCA Portfolio Value Distribution ({tf})",
                 xaxis_title="Simulation # (sorted)",
                 yaxis_title="Portfolio Value ($)",
                 template="plotly_white"
