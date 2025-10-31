@@ -38,7 +38,7 @@ def calc_bb_low(prices, period=20):
     window = prices[-period:]
     return np.mean(window) - 2 * np.std(window)
 
-def adaptive_mc_dca_simulator(df, days, invest_amount, n_sims=500):
+def adaptive_mc_dca_simulator(df, days, invest_amount, n_sims=100):
     returns = df["Close"].pct_change().dropna().values
     if not isinstance(returns, np.ndarray):
         returns = np.array(returns)
