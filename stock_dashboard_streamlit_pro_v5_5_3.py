@@ -23,7 +23,7 @@ def daily_action_strategy(price, buy_zone, target_up, stop_loss, signal, invest_
     if signal == "BUY" or price < buy_zone:
         action = "BUY"
         shares = buy_amount / price
-        msg = f"📈 **Buy Signal:** Buy {shares:.2f} shares at ${price:.2f} (Buy zone: ${buy_zone:.2f})"
+        msg = f"📈 **Buy Signal:** Buy {shares:.2f} shares at ${price:.2f}"
     elif price >= target_up and shares_held > 0:
         action = "SELL"
         shares = shares_held * 0.5  # Example: sell half
