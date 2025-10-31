@@ -37,7 +37,6 @@ def daily_action_strategy(price, buy_zone, target_up, stop_loss, signal, invest_
 
     return {"action": action, "price": price, "shares": shares, "msg": msg}
 
-
 # ============= Page config =============
 st.set_page_config(page_title="AI Stock Signals — PRO v5.5.3", layout="wide")
 
@@ -851,6 +850,13 @@ cash = invest_amount
 # Get today's action
 today_action = daily_action_strategy(
     price, buy_zone, target_up, stop_loss, signal, invest_amount, shares_held, cash
+)
+
+# Display the target, buy zone, and stop
+st.write(
+    f"📈 **Target (≈5d):** ${target_up:.2f} "
+    f"🟦 **Buy zone:** ${buy_zone:.2f} "
+    f"🛑 **Stop:** ${stop_loss:.2f}"
 )
 
 # Display the action
