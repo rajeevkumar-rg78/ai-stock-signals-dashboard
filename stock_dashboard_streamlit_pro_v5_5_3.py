@@ -1016,11 +1016,12 @@ else:
             st.write(f"**95% confidence range:** ${low_price:.2f} — ${high_price:.2f}")
             st.write(f"**Expected gain/loss per share:** ${expected_gain:+.2f} ({expected_gain_pct:+.2f}%)")
 
-            """
+            
             # Optional: Show a line chart of the sorted predicted prices
             sorted_prices = np.sort(predicted_prices)
             st.line_chart(sorted_prices)
-            """
+
+            
             import matplotlib.pyplot as plt
             fig, ax = plt.subplots(figsize=(5, 2.5))  # You can adjust these numbers for size
             ax.hist(dca_results, bins=30, color="#1976d2", alpha=0.7)
