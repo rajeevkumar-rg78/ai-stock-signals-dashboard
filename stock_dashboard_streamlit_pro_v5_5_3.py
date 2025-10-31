@@ -1144,15 +1144,7 @@ else:
                 }
 
             result = adaptive_mc_dca_simulator(df, days=days, invest_amount=invest_amount, n_sims=500)
-            if result["all_results"]:
-                st.write(f"Mean final portfolio value: ${result['mean_final_value']:.2f}")
-                st.write(f"Median final portfolio value: ${result['median_final_value']:.2f}")
-                st.write(f"Mean average cost per share: ${result['mean_avg_cost']:.2f}")
-                sample_trades = result["all_results"][0]["trades"]
-                st.write("Sample trade log for one simulation:")
-                st.dataframe(pd.DataFrame(sample_trades))
-            else:
-                st.info("No adaptive DCA simulation results to show.")
+            
 
             st.write(f"Mean final portfolio value: ${result['mean_final_value']:.2f}")
             st.write(f"Median final portfolio value: ${result['median_final_value']:.2f}")
