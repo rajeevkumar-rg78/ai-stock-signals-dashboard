@@ -11,6 +11,31 @@ import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
 
+def daily_action_strategy(price, buy_zone, target_up, stop_loss, signal, invest_amount, shares_held=0, cash=0):
+    """
+    Returns a dict with action, price, and suggested shares to buy/sell for today.
+    """
+    action = "HOLD"
+    shares = 0
+    msg = ""
+    buy_amount = invest_amount * 0.25  # Example: 25% of planned allocation
+
+    if signal == "BUY" or price < buy_zone:
+        action = "BUY"
+        shares = buy_amount / price
+        msg = f"📈 **Buy Signal:** Buy {shares:.2f} shares at ${price:.2f} (Buy zone: ${buy_zone:.2f})"
+    elif price >= target_up and shares_held > 0:
+        action = "SELL"
+        shares = shares_held * 0.5  # Example: sell half
+        msg = f"🏁 **Sell Signal:** Sell {shares:.2f} shares at ${price:.2f} (Target: ${target_up:.2f})"
+    elif price <= stop_loss and shares_held > 0:
+        action = "STOP"
+        shares = shares_held
+        msg = f"🛑 **Stop Signal:** Sell all ({shares:.2f}) shares at ${price:.2f} (Stop: ${stop_loss:.2f})"
+    else:
+        msg = "🤔 **Hold:** No action today. Wait for a new signal or price movement."
+
+    return {"action": action, "price": price, "shares": shares, "msg": msg}
 
 
 # ============= Page config =============
@@ -1019,7 +1044,26 @@ else:
             st.write(f"**95% confidence range:** ${low_price:.2f} — ${high_price:.2f}")
             st.write(f"**Expected gain/loss per share:** ${expected_gain:+.2f} ({expected_gain_pct:+.2f}%)")
 
+            # Get today's values (after you have 'ind', 'news_sent', 'horizon', etc.)
+            last = ind.iloc[-1]
+            price = last["Close"]
+            buy_zone = price - 1.5 * last["ATR"]
+            target_up = price + 2.0 * last["ATR"]
+            stop_loss = price - 2.5 * last["ATR"]
+            signal, _, _ = generate_signal(ind, news_sent, horizon)
             
+            # Example: assume you have no shares yet and full invest_amount
+            shares_held = 0
+            cash = invest_amount
+            
+            # Get today's action
+            today_action = daily_action_strategy(
+                price, buy_zone, target_up, stop_loss, signal, invest_amount, shares_held, cash
+            )
+            
+            # Display the action
+            st.markdown(today_action["msg"])
+
                         
 
 
