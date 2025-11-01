@@ -94,8 +94,7 @@ def render_header(decision: str = "HOLD"):
         unsafe_allow_html=True
     )
 
-    render_header("HOLD")  # Always show the banner, default to HOLD
-
+   
 
 def render_analyst_pulse(pulse: dict):
     """Ultra-compact Analyst Pulse with dynamic sentiment accent."""
@@ -216,7 +215,7 @@ def safe_fmt(val, fmt="{:.2f}", default="—"):
 
 
 
-
+render_header("HOLD")  # Always show the banner, default to HOLD
 
 # ============= Inputs =============
 c1, c2, c3 = st.columns([2,2,3])
