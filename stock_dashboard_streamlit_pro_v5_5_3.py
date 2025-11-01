@@ -42,57 +42,7 @@ def daily_action_strategy(price, buy_zone, target_up, stop_loss, signal, invest_
 st.set_page_config(page_title="AI Stock Signals — PRO v5.5.3", layout="wide")
 
 # ============= Dynamic Gradient Header =============
-def render_header(decision: str = "HOLD"):
-    decision = (decision or "").upper()
-    if "BUY" in decision:
-        grad = "linear-gradient(90deg, #1b5e20 0%, #43a047 100%)"
-        accent_emoji = "🟢"
-    elif "SELL" in decision:
-        grad = "linear-gradient(90deg, #b71c1c 0%, #ef5350 100%)"
-        accent_emoji = "🔴"
-    else:
-        grad = "linear-gradient(90deg, #1565c0 0%, #42a5f5 100%)"
-        accent_emoji = "🟠"
 
-    st.markdown(
-        f"""
-        <div style="
-            background: {grad};
-            padding: 18px 28px 18px 28px;
-            border-radius: 12px;
-            color: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        ">
-            <div style="display:flex;align-items:center;gap:16px;">
-                <span style="font-size:32px;">🧠</span>
-                <div>
-                    <div style="font-size:22px;font-weight:700;letter-spacing:0.2px;">
-                        AI Stock Signals PRO
-                    </div>
-                    <div style="font-size:13.5px;opacity:0.92;">
-                        Technicals • Macro • News • Analyst • AI Forecast
-                    </div>
-                </div>
-            </div>
-            <div style="font-size:13px;text-align:right;opacity:0.92;">
-                <b>© 2025 MarketMinds LLC</b><br>
-                <span style="font-size:12px;opacity:0.85;">{accent_emoji} Smarter Investing</span>
-            </div>
-        </div>
-        <style>
-        @keyframes bannerShift {{
-          0% {{background-position: 0% 50%;}}
-          50% {{background-position: 100% 50%;}}
-          100% {{background-position: 0% 50%;}}
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
 def render_header(decision: str = "HOLD"):
     decision = (decision or "").upper()
     if "BUY" in decision:
