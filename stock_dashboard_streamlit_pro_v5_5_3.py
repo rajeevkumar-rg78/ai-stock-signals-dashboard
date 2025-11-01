@@ -93,6 +93,68 @@ def render_header(decision: str = "HOLD"):
         """,
         unsafe_allow_html=True
     )
+def render_header(decision: str = "HOLD"):
+    decision = (decision or "").upper()
+    if "BUY" in decision:
+        grad = "linear-gradient(270deg, #43e97b 0%, #38f9d7 100%)"
+        accent_emoji = "🟢"
+    elif "SELL" in decision:
+        grad = "linear-gradient(270deg, #fa709a 0%, #fee140 100%)"
+        accent_emoji = "🔴"
+    else:
+        grad = "linear-gradient(270deg, #30cfd0 0%, #330867 100%)"
+        accent_emoji = "🟠"
+
+    st.markdown(
+        f"""
+        <div style="
+            position:relative;
+            background: {grad};
+            background-size: 400% 400%;
+            animation: bannerShift 8s ease-in-out infinite;
+            padding: 22px 32px 44px 32px;
+            border-radius: 16px;
+            color: white;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+            margin-bottom: 22px;
+            overflow: hidden;
+        ">
+            <!-- SVG Wave at the bottom -->
+            <svg width="100%" height="40" viewBox="0 0 800 40" fill="none" xmlns="http://www.w3.org/2000/svg"
+                 style="position:absolute;bottom:0;left:0;z-index:0;">
+                <path d="M0 20 Q 200 60 400 20 T 800 20 V40 H0Z"
+                      fill="rgba(255,255,255,0.13)" />
+            </svg>
+            <div style="position:relative;z-index:1;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:18px;">
+                        <span style="font-size:38px;">🧠</span>
+                        <div>
+                            <div style="font-size:25px;font-weight:800;letter-spacing:0.3px;">
+                                AI Stock Signals PRO
+                            </div>
+                            <div style="font-size:14.5px;opacity:0.93;">
+                                Technicals • Macro • News • Analyst • AI Forecast
+                            </div>
+                        </div>
+                    </div>
+                    <div style="font-size:14px;text-align:right;opacity:0.93;">
+                        <b>© 2025 Stock Signals LLC</b><br>
+                        <span style="font-size:12.5px;opacity:0.88;">{accent_emoji} Smarter Investing</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+        @keyframes bannerShift {{
+          0% {{background-position: 0% 50%;}}
+          50% {{background-position: 100% 50%;}}
+          100% {{background-position: 0% 50%;}}
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
    
 
