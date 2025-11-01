@@ -89,7 +89,7 @@ def render_header(decision: str = "HOLD"):
                         </div>
                     </div>
                     <div style="font-size:14px;text-align:right;opacity:0.93;">
-                        <b>© 2025 Stock Signals LLC</b><br>
+                        <b>© 2025 MarketMinds LLC</b><br>
                         <span style="font-size:12.5px;opacity:0.88;">{accent_emoji} Smarter Investing</span>
                     </div>
                 </div>
