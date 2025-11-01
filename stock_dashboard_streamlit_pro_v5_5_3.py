@@ -43,52 +43,46 @@ st.set_page_config(page_title="AI Stock Signals — PRO v5.5.3", layout="wide")
 
 # ============= Dynamic Gradient Header =============
 def render_header(decision: str = "HOLD"):
-    """Animated gradient banner that adapts to BUY/HOLD/SELL signal."""
     decision = (decision or "").upper()
     if "BUY" in decision:
-        grad = "linear-gradient(90deg, #1b5e20 0%, #2e7d32 25%, #43a047 50%, #66bb6a 75%, #a5d6a7 100%)"
+        grad = "linear-gradient(90deg, #1b5e20 0%, #43a047 100%)"
         accent_emoji = "🟢"
     elif "SELL" in decision:
-        grad = "linear-gradient(90deg, #b71c1c 0%, #c62828 25%, #d32f2f 50%, #ef5350 75%, #ef9a9a 100%)"
+        grad = "linear-gradient(90deg, #b71c1c 0%, #ef5350 100%)"
         accent_emoji = "🔴"
     else:
-        grad = "linear-gradient(90deg, #0d47a1 0%, #1565c0 25%, #1976d2 50%, #42a5f5 75%, #90caf9 100%)"
+        grad = "linear-gradient(90deg, #1565c0 0%, #42a5f5 100%)"
         accent_emoji = "🟠"
 
     st.markdown(
         f"""
         <div style="
             background: {grad};
-            background-size: 200% 200%;
-            animation: bannerShift 12s ease infinite;
-            padding: 26px 32px;
-            border-radius: 14px;
+            padding: 18px 28px 18px 28px;
+            border-radius: 12px;
             color: white;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.25);
-            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         ">
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-                <div style="display:flex;align-items:center;gap:16px;">
-                    <span style="font-size:42px;">🧠</span>
-                    <div>
-                        <div style="font-size:28px;font-weight:800;letter-spacing:0.4px;">
-                            AI Stock Signals — <span style="opacity:0.9;">PRO v5.5.3</span>
-                        </div>
-                        <div style="font-size:15px;opacity:0.95;">
-                            Technicals • Macro • News • Analyst • Hybrid AI Forecast • Adaptive DCA
-                        </div>
-                        <div style="font-size:14px;opacity:0.85;margin-top:4px;font-style:italic;">
-                            Real-time insights • AI-driven signals • Smarter investing decisions
-                        </div>
+            <div style="display:flex;align-items:center;gap:16px;">
+                <span style="font-size:32px;">🧠</span>
+                <div>
+                    <div style="font-size:22px;font-weight:700;letter-spacing:0.2px;">
+                        AI Stock Signals PRO
+                    </div>
+                    <div style="font-size:13.5px;opacity:0.92;">
+                        Technicals • Macro • News • Analyst • AI Forecast
                     </div>
                 </div>
-                <div style="font-size:14px;text-align:right;opacity:0.95;">
-                    <b>© 2025 MarketMinds LLC</b><br>
-                    <span style="font-size:12.5px;opacity:0.9;">{accent_emoji} AI-powered Investing Intelligence</span>
-                </div>
+            </div>
+            <div style="font-size:13px;text-align:right;opacity:0.92;">
+                <b>© 2025 Stock Signals LLC</b><br>
+                <span style="font-size:12px;opacity:0.85;">{accent_emoji} Smarter Investing</span>
             </div>
         </div>
-
         <style>
         @keyframes bannerShift {{
           0% {{background-position: 0% 50%;}}
@@ -100,8 +94,6 @@ def render_header(decision: str = "HOLD"):
         unsafe_allow_html=True
     )
 
-# Render banner (use decision variable later if available)
-render_header("HOLD")
 
 
 def render_analyst_pulse(pulse: dict):
