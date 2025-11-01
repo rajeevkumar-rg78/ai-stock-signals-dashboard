@@ -228,7 +228,9 @@ def safe_fmt(val, fmt="{:.2f}", default="—"):
 # ============= Inputs =============
 c1, c2, c3 = st.columns([2,2,3])
 with c1:
-    ticker = st.text_input("Ticker", "").upper().strip()
+    #ticker = st.text_input("Ticker", "").upper().strip()
+    ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
+
 with c2:
     horizon = st.radio("Mode", ["Short-term (Swing)", "Long-term (Investor)"], index=1, horizontal=True)
 with c3:
