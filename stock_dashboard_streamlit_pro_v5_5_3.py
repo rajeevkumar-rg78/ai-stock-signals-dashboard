@@ -94,8 +94,7 @@ def render_header(decision: str = "HOLD"):
         unsafe_allow_html=True
     )
 
-# At the very top of your main script, after imports:
-    render_header("HOLD")  # or render_header(decision) if you have it
+    render_header("HOLD")  # Always show the banner, default to HOLD
 
 
 def render_analyst_pulse(pulse: dict):
