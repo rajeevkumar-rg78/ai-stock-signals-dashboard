@@ -11,6 +11,8 @@ import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
 
+st.cache_data.clear()
+
 def daily_action_strategy(price, buy_zone, target_up, stop_loss, signal, invest_amount, shares_held=0, cash=0):
     """
     Returns a dict with action, price, and suggested shares to buy/sell for today.
