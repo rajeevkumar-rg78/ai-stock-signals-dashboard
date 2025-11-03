@@ -1393,7 +1393,19 @@ if state["trades"]:
     st.dataframe(df, use_container_width=True)
 
 if state["equity_curve"]:
-    ec = pd.DataFrame(state["equi]()
+    ec = pd.DataFrame(state["equity_curve"])
+    st.markdown("#### 💹 Equity progression")
+    st.line_chart(ec.set_index("day")[["equity"]])
+    pnl = ec["equity"].iloc[-1] - float(invest_amount)
+    st.metric("Current P/L", f"${pnl:,.2f}")
+
+if state["days_recorded"] >= 5:
+    ec = pd.DataFrame(state["equity_curve"])
+    start = float(invest_amount)
+    end = float(ec["equity"].iloc[-1])
+    st.markdown("### ✅ 5-Day Result Summary")
+    st.metric("Start → End", f"${start:,.2f} → ${end:,.2f}", delta=f"{end - start:+.2f}")
+
 
 
 
