@@ -1240,161 +1240,129 @@ Markets carry risk; always do your own research or consult a licensed financial 
     """,
     unsafe_allow_html=True,
 )
-
-
-# ================== 🧪 Paper-Trade Tracker (5 Days) ==================
+# ================== 🧪 Paper-Trade Tracker (5 Days, by active ticker) ==================
 import datetime as _dt
 
-def _latest_close(ticker: str) -> float:
-    try:
-        _df = yf.download(ticker, period="7d", interval="1d", auto_adjust=True, progress=False)
-        _df = _df.dropna()
-        return float(_df["Close"].iloc[-1])
-    except Exception:
-        return float(ind.iloc[-1]["Close"])
-
-def _init_tracker():
+if "pt" not in st.session_state or st.button("🔁 Reset paper account"):
     st.session_state.pt = {
         "start_date": _dt.date.today().isoformat(),
         "days_recorded": 0,
         "cash": float(invest_amount),
-        "positions": {ticker: 0.0},
-        "avg_cost": {ticker: 0.0},
-        "equity_curve": [],  # list of dicts per day
-        "trades": []         # list of dicts (date, ticker, side, shares, price, cash_after, pos_after)
+        "positions": {},
+        "avg_cost": {},
+        "equity_curve": [],
+        "trades": []
     }
 
-# ---- bootstrap state ----
-if "pt" not in st.session_state or st.button("🔁 Reset paper account"):
-    _init_tracker()
+state = st.session_state.pt
+if ticker not in state["positions"]:
+    state["positions"][ticker] = 0.0
+    state["avg_cost"][ticker] = 0.0
 
 st.markdown("## 🧪 Paper-Trade Tracker (5 days)")
-st.caption("This is a **simulation only**. Each day, click “Record today’s close” to log P/L. When 5 days are recorded, a 5-day summary is shown.")
+st.caption("Simulation only — executes for the selected ticker and keeps 5-day P/L log.")
 
 colA, colB, colC = st.columns([1.6,1,1])
 with colA:
-    st.write(f"**Paper Cash:** ${st.session_state.pt['cash']:,.2f}  |  "
-             f"**Pos ({ticker}):** {st.session_state.pt['positions'].get(ticker,0):,.4f} sh")
+    st.write(f"**Paper Cash:** ${state['cash']:,.2f}  |  "
+             f"**Pos ({ticker}):** {state['positions'][ticker]:,.4f} sh")
 with colB:
     rec_btn = st.button("🧾 Record today's close")
 with colC:
     act_btn = st.button("⚡ Execute today’s AI action")
 
-# --- recompute today's levels from your pipeline ---
-last_now = ind.iloc[-1]
-_now_price = float(last_now["Close"])
-_buy_zone  = float(_now_price - 1.5 * last_now["ATR"])
-_target    = float(_now_price + 2.0 * last_now["ATR"])
-_stop      = float(_now_price - 2.5 * last_now["ATR"])
+# --- current signal context ---
+_now_price = float(ind.iloc[-1]["Close"])
+_buy_zone  = float(_now_price - 1.5 * ind.iloc[-1]["ATR"])
+_target    = float(_now_price + 2.0 * ind.iloc[-1]["ATR"])
+_stop      = float(_now_price - 2.5 * ind.iloc[-1]["ATR"])
 _sig, _, _score = generate_signal(ind, news_sent, horizon)
-
-# ---- show planned action (non-binding) ----
 _plan = daily_action_strategy(
     price=_now_price, buy_zone=_buy_zone, target_up=_target, stop_loss=_stop,
     signal=_sig, invest_amount=float(invest_amount),
-    shares_held=st.session_state.pt["positions"].get(ticker, 0.0),
-    cash=st.session_state.pt["cash"]
+    shares_held=state["positions"][ticker], cash=state["cash"]
 )
 st.markdown(f"**Planned action (today):** {_plan['msg']}")
 
+# --- execute trade ---
 def _execute_action():
-    state = st.session_state.pt
     px = _now_price
     side = _plan["action"]
     sh   = float(_plan["shares"])
-
-    if side == "HOLD" or sh <= 0:
+    if sh <= 0: 
         st.info("No trade executed.")
         return
 
-    pos = state["positions"].get(ticker, 0.0)
+    pos = state["positions"][ticker]
     cash = state["cash"]
 
-    if side in ("BUY",):
+    if side == "BUY":
         cost = sh * px
-        if cost > cash + 1e-9:
-            st.warning("Not enough cash in paper account to buy that amount.")
+        if cost > cash:
+            st.warning("Not enough cash.")
             return
-        # update avg cost
         new_pos = pos + sh
-        if new_pos > 0:
-            old_cost = state["avg_cost"].get(ticker, 0.0) * pos
-            new_avg  = (old_cost + cost) / new_pos
-            state["avg_cost"][ticker] = new_avg
+        avg = (state["avg_cost"][ticker]*pos + cost)/new_pos
         state["positions"][ticker] = new_pos
+        state["avg_cost"][ticker]  = avg
         state["cash"] = cash - cost
-        state["trades"].append(dict(
-            date=_dt.date.today().isoformat(), ticker=ticker, side="BUY",
-            shares=round(sh,6), price=round(px,2),
-            cash_after=round(state["cash"],2), pos_after=round(state["positions"][ticker],6)
-        ))
-        st.success(f"Paper BUY executed: {sh:.4f} sh @ ${px:.2f}")
+        state["trades"].append(dict(date=_dt.date.today().isoformat(),
+                                    ticker=ticker, side="BUY",
+                                    shares=round(sh,4), price=round(px,2),
+                                    spent=round(cost,2),
+                                    cash_after=round(state["cash"],2)))
+        st.success(f"BUY {sh:.4f} @ ${px:.2f}")
 
     elif side in ("SELL","STOP"):
-        sh = min(sh, pos)
-        if sh <= 0:
-            st.info("No shares to sell.")
-            return
+        sh = min(sh,pos)
+        if sh<=0: return
         proceeds = sh * px
         state["positions"][ticker] = pos - sh
         state["cash"] = cash + proceeds
-        state["trades"].append(dict(
-            date=_dt.date.today().isoformat(), ticker=ticker, side="SELL" if side=="SELL" else "STOP",
-            shares=round(sh,6), price=round(px,2),
-            cash_after=round(state["cash"],2), pos_after=round(state["positions"][ticker],6)
-        ))
-        st.success(f"Paper SELL executed: {sh:.4f} sh @ ${px:.2f}")
+        state["trades"].append(dict(date=_dt.date.today().isoformat(),
+                                    ticker=ticker, side="SELL",
+                                    shares=round(sh,4), price=round(px,2),
+                                    gained=round(proceeds,2),
+                                    cash_after=round(state["cash"],2)))
+        st.success(f"SELL {sh:.4f} @ ${px:.2f}")
 
-if act_btn:
-    _execute_action()
+if act_btn: _execute_action()
 
+# --- mark-to-market ---
 def _mark_to_market():
-    state = st.session_state.pt
-    px = _latest_close(ticker)
-    pos = state["positions"].get(ticker, 0.0)
-    eq  = state["cash"] + pos * px
-    day = state["days_recorded"] + 1
+    px = float(ind.iloc[-1]["Close"])
+    pos = state["positions"][ticker]
+    eq = state["cash"] + pos*px
     state["equity_curve"].append(dict(
-        day=day, date=_dt.date.today().isoformat(),
-        price=round(px,2), shares=round(pos,6),
+        day=len(state["equity_curve"])+1,
+        date=_dt.date.today().isoformat(),
+        price=round(px,2), shares=round(pos,4),
         cash=round(state["cash"],2), equity=round(eq,2)
     ))
-    state["days_recorded"] = day
-    st.success(f"Recorded EOD close ${px:.2f}. Days recorded: {day}/5")
+    state["days_recorded"] += 1
+    st.success(f"Recorded close ${px:.2f} (day {state['days_recorded']}/5)")
 
-if rec_btn:
-    _mark_to_market()
+if rec_btn: _mark_to_market()
 
-# ---- show trade log & equity ----
-if st.session_state.pt["trades"]:
+# --- show logs ---
+if state["trades"]:
+    df = pd.DataFrame(state["trades"])
     st.markdown("#### Trade log")
-    tl = pd.DataFrame(st.session_state.pt["trades"])
-    st.dataframe(tl, use_container_width=True)
+    st.dataframe(df, use_container_width=True)
 
-if st.session_state.pt["equity_curve"]:
-    st.markdown("#### Equity by day")
-    ec = pd.DataFrame(st.session_state.pt["equity_curve"])
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Equity (latest)", f"${ec['equity'].iloc[-1]:,.2f}")
-    c2.metric("Price (latest)", f"${ec['price'].iloc[-1]:,.2f}")
-    pnl = ec["equity"].iloc[-1] - float(invest_amount)
-    c3.metric("P/L vs start", f"${pnl:,.2f}")
+if state["equity_curve"]:
+    ec = pd.DataFrame(state["equity_curve"])
+    st.markdown("#### Equity progression")
+    st.line_chart(ec.set_index("day")[["equity"]])
+    pnl = ec["equity"].iloc[-1]-float(invest_amount)
+    st.metric("Current P/L", f"${pnl:,.2f}")
 
-    st.line_chart(ec.set_index("day")[["equity","price"]])
-
-# ---- 5-day summary once you’ve logged 5 closes ----
-if st.session_state.pt["days_recorded"] >= 5:
-    ec = pd.DataFrame(st.session_state.pt["equity_curve"])
-    start_eq = float(invest_amount)
-    end_eq   = float(ec["equity"].iloc[-1])
-    dd = (ec["equity"] / ec["equity"].cummax() - 1.0).min() if len(ec)>0 else 0.0
-
-    st.markdown("### ✅ 5-Day Paper Result")
-    k1, k2, k3 = st.columns(3)
-    k1.metric("Start Equity", f"${start_eq:,.2f}")
-    k2.metric("End Equity (Day 5)", f"${end_eq:,.2f}",
-              delta=f"{(end_eq-start_eq):+,.2f}")
-    k3.metric("Max Drawdown", f"{dd*100:.1f}%")
+if state["days_recorded"]>=5:
+    ec = pd.DataFrame(state["equity_curve"])
+    start=float(invest_amount); end=float(ec["equity"].iloc[-1])
+    st.markdown("### ✅ 5-Day Result Summary")
+    st.metric("Start → End", f"${start:,.2f} → ${end:,.2f}",
+              delta=f"{end-start:+.2f}")
 
 
 
