@@ -1266,6 +1266,10 @@ if "pt" not in st.session_state:
         "equity_curve": [],
         "trades": []
     }
+# --- Optional emergency reset for ghost ticker ---
+if "pt" in st.session_state and "UBER" in st.session_state.pt.get("positions", {}):
+    del st.session_state["pt"]
+    st.toast("Cleared old UBER session 🧹")
 
 state = st.session_state.pt
 
