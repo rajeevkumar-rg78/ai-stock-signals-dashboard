@@ -1257,9 +1257,16 @@ if "pt" not in st.session_state or st.button("🔁 Reset paper account"):
     }
 
 state = st.session_state.pt
-if ticker not in state["positions"]:
-    state["positions"][ticker] = 0.0
-    state["avg_cost"][ticker] = 0.0
+
+# --- Ensure tracker always matches current ticker ---
+# If user switched ticker, reset positions for that ticker only
+if ticker not in state["positions"] or list(state["positions"].keys()) != [ticker]:
+    state["positions"] = {ticker: 0.0}
+    state["avg_cost"] = {ticker: 0.0}
+    state["equity_curve"] = []
+    state["trades"] = []
+    state["days_recorded"] = 0
+
 
 st.markdown("## 🧪 Paper-Trade Tracker (5 days)")
 st.caption("Simulation only — executes for the selected ticker and keeps 5-day P/L log.")
