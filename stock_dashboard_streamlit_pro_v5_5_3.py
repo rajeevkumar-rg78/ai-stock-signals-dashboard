@@ -1240,6 +1240,8 @@ Markets carry risk; always do your own research or consult a licensed financial 
     """,
     unsafe_allow_html=True,
 )
+
+
 # ================== 🧪 Paper-Trade Tracker (5 Days, by active ticker) ==================
 import datetime as _dt
 
@@ -1363,6 +1365,7 @@ if state["days_recorded"]>=5:
     st.markdown("### ✅ 5-Day Result Summary")
     st.metric("Start → End", f"${start:,.2f} → ${end:,.2f}",
               delta=f"{end-start:+.2f}")
+
 
 
 
