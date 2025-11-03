@@ -234,12 +234,6 @@ c1, c2, c3 = st.columns([2,2,3])
 with c1:
     ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
 
-# --- Force tracker reset if ticker changed ---
-if "pt" in st.session_state:
-    prev_ticker = list(st.session_state.pt.get("positions", {}).keys())[0] if st.session_state.pt.get("positions") else None
-    if prev_ticker and prev_ticker != ticker:
-        del st.session_state["pt"]
-        st.toast(f"🧹 Reset tracker — switched from {prev_ticker} → {ticker}")
 
 if not ticker:
     st.markdown("""
