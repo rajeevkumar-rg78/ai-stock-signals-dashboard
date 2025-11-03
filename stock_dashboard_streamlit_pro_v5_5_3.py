@@ -1268,6 +1268,32 @@ if ticker not in state["positions"] or list(state["positions"].keys()) != [ticke
     state["days_recorded"] = 0
 
 
+
+
+
+
+# --- Force sync of tracker to current ticker ---
+if "pt" not in st.session_state:
+    st.session_state.pt = {
+        "start_date": _dt.date.today().isoformat(),
+        "days_recorded": 0,
+        "cash": float(invest_amount),
+        "positions": {ticker: 0.0},
+        "avg_cost": {ticker: 0.0},
+        "equity_curve": [],
+        "trades": []
+    }
+
+# 🔧 If ticker changed, reinitialize position for that ticker
+state = st.session_state.pt
+if list(state["positions"].keys()) != [ticker]:
+    state["positions"] = {ticker: 0.0}
+    state["avg_cost"] = {ticker: 0.0}
+    state["equity_curve"] = []
+    state["trades"] = []
+    state["days_recorded"] = 0
+    st.info(f"Reset tracker for {ticker}")
+
 st.markdown("## 🧪 Paper-Trade Tracker (5 days)")
 st.caption("Simulation only — executes for the selected ticker and keeps 5-day P/L log.")
 
