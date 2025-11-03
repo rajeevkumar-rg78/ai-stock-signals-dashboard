@@ -1241,23 +1241,28 @@ Markets carry risk; always do your own research or consult a licensed financial 
     unsafe_allow_html=True,
 )
 
-
-
-
+# ============================================================
+# 🧪 PAPER-TRADE TRACKER (5 DAYS, TICKER-SAFE VERSION)
+# ============================================================
 import datetime as _dt
 import pandas as pd
 import streamlit as st
 
-# ============================================================
-# 🧪 PAPER-TRADE TRACKER (5 DAYS)
-# ============================================================
+# --- emergency ghost cleanup for old sessions ---
+if "pt" in st.session_state and "UBER" in st.session_state.pt.get("positions", {}):
+    del st.session_state["pt"]
+    st.toast("Cleared old UBER session 🧹")
 
-st.markdown("## 🧪 Paper-Trade Tracker (5 days)")
-st.caption("Simulation only — executes for the selected ticker and keeps a 5-day P/L log.")
-
-# --- Initialize or Reset Tracker ---
+# --- initialize / reset logic ---
 if "pt" not in st.session_state:
-    st.session_state.pt = {
+    st.session_state.pt = {}
+
+pt = st.session_state.pt
+
+# Always reinitialize tracker if new ticker selected
+if "positions" not in pt or list(pt.get("positions", {}).keys()) != [ticker]:
+    pt.clear()
+    pt.update({
         "start_date": _dt.date.today().isoformat(),
         "days_recorded": 0,
         "cash": float(invest_amount),
@@ -1265,24 +1270,16 @@ if "pt" not in st.session_state:
         "avg_cost": {ticker: 0.0},
         "equity_curve": [],
         "trades": []
-    }
-# --- Optional emergency reset for ghost ticker ---
-if "pt" in st.session_state and "UBER" in st.session_state.pt.get("positions", {}):
-    del st.session_state["pt"]
-    st.toast("Cleared old UBER session 🧹")
+    })
+    st.info(f"🔄 Paper tracker initialized for **{ticker}**")
 
-state = st.session_state.pt
+state = pt
 
-# --- Auto-reset when ticker changes ---
-if list(state["positions"].keys()) != [ticker]:
-    state["positions"] = {ticker: 0.0}
-    state["avg_cost"] = {ticker: 0.0}
-    state["equity_curve"] = []
-    state["trades"] = []
-    state["days_recorded"] = 0
-    st.info(f"🔄 Tracker reset for new ticker: **{ticker}**")
+# --- section header ---
+st.markdown("## 🧪 Paper-Trade Tracker (5 days)")
+st.caption("Simulation only — executes for the selected ticker and keeps a 5-day P/L log.")
 
-# --- Current AI-driven signal parameters ---
+# --- current AI signal parameters ---
 _now_price = float(ind.iloc[-1]["Close"])
 _buy_zone  = float(_now_price - 1.5 * ind.iloc[-1]["ATR"])
 _target    = float(_now_price + 2.0 * ind.iloc[-1]["ATR"])
@@ -1295,11 +1292,10 @@ _plan = daily_action_strategy(
     shares_held=state["positions"][ticker], cash=state["cash"]
 )
 
-# --- UI Layout ---
+# --- layout controls ---
 colA, colB, colC = st.columns([1.6, 1, 1])
 with colA:
-    st.write(f"**Paper Cash:** ${state['cash']:,.2f}  |  "
-             f"**Pos ({ticker}):** {state['positions'][ticker]:,.4f} sh")
+    st.write(f"**Paper Cash:** ${state['cash']:,.2f}  |  **Pos ({ticker}):** {state['positions'][ticker]:,.4f} sh")
 with colB:
     rec_btn = st.button("🧾 Record today's close")
 with colC:
@@ -1308,7 +1304,7 @@ with colC:
 st.markdown(f"**Planned action (today):** {_plan['msg']}")
 
 # ============================================================
-# ⚙️ Trade Execution Logic
+# ⚙️ EXECUTE TRADES
 # ============================================================
 
 def _execute_action():
@@ -1366,7 +1362,7 @@ if act_btn:
     _execute_action()
 
 # ============================================================
-# 📈 Record Daily Close
+# 📈 RECORD DAILY CLOSE
 # ============================================================
 
 def _mark_to_market():
@@ -1388,7 +1384,7 @@ if rec_btn:
     _mark_to_market()
 
 # ============================================================
-# 📊 Display Results
+# 📊 SHOW RESULTS
 # ============================================================
 
 if state["trades"]:
@@ -1397,17 +1393,9 @@ if state["trades"]:
     st.dataframe(df, use_container_width=True)
 
 if state["equity_curve"]:
-    ec = pd.DataFrame(state["equity_curve"])
-    st.markdown("#### 💹 Equity progression")
-    st.line_chart(ec.set_index("day")[["equity"]])
-    pnl = ec["equity"].iloc[-1] - float(invest_amount)
-    st.metric("Current P/L", f"${pnl:,.2f}")
+    ec = pd.DataFrame(state["equi]()
 
-if state["days_recorded"] >= 5:
-    ec = pd.DataFrame(state["equity_curve"])
-    start = float(invest_amount)
-    end = float(ec["equity"].iloc[-1])
-    st.markdown("### ✅ 5-Day Result Summary")
-    st.metric("Start → End", f"${start:,.2f} → ${end:,.2f}", delta=f"{end - start:+.2f}")
+
+
 
 
