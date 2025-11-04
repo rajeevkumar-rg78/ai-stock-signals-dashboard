@@ -1322,40 +1322,49 @@ if not paper_result["equity"].empty:
 st.info("This is a paper simulation based on algorithmic signals — no real trading executed.")
 
 # ============================================================
-# 🧠 Hybrid Paper Trading Simulator — Live + Forward Simulation (FINAL FIXED)
+# 🧠 Hybrid Paper Trading Simulator — Live + Forward Simulation (Fixed for Current Ticker)
 # ============================================================
 st.markdown("## 🧠 Hybrid Paper Trading Simulator (Live + Forward Simulation)")
 
-if df is not None and not df.empty and ind is not None:
-    try:
-        # --- Current live price and signal ---
-        live_price = float(df["Close"].iloc[-1])
-        live_signal = decision  # from generate_signal(...)
-        shares_held = 0
+try:
+    # --- Always use the current ticker input ---
+    current_ticker = ticker.strip().upper()
+
+    # --- Get fresh data for this ticker only ---
+    df_live = fetch_prices_tf(current_ticker, period, interval)
+    if df_live is None or df_live.empty:
+        st.info(f"No recent data available for {current_ticker}.")
+    else:
+        ind_live = compute_indicators(df_live)
+        headlines_live, news_sent_live = fetch_news_and_sentiment(current_ticker)
+        decision_live, _, _ = generate_signal(ind_live, news_sent_live, horizon)
+
+        live_price = float(df_live["Close"].iloc[-1])
         cash = float(invest_amount)
+        shares_held = 0
         trades = []
 
         # --- Act on today's signal ---
-        if live_signal == "BUY":
-            buy_amt = invest_amount * 0.25  # use 25% allocation
+        if decision_live == "BUY":
+            buy_amt = invest_amount * 0.25
             shares_to_buy = buy_amt / live_price
             shares_held += shares_to_buy
             cash -= buy_amt
             trades.append({
-                "date": df.index[-1].strftime("%Y-%m-%d"),
+                "date": df_live.index[-1].strftime("%Y-%m-%d"),
                 "side": "BUY",
                 "price": live_price,
                 "shares": shares_to_buy,
                 "value": buy_amt
             })
-            st.success(f"📈 Live BUY executed for {shares_to_buy:.2f} shares at ${live_price:.2f}")
-        elif live_signal == "SELL":
-            st.warning("⚠️ Live signal suggests SELL — no new buys initiated.")
+            st.success(f"📈 Live BUY executed for {shares_to_buy:.2f} shares at ${live_price:.2f} ({current_ticker})")
+        elif decision_live == "SELL":
+            st.warning(f"⚠️ Live signal suggests SELL for {current_ticker}.")
         else:
-            st.info("🔸 Live signal is HOLD — simulation continues without new buys.")
+            st.info(f"🔸 Live signal for {current_ticker}: HOLD — simulation continues without new buys.")
 
-        # --- Compute daily returns safely and ensure 1-D array ---
-        r = df["Close"].pct_change().dropna()
+        # --- Clean daily returns for this ticker ---
+        r = df_live["Close"].pct_change().dropna()
         if isinstance(r, pd.DataFrame):
             r = r.iloc[:, 0]
         elif isinstance(r, np.ndarray) and r.ndim > 1:
@@ -1365,9 +1374,8 @@ if df is not None and not df.empty and ind is not None:
         r = pd.to_numeric(r, errors="coerce").dropna().values.flatten()
 
         if len(r) < 30:
-            st.info("Not enough data to simulate forward performance.")
+            st.info(f"Not enough data to simulate forward performance for {current_ticker}.")
         else:
-            # --- Monte Carlo forward simulation ---
             days_forward = 20
             sims = []
             for _ in range(1000):
@@ -1378,31 +1386,29 @@ if df is not None and not df.empty and ind is not None:
                 sims.append(prices)
             sims = np.array(sims)
 
-            # --- Aggregate statistics ---
+            # --- Monte Carlo statistics ---
             mean_path = np.mean(sims, axis=0)
             low_band = np.percentile(sims, 5, axis=0)
             high_band = np.percentile(sims, 95, axis=0)
 
-            # --- Portfolio simulation ---
             portfolio_values = [cash + shares_held * p for p in mean_path]
             final_val = portfolio_values[-1]
             roi = (final_val - invest_amount) / invest_amount * 100
             avg_profit = (final_val - invest_amount) / shares_to_buy if shares_to_buy > 0 else 0
 
-            # --- Display summary metrics ---
+            # --- Display results ---
             st.metric("Final Simulated Value (20d)", f"${final_val:,.2f}")
             st.metric("ROI (20d forecast)", f"{roi:+.2f}%")
             st.metric("Expected P/L per share", f"${avg_profit:+.2f}")
 
-            # --- Plot ---
             import plotly.graph_objects as go
-            fig = go.Figure()
             days = np.arange(len(mean_path))
+            fig = go.Figure()
             fig.add_trace(go.Scatter(x=days, y=mean_path, mode="lines", name="Expected Price", line=dict(color="#1976d2")))
             fig.add_trace(go.Scatter(x=days, y=low_band, mode="lines", name="5th %ile", line=dict(color="red", dash="dot")))
             fig.add_trace(go.Scatter(x=days, y=high_band, mode="lines", name="95th %ile", line=dict(color="green", dash="dot")))
             fig.update_layout(
-                title=f"{ticker} — 20-Day Monte Carlo Projection (Based on Live Signal)",
+                title=f"{current_ticker} — 20-Day Monte Carlo Projection (Based on Live Signal)",
                 xaxis_title="Days Ahead",
                 yaxis_title="Projected Price ($)",
                 height=400,
@@ -1411,10 +1417,9 @@ if df is not None and not df.empty and ind is not None:
             st.plotly_chart(fig, use_container_width=True)
 
             st.caption("This is a paper simulation based on algorithmic signals — no real trading executed.")
-    except Exception as e:
-        st.error(f"Hybrid simulation error: {e}")
-else:
-    st.info("No data available for hybrid simulation.")
+except Exception as e:
+    st.error(f"Hybrid simulation error: {e}")
+
 
 
 
