@@ -1322,6 +1322,87 @@ if not paper_result["equity"].empty:
 st.info("This is a paper simulation based on algorithmic signals — no real trading executed.")
 
 
+# ============================================================
+# 🧠 Hybrid Paper Trading Simulator — Live Signal + Future Projection
+# ============================================================
+st.markdown("## 🧠 Hybrid Paper Trading Simulator (Live + Forward Simulation)")
+
+if df is not None and not df.empty and ind is not None:
+    try:
+        # --- Current live price and signal ---
+        live_price = float(df["Close"].iloc[-1])
+        live_signal = decision  # from generate_signal(...)
+        shares_held = 0
+        cash = float(invest_amount)
+        trades = []
+
+        # --- Act on today's signal ---
+        if live_signal == "BUY":
+            buy_amt = invest_amount * 0.25  # use 25% allocation
+            shares_to_buy = buy_amt / live_price
+            shares_held += shares_to_buy
+            cash -= buy_amt
+            trades.append({"date": df.index[-1].strftime("%Y-%m-%d"),
+                           "side": "BUY", "price": live_price,
+                           "shares": shares_to_buy, "value": buy_amt})
+            st.success(f"📈 Live BUY executed for {shares_to_buy:.2f} shares at ${live_price:.2f}")
+        elif live_signal == "SELL":
+            st.warning("⚠️ Live signal suggests SELL — no new buys initiated.")
+        else:
+            st.info("🔸 Live signal is HOLD — simulation continues without new buys.")
+
+        # --- Simulate forward (Monte Carlo path for next 20 days) ---
+        r = df["Close"].pct_change().dropna()
+        if len(r) < 30:
+            st.info("Not enough data to simulate forward performance.")
+        else:
+            days_forward = 20
+            sims = []
+            for _ in range(1000):
+                sampled_returns = np.random.choice(r.values, size=days_forward, replace=True)
+                prices = [live_price]
+                for ret in sampled_returns:
+                    prices.append(prices[-1] * (1 + ret))
+                sims.append(prices)
+            sims = np.array(sims)
+            mean_path = np.mean(sims, axis=0)
+            low_band = np.percentile(sims, 5, axis=0)
+            high_band = np.percentile(sims, 95, axis=0)
+
+            # --- Portfolio simulation ---
+            portfolio_values = []
+            for i in range(days_forward + 1):
+                price_now = mean_path[i]
+                portfolio_value = cash + shares_held * price_now
+                portfolio_values.append(portfolio_value)
+
+            # --- Summary metrics ---
+            final_val = portfolio_values[-1]
+            roi = (final_val - invest_amount) / invest_amount * 100
+            st.metric("Final Simulated Value (20d)", f"${final_val:,.2f}")
+            st.metric("ROI (20d forecast)", f"{roi:+.2f}%")
+
+            # --- Plot ---
+            import plotly.graph_objects as go
+            fig = go.Figure()
+            days = np.arange(len(mean_path))
+            fig.add_trace(go.Scatter(x=days, y=mean_path, mode="lines", name="Expected Price", line=dict(color="#1976d2")))
+            fig.add_trace(go.Scatter(x=days, y=low_band, mode="lines", name="5th %ile", line=dict(color="red", dash="dot")))
+            fig.add_trace(go.Scatter(x=days, y=high_band, mode="lines", name="95th %ile", line=dict(color="green", dash="dot")))
+            fig.update_layout(
+                title=f"{ticker} — 20-Day Monte Carlo Projection (Based on Live Signal)",
+                xaxis_title="Days Ahead",
+                yaxis_title="Projected Price ($)",
+                height=400,
+                template="plotly_white"
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+            st.caption("This is a paper simulation based on algorithmic signals — no real trading executed.")
+    except Exception as e:
+        st.error(f"Hybrid simulation error: {e}")
+else:
+    st.info("No data available for hybrid simulation.")
 
 
 
