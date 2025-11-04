@@ -1302,6 +1302,7 @@ logbook_df = paper_trading_logbook(df, ind, invest_amount)
 
 st.write("### Paper Trading Log Book")
 st.dataframe(logbook_df, use_container_width=True)
+st.write(f"### Paper Trading Log Book for {ticker}")
 
 st.write("### Portfolio Value Over Time")
 st.line_chart(logbook_df.set_index("date")["portfolio_value"])
