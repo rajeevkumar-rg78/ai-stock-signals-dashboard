@@ -1238,6 +1238,73 @@ Markets carry risk; always do your own research or consult a licensed financial 
     unsafe_allow_html=True,
 )
 
+st.markdown("## 📒 Paper Trading Log Book (Based on Real Signals)")
+
+def paper_trading_logbook(df: pd.DataFrame, ind: pd.DataFrame, invest_amount: float = 10_000.0):
+    df, ind = df.align(ind, join="inner", axis=0)
+    cash = invest_amount
+    shares = 0.0
+    trades = []
+    portfolio_values = []
+
+    for date in df.index:
+        price = float(df.loc[date, "Close"])
+        signal, _, _ = generate_signal(ind.loc[:date], 0, horizon)
+        buy_zone = price - 1.5 * ind.loc[date, "ATR"]
+        target_up = price + 2.0 * ind.loc[date, "ATR"]
+        stop_loss = price - 2.5 * ind.loc[date, "ATR"]
+
+        action = "HOLD"
+        shares_traded = 0.0
+        amount = 0.0
+
+        if signal == "BUY" and cash > 0:
+            buy_amt = cash * 0.25
+            shares_traded = buy_amt / price
+            shares += shares_traded
+            cash -= buy_amt
+            action = "BUY"
+            amount = buy_amt
+        elif signal == "SELL" and shares > 0:
+            shares_traded = shares * 0.5
+            proceeds = shares_traded * price
+            shares -= shares_traded
+            cash += proceeds
+            action = "SELL"
+            amount = proceeds
+        elif price <= stop_loss and shares > 0:
+            proceeds = shares * price
+            shares_traded = shares
+            cash += proceeds
+            shares = 0
+            action = "STOP"
+            amount = proceeds
+
+        portfolio_value = cash + shares * price
+        trades.append({
+            "date": date.strftime("%Y-%m-%d"),
+            "signal": signal,
+            "action": action,
+            "price": price,
+            "shares_traded": shares_traded,
+            "amount": amount,
+            "cash": cash,
+            "shares_held": shares,
+            "portfolio_value": portfolio_value
+        })
+        portfolio_values.append(portfolio_value)
+
+    trades_df = pd.DataFrame(trades)
+    return trades_df
+
+# Run the logbook for the current ticker
+logbook_df = paper_trading_logbook(df, ind, invest_amount)
+
+st.write("### Paper Trading Log Book")
+st.dataframe(logbook_df, use_container_width=True)
+
+st.write("### Portfolio Value Over Time")
+st.line_chart(logbook_df.set_index("date")["portfolio_value"])
 
 
 
