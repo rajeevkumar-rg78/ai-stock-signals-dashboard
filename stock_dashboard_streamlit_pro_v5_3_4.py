@@ -1321,9 +1321,8 @@ if not paper_result["equity"].empty:
 
 st.info("This is a paper simulation based on algorithmic signals — no real trading executed.")
 
-
 # ============================================================
-# 🧠 Hybrid Paper Trading Simulator — Live Signal + Future Projection
+# 🧠 Hybrid Paper Trading Simulator — Live + Forward Simulation (FINAL FIXED)
 # ============================================================
 st.markdown("## 🧠 Hybrid Paper Trading Simulator (Live + Forward Simulation)")
 
@@ -1342,17 +1341,19 @@ if df is not None and not df.empty and ind is not None:
             shares_to_buy = buy_amt / live_price
             shares_held += shares_to_buy
             cash -= buy_amt
-            trades.append({"date": df.index[-1].strftime("%Y-%m-%d"),
-                           "side": "BUY", "price": live_price,
-                           "shares": shares_to_buy, "value": buy_amt})
+            trades.append({
+                "date": df.index[-1].strftime("%Y-%m-%d"),
+                "side": "BUY",
+                "price": live_price,
+                "shares": shares_to_buy,
+                "value": buy_amt
+            })
             st.success(f"📈 Live BUY executed for {shares_to_buy:.2f} shares at ${live_price:.2f}")
         elif live_signal == "SELL":
             st.warning("⚠️ Live signal suggests SELL — no new buys initiated.")
         else:
             st.info("🔸 Live signal is HOLD — simulation continues without new buys.")
 
-        # --- Simulate forward (Monte Carlo path for next 20 days) ---
-      # --- Compute daily returns safely and ensure 1-D array ---
         # --- Compute daily returns safely and ensure 1-D array ---
         r = df["Close"].pct_change().dropna()
         if isinstance(r, pd.DataFrame):
@@ -1362,47 +1363,36 @@ if df is not None and not df.empty and ind is not None:
         elif not isinstance(r, pd.Series):
             r = pd.Series(r)
         r = pd.to_numeric(r, errors="coerce").dropna().values.flatten()
-        
-        # --- Monte Carlo forward simulation ---
-        days_forward = 20
-        sims = []
-        for _ in range(1000):
-            sampled_returns = np.random.choice(r, size=days_forward, replace=True)
-            prices = [live_price]
-            for ret in sampled_returns:
-                prices.append(prices[-1] * (1 + ret))
-            sims.append(prices)
-        sims = np.array(sims)
-
 
         if len(r) < 30:
             st.info("Not enough data to simulate forward performance.")
         else:
+            # --- Monte Carlo forward simulation ---
             days_forward = 20
             sims = []
             for _ in range(1000):
-                sampled_returns = np.random.choice(r.values, size=days_forward, replace=True)
+                sampled_returns = np.random.choice(r, size=days_forward, replace=True)
                 prices = [live_price]
                 for ret in sampled_returns:
                     prices.append(prices[-1] * (1 + ret))
                 sims.append(prices)
             sims = np.array(sims)
+
+            # --- Aggregate statistics ---
             mean_path = np.mean(sims, axis=0)
             low_band = np.percentile(sims, 5, axis=0)
             high_band = np.percentile(sims, 95, axis=0)
 
             # --- Portfolio simulation ---
-            portfolio_values = []
-            for i in range(days_forward + 1):
-                price_now = mean_path[i]
-                portfolio_value = cash + shares_held * price_now
-                portfolio_values.append(portfolio_value)
-
-            # --- Summary metrics ---
+            portfolio_values = [cash + shares_held * p for p in mean_path]
             final_val = portfolio_values[-1]
             roi = (final_val - invest_amount) / invest_amount * 100
+            avg_profit = (final_val - invest_amount) / shares_to_buy if shares_to_buy > 0 else 0
+
+            # --- Display summary metrics ---
             st.metric("Final Simulated Value (20d)", f"${final_val:,.2f}")
             st.metric("ROI (20d forecast)", f"{roi:+.2f}%")
+            st.metric("Expected P/L per share", f"${avg_profit:+.2f}")
 
             # --- Plot ---
             import plotly.graph_objects as go
@@ -1425,6 +1415,7 @@ if df is not None and not df.empty and ind is not None:
         st.error(f"Hybrid simulation error: {e}")
 else:
     st.info("No data available for hybrid simulation.")
+
 
 
 
