@@ -1352,7 +1352,16 @@ if df is not None and not df.empty and ind is not None:
             st.info("🔸 Live signal is HOLD — simulation continues without new buys.")
 
         # --- Simulate forward (Monte Carlo path for next 20 days) ---
+      # --- Compute daily returns safely and ensure 1-D array ---
         r = df["Close"].pct_change().dropna()
+        if isinstance(r, pd.DataFrame):
+            r = r.iloc[:, 0]
+        elif isinstance(r, np.ndarray) and r.ndim > 1:
+            r = pd.Series(r.flatten())
+        elif not isinstance(r, pd.Series):
+            r = pd.Series(r)
+        r = pd.to_numeric(r, errors="coerce").dropna().values.flatten()
+
         if len(r) < 30:
             st.info("Not enough data to simulate forward performance.")
         else:
