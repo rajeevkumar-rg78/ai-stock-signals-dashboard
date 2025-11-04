@@ -1148,26 +1148,24 @@ tech_watchlist = [
 ]
 
 buy_candidates = []
-
-for ticker in tech_watchlist:
+for scan_ticker in tech_watchlist:
     try:
-        df = fetch_prices_tf(ticker, period, interval)
+        df = fetch_prices_tf(scan_ticker, period, interval)
         if df is None or len(df) < 30:
             continue
         ind = compute_indicators(df)
-        headlines, news_sent = fetch_news_and_sentiment(ticker)
+        headlines, news_sent = fetch_news_and_sentiment(scan_ticker)
         signal, color, score = generate_signal(ind, news_sent, horizon)
-        earnings_date = fetch_earnings_date(ticker)
+        earnings_date = fetch_earnings_date(scan_ticker)
         last = ind.iloc[-1]
         price = last["Close"]
         buy_zone = price - 1.5 * last["ATR"]
         target_up = price + 2.0 * last["ATR"]
         stop_loss = price - 2.5 * last["ATR"]
 
-        # Example filter: only BUY signals, price near or below buy zone, no earnings in next 3 days
         if signal == "BUY" and price <= buy_zone * 1.05:
             buy_candidates.append({
-                "Ticker": ticker,
+                "Ticker": scan_ticker,
                 "Price": f"${price:.2f}",
                 "Score": score,
                 "Buy Zone": f"${buy_zone:.2f}",
@@ -1177,7 +1175,9 @@ for ticker in tech_watchlist:
                 "News Sentiment": f"{news_sent:+.2f}"
             })
     except Exception as e:
-        st.write(f"Error processing {ticker}: {e}")
+        st.write(f"Error processing {scan_ticker}: {e}")
+
+
 
 # Sort by score (strongest first)
 buy_candidates = sorted(buy_candidates, key=lambda x: x["Score"], reverse=True)
