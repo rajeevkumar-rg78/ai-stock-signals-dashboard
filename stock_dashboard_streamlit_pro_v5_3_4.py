@@ -1322,15 +1322,13 @@ if not paper_result["equity"].empty:
 st.info("This is a paper simulation based on algorithmic signals — no real trading executed.")
 
 # ============================================================
-# 🧠 Hybrid Paper Trading Simulator — Live + Forward Simulation (Fixed for Current Ticker)
+# 🧠 Hybrid Paper Trading Simulator — Live + Forward Simulation (Fixed for Current Ticker + Safe vars)
 # ============================================================
 st.markdown("## 🧠 Hybrid Paper Trading Simulator (Live + Forward Simulation)")
 
 try:
-    # --- Always use the current ticker input ---
     current_ticker = ticker.strip().upper()
 
-    # --- Get fresh data for this ticker only ---
     df_live = fetch_prices_tf(current_ticker, period, interval)
     if df_live is None or df_live.empty:
         st.info(f"No recent data available for {current_ticker}.")
@@ -1341,8 +1339,10 @@ try:
 
         live_price = float(df_live["Close"].iloc[-1])
         cash = float(invest_amount)
-        shares_held = 0
+        shares_held = 0.0
         trades = []
+        shares_to_buy = 0.0
+        avg_profit = 0.0
 
         # --- Act on today's signal ---
         if decision_live == "BUY":
@@ -1363,7 +1363,7 @@ try:
         else:
             st.info(f"🔸 Live signal for {current_ticker}: HOLD — simulation continues without new buys.")
 
-        # --- Clean daily returns for this ticker ---
+        # --- Clean daily returns ---
         r = df_live["Close"].pct_change().dropna()
         if isinstance(r, pd.DataFrame):
             r = r.iloc[:, 0]
@@ -1386,7 +1386,6 @@ try:
                 sims.append(prices)
             sims = np.array(sims)
 
-            # --- Monte Carlo statistics ---
             mean_path = np.mean(sims, axis=0)
             low_band = np.percentile(sims, 5, axis=0)
             high_band = np.percentile(sims, 95, axis=0)
@@ -1396,7 +1395,6 @@ try:
             roi = (final_val - invest_amount) / invest_amount * 100
             avg_profit = (final_val - invest_amount) / shares_to_buy if shares_to_buy > 0 else 0
 
-            # --- Display results ---
             st.metric("Final Simulated Value (20d)", f"${final_val:,.2f}")
             st.metric("ROI (20d forecast)", f"{roi:+.2f}%")
             st.metric("Expected P/L per share", f"${avg_profit:+.2f}")
@@ -1419,6 +1417,7 @@ try:
             st.caption("This is a paper simulation based on algorithmic signals — no real trading executed.")
 except Exception as e:
     st.error(f"Hybrid simulation error: {e}")
+
 
 
 
