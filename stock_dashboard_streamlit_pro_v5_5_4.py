@@ -1239,6 +1239,23 @@ Markets carry risk; always do your own research or consult a licensed financial 
 )
 
 st.markdown("## 📒 Paper Trading Log Book (Based on Real Signals)")
+# 1. Get user input
+ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
+if not ticker:
+    st.markdown("Please enter a stock symbol above to get started.")
+    st.stop()
+
+# 2. Fetch data for the user's ticker (not from the screener loop)
+df = fetch_prices_tf(ticker, period, interval)
+if df is None or df.empty:
+    st.error(f"No data found for {ticker}.")
+    st.stop()
+ind = compute_indicators(df)
+
+# 3. Run the logbook for the user's ticker
+logbook_df = paper_trading_logbook(df, ind, invest_amount)
+st.write(f"### Paper Trading Log Book for {ticker}")
+st.dataframe(logbook_df, use_container_width=True)
 
 def paper_trading_logbook(df: pd.DataFrame, ind: pd.DataFrame, invest_amount: float = 10_000.0):
     df, ind = df.align(ind, join="inner", axis=0)
