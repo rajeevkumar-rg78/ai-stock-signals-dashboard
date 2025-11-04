@@ -1300,8 +1300,18 @@ def paper_trading_backtest(df: pd.DataFrame, ind: pd.DataFrame, invest_amount: f
 paper_result = paper_trading_backtest(df, ind, invest_amount)
 
 # --- Display results ---
-st.metric("Final Portfolio Value", f"${paper_result['final_value']:,.2f}")
-st.metric("ROI", f"{paper_result['roi_pct']:.1f}%")
+# --- Safely display results ---
+final_val = paper_result.get("final_value", 0.0)
+roi_val = paper_result.get("roi_pct", 0.0)
+
+# Handle None, NaN, or invalid numbers
+if not isinstance(final_val, (int, float)) or pd.isna(final_val):
+    final_val = 0.0
+if not isinstance(roi_val, (int, float)) or pd.isna(roi_val):
+    roi_val = 0.0
+
+st.metric("Final Portfolio Value", f"${final_val:,.2f}")
+st.metric("ROI", f"{roi_val:.1f}%")
 
 if not paper_result["trades"].empty:
     st.dataframe(paper_result["trades"], use_container_width=True)
