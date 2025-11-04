@@ -1301,7 +1301,6 @@ def paper_trading_logbook(df: pd.DataFrame, ind: pd.DataFrame, invest_amount: fl
 logbook_df = paper_trading_logbook(df, ind, invest_amount)
 st.write(f"### Paper Trading Log Book for {ticker}")
 
-st.write("### Paper Trading Log Book")
 st.dataframe(logbook_df, use_container_width=True)
 
 st.write("### Portfolio Value Over Time")
