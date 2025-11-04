@@ -1238,6 +1238,78 @@ Markets carry risk; always do your own research or consult a licensed financial 
     unsafe_allow_html=True,
 )
 
+st.markdown("""
+<div style='text-align:left; color:gray; ...'>
+...
+</div>
+""", unsafe_allow_html=True)
+# ============================================================
+# 🧪 Paper Trading Backtest (beta test module)
+# ============================================================
+
+st.markdown("## 🧪 Paper Trading Backtest — Evaluate AI Signals")
+
+def paper_trading_backtest(df: pd.DataFrame, ind: pd.DataFrame, invest_amount: float = 10_000.0):
+    """Simulate trading based on AI buy/sell/hold/stop signals."""
+    df, ind = df.align(ind, join="inner", axis=0)
+    cash = invest_amount
+    shares = 0.0
+    trades, equity_curve = [], []
+
+    for date in df.index:
+        price = float(df.loc[date, "Close"])
+        # use your existing signal logic
+        signal, _, _ = generate_signal(ind.loc[:date], 0, horizon)
+        buy_zone = price - 1.5 * ind.loc[date, "ATR"]
+        target_up = price + 2.0 * ind.loc[date, "ATR"]
+        stop_loss = price - 2.5 * ind.loc[date, "ATR"]
+
+        # --- Execute simulated action ---
+        if signal == "BUY" and cash > 0:
+            buy_amt = cash * 0.25
+            shares_bought = buy_amt / price
+            shares += shares_bought
+            cash -= buy_amt
+            trades.append({"date": date, "action": "BUY", "price": price,
+                           "shares": shares_bought, "cash": cash})
+        elif signal == "SELL" and shares > 0:
+            sell_shares = shares * 0.5
+            proceeds = sell_shares * price
+            shares -= sell_shares
+            cash += proceeds
+            trades.append({"date": date, "action": "SELL", "price": price,
+                           "shares": -sell_shares, "cash": cash})
+        elif price <= stop_loss and shares > 0:
+            proceeds = shares * price
+            trades.append({"date": date, "action": "STOP", "price": price,
+                           "shares": -shares, "cash": cash + proceeds})
+            cash += proceeds
+            shares = 0
+
+        equity = cash + shares * price
+        equity_curve.append({"date": date, "equity": equity})
+
+    equity_df = pd.DataFrame(equity_curve)
+    trades_df = pd.DataFrame(trades)
+    final_value = cash + shares * df["Close"].iloc[-1]
+    roi = (final_value - invest_amount) / invest_amount * 100
+    return {"final_value": final_value, "roi_pct": roi,
+            "equity": equity_df, "trades": trades_df}
+
+# --- Run backtest for currently selected ticker ---
+paper_result = paper_trading_backtest(df, ind, invest_amount)
+
+# --- Display results ---
+st.metric("Final Portfolio Value", f"${paper_result['final_value']:,.2f}")
+st.metric("ROI", f"{paper_result['roi_pct']:.1f}%")
+
+if not paper_result["trades"].empty:
+    st.dataframe(paper_result["trades"], use_container_width=True)
+
+if not paper_result["equity"].empty:
+    st.line_chart(paper_result["equity"].set_index("date"))
+
+st.info("This is a paper simulation based on algorithmic signals — no real trading executed.")
 
 
 
