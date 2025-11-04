@@ -1353,6 +1353,7 @@ if df is not None and not df.empty and ind is not None:
 
         # --- Simulate forward (Monte Carlo path for next 20 days) ---
       # --- Compute daily returns safely and ensure 1-D array ---
+        # --- Compute daily returns safely and ensure 1-D array ---
         r = df["Close"].pct_change().dropna()
         if isinstance(r, pd.DataFrame):
             r = r.iloc[:, 0]
@@ -1361,6 +1362,18 @@ if df is not None and not df.empty and ind is not None:
         elif not isinstance(r, pd.Series):
             r = pd.Series(r)
         r = pd.to_numeric(r, errors="coerce").dropna().values.flatten()
+        
+        # --- Monte Carlo forward simulation ---
+        days_forward = 20
+        sims = []
+        for _ in range(1000):
+            sampled_returns = np.random.choice(r, size=days_forward, replace=True)
+            prices = [live_price]
+            for ret in sampled_returns:
+                prices.append(prices[-1] * (1 + ret))
+            sims.append(prices)
+        sims = np.array(sims)
+
 
         if len(r) < 30:
             st.info("Not enough data to simulate forward performance.")
