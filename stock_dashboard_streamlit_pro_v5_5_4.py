@@ -1238,11 +1238,7 @@ Markets carry risk; always do your own research or consult a licensed financial 
     unsafe_allow_html=True,
 )
 
-st.markdown("""
-<div style='text-align:left; color:gray; ...'>
-...
-</div>
-""", unsafe_allow_html=True)
+
 
 
 
