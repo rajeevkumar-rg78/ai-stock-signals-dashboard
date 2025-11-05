@@ -70,7 +70,7 @@ def render_header(decision: str = "HOLD"):
         unsafe_allow_html=True
     )
 
-st.set_page_config(page_title="AI Stock Signals — PRO v5.5.3", layout="wide")
+st.set_page_config(page_title="AI Stock Signals — PRO ", layout="wide")
 render_header("HOLD")
 
 # ============= Ticker Input =============
