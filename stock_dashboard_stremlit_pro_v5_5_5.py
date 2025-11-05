@@ -128,7 +128,7 @@ st.markdown("""
 <div style="
     background: linear-gradient(90deg, #4A00E0 0%, #8E2DE2 100%);
     color: white;
-    text-align: center;
+    text-align: left;
     padding: 14px 18px;
     border-radius: 10px;
     margin-top: 8px;
