@@ -114,11 +114,40 @@ def safe_float(x, default=0.0):
         return default
 
 
+
+
+# ------------------------------ Inputs ------------------------------
+render_header("HOLD")
+
 # ============================================================
-# 🎓 In-App Tutorial: How AI Stock Signals PRO Works
+# 🎓 Onboarding Tutorial Section — AI Stock Signals PRO
 # ============================================================
 
-with st.expander("🎓 Learn How AI Stock Signals PRO Works", expanded=False):
+# 👋 Eye-catching gradient banner below header
+st.markdown("""
+<div style="
+    background: linear-gradient(90deg, #4A00E0 0%, #8E2DE2 100%);
+    color: white;
+    text-align: center;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.3px;">
+    👋 <b>Welcome to AI Stock Signals PRO</b><br>
+    <span style="font-size:15px;opacity:0.9;">Start by reading this short guide before exploring your first stock.</span>
+</div>
+""", unsafe_allow_html=True)
+
+
+# 🧠 Tutorial: expanded on first visit only
+if "tutorial_shown" not in st.session_state:
+    st.session_state.tutorial_shown = False
+
+with st.expander("🎓 Learn How AI Stock Signals PRO Works", expanded=not st.session_state.tutorial_shown):
     st.markdown("""
 ## 🧠 What Is AI Stock Signals PRO?
 AI Stock Signals PRO is an **AI-powered analytics dashboard** that blends:
@@ -234,12 +263,11 @@ Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
 © 2025 MarketMinds LLC. All rights reserved.
 """)
 
+# mark tutorial as shown for current session
+st.session_state.tutorial_shown = True
 
 
 
-
-# ------------------------------ Inputs ------------------------------
-render_header("HOLD")
 
 c1, c2, c3 = st.columns([2,2,3])
 with c1:
