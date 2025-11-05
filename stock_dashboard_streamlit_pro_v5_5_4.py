@@ -41,7 +41,7 @@ def daily_action_strategy(price, buy_zone, target_up, stop_loss, signal, invest_
 
 
 # ============= Page config =============
-st.set_page_config(page_title="AI Stock Signals — PRO v5.5.3", layout="wide")
+st.set_page_config(page_title="AI Stock Signals — PRO ", layout="wide")
 
 # ============= Dynamic Gradient Header =============
 
