@@ -10,6 +10,32 @@
 # - Silent fallbacks on Yahoo News/FRED where appropriate.
 # - Keep your core logic intact; UI is restructured for business use.
 # ----------------------------------------------------------------------
+st.markdown("## 🚀 Upgrade to PRO")
+
+st.markdown("""
+Choose your plan and unlock premium features:
+""")
+
+# Replace these with your real Stripe Checkout links
+stripe_monthly_url = "https://checkout.stripe.com/pay/YOUR_MONTHLY_CHECKOUT_LINK"
+stripe_yearly_url = "https://checkout.stripe.com/pay/YOUR_YEARLY_CHECKOUT_LINK"
+
+col1, col2 = st.columns(2)
+with col1:
+    st.markdown(f"""
+    <a href="{stripe_monthly_url}" target="_blank">
+        <button style="background:#43e97b;color:#222;padding:12px 24px;border:none;border-radius:8px;font-size:18px;font-weight:700;cursor:pointer;width:100%;">Monthly — $19</button>
+    </a>
+    """, unsafe_allow_html=True)
+with col2:
+    st.markdown(f"""
+    <a href="{stripe_yearly_url}" target="_blank">
+        <button style="background:#30cfd0;color:#222;padding:12px 24px;border:none;border-radius:8px;font-size:18px;font-weight:700;cursor:pointer;width:100%;">Yearly — $179</button>
+    </a>
+    """, unsafe_allow_html=True)
+
+st.caption("Payments are securely processed by Stripe. You will be redirected to a secure checkout page.")
+
 
 import streamlit as st
 import yfinance as yf
