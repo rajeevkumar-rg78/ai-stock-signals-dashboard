@@ -1148,16 +1148,17 @@ tech_watchlist = [
 ]
 
 buy_candidates = []
+
 for scan_ticker in tech_watchlist:
     try:
-        df = fetch_prices_tf(scan_ticker, period, interval)
-        if df is None or len(df) < 30:
+        scan_df = fetch_prices_tf(scan_ticker, period, interval)
+        if scan_df is None or len(scan_df) < 30:
             continue
-        ind = compute_indicators(df)
+        scan_ind = compute_indicators(scan_df)
         headlines, news_sent = fetch_news_and_sentiment(scan_ticker)
-        signal, color, score = generate_signal(ind, news_sent, horizon)
+        signal, color, score = generate_signal(scan_ind, news_sent, horizon)
         earnings_date = fetch_earnings_date(scan_ticker)
-        last = ind.iloc[-1]
+        last = scan_ind.iloc[-1]
         price = last["Close"]
         buy_zone = price - 1.5 * last["ATR"]
         target_up = price + 2.0 * last["ATR"]
@@ -1177,7 +1178,12 @@ for scan_ticker in tech_watchlist:
     except Exception as e:
         st.write(f"Error processing {scan_ticker}: {e}")
 
-
+# Fetch data for the user's selected ticker (again, after the screener)
+df = fetch_prices_tf(ticker, period, interval)
+if df is None or df.empty:
+    st.error(f"No data found for {ticker}.")
+    st.stop()
+ind = compute_indicators(df)
 
 # Sort by score (strongest first)
 buy_candidates = sorted(buy_candidates, key=lambda x: x["Score"], reverse=True)
@@ -1300,9 +1306,7 @@ def paper_trading_logbook(df: pd.DataFrame, ind: pd.DataFrame, invest_amount: fl
 # Run the logbook for the current ticker
 logbook_df = paper_trading_logbook(df, ind, invest_amount)
 st.write(f"### Paper Trading Log Book for {ticker}")
-
 st.dataframe(logbook_df, use_container_width=True)
-
 st.write("### Portfolio Value Over Time")
 st.line_chart(logbook_df.set_index("date")["portfolio_value"])
 
