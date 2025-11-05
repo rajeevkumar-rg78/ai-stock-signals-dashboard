@@ -1305,21 +1305,31 @@ def paper_trading_logbook(df: pd.DataFrame, ind: pd.DataFrame, invest_amount: fl
 
     trades_df = pd.DataFrame(trades)
     return trades_df
-# Resample to daily frequency (using the last value for each day)
-df_daily = df.resample("1D").last().dropna()
-ind_daily = ind.reindex(df_daily.index).dropna()
 
-# Run the logbook for the current ticker
-logbook_df = paper_trading_logbook(df_daily, ind_daily, invest_amount)
-logbook_df["date"] = pd.to_datetime(logbook_df["date"])
-logbook_df = logbook_df.set_index("date")
-st.write(f"### Paper Trading Log Book for {ticker}")
-st.dataframe(logbook_df, use_container_width=True)
-st.write("### Portfolio Value Over Time")
-st.line_chart(logbook_df["portfolio_value"])
-
-
-
+    # Resample to daily frequency (using the last value for each day)
+    df_daily = df.resample("1D").last().dropna()
+    ind_daily = ind.reindex(df_daily.index).dropna()
+    
+    # Run the logbook for the current ticker
+    logbook_df = paper_trading_logbook(df_daily, ind_daily, invest_amount)
+    
+    # Ensure 'date' is a column for plotting
+    if "date" not in logbook_df.columns and logbook_df.index.name == "date":
+        logbook_df = logbook_df.reset_index()
+    
+    if not logbook_df.empty and "date" in logbook_df.columns:
+        logbook_df["date"] = pd.to_datetime(logbook_df["date"])
+        logbook_df = logbook_df.set_index("date")
+        st.write(f"### Paper Trading Log Book for {ticker}")
+        st.dataframe(logbook_df, use_container_width=True)
+        st.write("### Portfolio Value Over Time")
+        st.line_chart(logbook_df["portfolio_value"])
+    else:
+        st.info("No data to display in the log book.")
+    
+    
+    
+    
 
 
 
