@@ -1018,6 +1018,111 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
 - ATR: volatility; used for target/stop bands.  
 """)
 
+
+# ============================================================
+# 💳 Pricing & Plans — MarketMinds LLC
+# ============================================================
+
+pricing_html = """
+<hr style="margin-top:40px; margin-bottom:20px;">
+<h2 style="text-align:center;">💳 Pricing & Plans</h2>
+<p style="text-align:center; font-size:16px; color:gray;">
+Choose the plan that fits your investing style — upgrade anytime.
+</p>
+
+<div style="
+    display:flex;
+    justify-content:center;
+    gap:25px;
+    flex-wrap:wrap;
+    margin-top:25px;
+">
+
+    <!-- Free Plan -->
+    <div style="
+        background:linear-gradient(180deg,#f9f9f9,#ffffff);
+        border:1.5px solid #ccc;
+        border-radius:10px;
+        padding:20px;
+        width:280px;
+        box-shadow:0 3px 10px rgba(0,0,0,0.05);
+        text-align:center;
+    ">
+        <h3>🧪 Free (Beta)</h3>
+        <p style="color:#555;">Perfect for testing & learning</p>
+        <ul style="text-align:left; line-height:1.6;">
+            <li>Access to 5 stocks/day</li>
+            <li>Basic Buy/Hold/Sell signals</li>
+            <li>AI Forecast preview</li>
+            <li>Community support</li>
+        </ul>
+        <h2 style="color:#4caf50;">$0</h2>
+        <p><b>Forever Free (Beta)</b></p>
+    </div>
+
+    <!-- Pro Plan -->
+    <div style="
+        background:linear-gradient(180deg,#2196f3,#42a5f5);
+        color:white;
+        border-radius:10px;
+        padding:20px;
+        width:280px;
+        box-shadow:0 3px 15px rgba(0,0,0,0.15);
+        text-align:center;
+    ">
+        <h3>🚀 Pro</h3>
+        <p style="color:#e3f2fd;">For active traders & swing investors</p>
+        <ul style="text-align:left; line-height:1.6; color:#f1f1f1;">
+            <li>Unlimited stock lookups</li>
+            <li>Advanced AI Forecasts</li>
+            <li>Paper Trading Simulator</li>
+            <li>Market Bias & Analyst Pulse</li>
+            <li>Priority support</li>
+        </ul>
+        <h2>$29<span style="font-size:16px;">/mo</span></h2>
+        <a href='https://buy.stripe.com/test_xxx' target='_blank'
+           style='background:white;color:#1976d2;padding:10px 16px;border-radius:6px;
+                  text-decoration:none;font-weight:600;'>
+           Subscribe →
+        </a>
+    </div>
+
+    <!-- Institutional Plan -->
+    <div style="
+        background:linear-gradient(180deg,#6a1b9a,#9c27b0);
+        color:white;
+        border-radius:10px;
+        padding:20px;
+        width:280px;
+        box-shadow:0 3px 15px rgba(0,0,0,0.15);
+        text-align:center;
+    ">
+        <h3>🏦 Institutional</h3>
+        <p style="color:#f3e5f5;">For funds, analysts & advisors</p>
+        <ul style="text-align:left; line-height:1.6; color:#f1f1f1;">
+            <li>Custom portfolio analytics</li>
+            <li>API access & automation</li>
+            <li>Batch simulations</li>
+            <li>Private Slack channel</li>
+            <li>Dedicated support</li>
+        </ul>
+        <h2>$99<span style="font-size:16px;">/mo</span></h2>
+        <a href='https://buy.stripe.com/test_xxx' target='_blank'
+           style='background:white;color:#6a1b9a;padding:10px 16px;border-radius:6px;
+                  text-decoration:none;font-weight:600;'>
+           Contact Sales →
+        </a>
+    </div>
+
+</div>
+"""
+
+st.markdown(pricing_html, unsafe_allow_html=True)
+
+
+
+
+
 st.markdown(
     """
 <div style='text-align:left; color:gray; font-size:14px; line-height:1.5; margin-top:14px;'>
