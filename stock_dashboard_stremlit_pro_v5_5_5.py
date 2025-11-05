@@ -147,7 +147,7 @@ st.markdown("""
 if "tutorial_shown" not in st.session_state:
    st.session_state.tutorial_shown = False
 
-with st.expander("🎓 Learn How AI Stock Signals PRO Works", expanded=not, st.session_state.tutorial_shown):
+with st.expander("🎓 Learn How AI Stock Signals PRO Works", expanded=not st.session_state.tutorial_shown):
     st.markdown("""
 ## 🧠 What Is AI Stock Signals PRO?
 AI Stock Signals PRO is an **AI-powered analytics dashboard** that blends:
