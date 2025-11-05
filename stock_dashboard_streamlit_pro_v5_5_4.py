@@ -1255,15 +1255,18 @@ def paper_trading_logbook(df: pd.DataFrame, ind: pd.DataFrame, invest_amount: fl
 
     for date in df.index:
         price = float(df.loc[date, "Close"])
-        signal, _, _ = generate_signal(ind.loc[:date], 0, horizon)
-        buy_zone = price - 1.5 * ind.loc[date, "ATR"]
-        target_up = price + 2.0 * ind.loc[date, "ATR"]
-        stop_loss = price - 2.5 * ind.loc[date, "ATR"]
+        # Use only the indicators for this day
+        indicators_today = ind.loc[date]
+        signal, _, _ = generate_signal(ind.loc[[date]], 0, horizon)
+        buy_zone = price - 1.5 * indicators_today["ATR"]
+        target_up = price + 2.0 * indicators_today["ATR"]
+        stop_loss = price - 2.5 * indicators_today["ATR"]
 
         action = "HOLD"
         shares_traded = 0.0
         amount = 0.0
 
+        # Only one action per day
         if signal == "BUY" and cash > 0:
             buy_amt = cash * 0.25
             shares_traded = buy_amt / price
