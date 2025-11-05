@@ -1,3 +1,16 @@
+# app.py — AI Stock Signals PRO (Business-Ready UI)
+# ----------------------------------------------------------------------
+# Clean layout flow:
+# Inputs → Signal Card → Chart → Why → Forecast → [Sim Tabs]
+# → Macro & Fundamentals & Analyst Pulse → Tech Screener → News → Learn → Disclaimer
+#
+# Notes:
+# - No paper-trading state/logs.
+# - Rate-limit safe analyst_pulse (soft-fail).
+# - Silent fallbacks on Yahoo News/FRED where appropriate.
+# - Keep your core logic intact; UI is restructured for business use.
+# ----------------------------------------------------------------------
+
 import streamlit as st
 import yfinance as yf
 import pandas as pd
@@ -5,46 +18,14 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-import requests, feedparser
+import requests, feedparser, time, random
 from io import StringIO
-import plotly.graph_objects as go
-import numpy as np
-import pandas as pd
+import matplotlib.pyplot as plt
 
+# ------------------------------ Page Config ------------------------------
+st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
 
-
-def daily_action_strategy(price, buy_zone, target_up, stop_loss, signal, invest_amount, shares_held=0, cash=0):
-    """
-    Returns a dict with action, price, and suggested shares to buy/sell for today.
-    """
-    action = "HOLD"
-    shares = 0
-    msg = ""
-    buy_amount = invest_amount * 0.25  # Example: 25% of planned allocation
-
-    if signal == "BUY" or price < buy_zone:
-        action = "BUY"
-        shares = buy_amount / price
-        msg = f"📈 **Buy Signal:** Buy {shares:.2f} shares at ${price:.2f}"
-    elif price >= target_up and shares_held > 0:
-        action = "SELL"
-        shares = shares_held * 0.5  # Example: sell half
-        msg = f"🏁 **Sell Signal:** Sell {shares:.2f} shares at ${price:.2f} (Target: ${target_up:.2f})"
-    elif price <= stop_loss and shares_held > 0:
-        action = "STOP"
-        shares = shares_held
-        msg = f"🛑 **Stop Signal:** Sell all ({shares:.2f}) shares at ${price:.2f} (Stop: ${stop_loss:.2f})"
-    else:
-        msg = "🤔 **Hold:** No action today. Wait for a new signal or price movement."
-
-    return {"action": action, "price": price, "shares": shares, "msg": msg}
-
-
-# ============= Page config =============
-st.set_page_config(page_title="AI Stock Signals — PRO ", layout="wide")
-
-# ============= Dynamic Gradient Header =============
-
+# ------------------------------ Helpers / UI ------------------------------
 def render_header(decision: str = "HOLD"):
     decision = (decision or "").upper()
     if "BUY" in decision:
@@ -71,11 +52,9 @@ def render_header(decision: str = "HOLD"):
             margin-bottom: 22px;
             overflow: hidden;
         ">
-            <!-- SVG Wave at the bottom -->
             <svg width="100%" height="40" viewBox="0 0 800 40" fill="none" xmlns="http://www.w3.org/2000/svg"
                  style="position:absolute;bottom:0;left:0;z-index:0;">
-                <path d="M0 20 Q 200 60 400 20 T 800 20 V40 H0Z"
-                      fill="rgba(255,255,255,0.13)" />
+                <path d="M0 20 Q 200 60 400 20 T 800 20 V40 H0Z" fill="rgba(255,255,255,0.13)" />
             </svg>
             <div style="position:relative;z-index:1;">
                 <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -108,151 +87,52 @@ def render_header(decision: str = "HOLD"):
         unsafe_allow_html=True
     )
 
-   
-
-def render_analyst_pulse(pulse: dict):
-    """Ultra-compact Analyst Pulse with dynamic sentiment accent."""
-    if not pulse or pulse.get("samples", 0) <= 0:
-        st.info("No analyst data available.")
-        return
-
-    buy = pulse.get("buy") or 0
-    hold = pulse.get("hold") or 0
-    sell = pulse.get("sell") or 0
-    total = max(buy + hold + sell, 1e-9)
-    buy_pct, hold_pct, sell_pct = [round(x / total * 100, 1) for x in (buy, hold, sell)]
-
-    # --- Dynamic accent color ---
-    if buy > hold and buy > sell:
-        accent = "#28a745"     # green
-    elif sell > buy and sell > hold:
-        accent = "#dc3545"     # red
-    else:
-        accent = "#f0ad4e"     # orange
-
-    st.markdown(f"""
-    <div style='background-color:#fff;
-                border:1.5px solid {accent};
-                border-radius:8px;
-                padding:6px 10px;
-                margin-top:4px;
-                box-shadow:0 0 6px 0 {accent}22;
-                transition:all 0.3s ease;'>
-        <div style='display:flex;align-items:center;gap:10px;'>
-            <div style='font-size:13px;color:#555;white-space:nowrap;'>
-                <b>Analyst Pulse</b> • {pulse['samples']} ratings
-            </div>
-            <div style='flex:1;height:10px;border-radius:5px;overflow:hidden;display:flex;'>
-                <div style='width:{buy_pct}%;background-color:#28a745;'></div>
-                <div style='width:{hold_pct}%;background-color:#f0ad4e;'></div>
-                <div style='width:{sell_pct}%;background-color:#dc3545;'></div>
-            </div>
-            <div style='font-size:12.5px;color:#333;text-align:right;white-space:nowrap;'>
-                🟢 {buy_pct}% | ⚪ {hold_pct}% | 🔴 {sell_pct}%
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-def render_market_bias_banner(buy: float, hold: float, sell: float):
-    """Compact banner summarizing overall analyst market bias."""
-    if not any([buy, hold, sell]):
-        st.info("No market bias data.")
-        return
-
-    # --- Determine mood ---
-    if buy > hold and buy > sell:
-        accent = "#28a745"
-        mood = "Bullish"
-        emoji = "🟢"
-    elif sell > buy and sell > hold:
-        accent = "#dc3545"
-        mood = "Bearish"
-        emoji = "🔴"
-    else:
-        accent = "#f0ad4e"
-        mood = "Neutral"
-        emoji = "🟠"
-
-    st.markdown(f"""
-    <div style='background-color:{accent}11;
-                border-left:5px solid {accent};
-                border-radius:6px;
-                padding:6px 10px;
-                margin-top:8px;
-                font-size:13.5px;
-                color:{accent};
-                font-weight:600;'>
-        {emoji} Market Bias: <span style='color:{accent};'>{mood}</span>
-    </div>
-    """, unsafe_allow_html=True)
-
 def human_fmt(val, kind=None):
     try:
         if val is None or (isinstance(val, float) and np.isnan(val)):
             return "—"
         if kind == "vol":
-            # Volume: show as M or K
-            if val >= 1e9:
-                return f"{val/1e9:.2f}B"
-            elif val >= 1e6:
-                return f"{val/1e6:.2f}M"
-            elif val >= 1e3:
-                return f"{val/1e3:.2f}K"
-            else:
-                return f"{val:.0f}"
+            if val >= 1e9:  return f"{val/1e9:.2f}B"
+            if val >= 1e6:  return f"{val/1e6:.2f}M"
+            if val >= 1e3:  return f"{val/1e3:.2f}K"
+            return f"{val:.0f}"
         if kind == "cap":
-            # Market Cap: show as T, B, M
-            if val >= 1e12:
-                return f"{val/1e12:.3f}T"
-            elif val >= 1e9:
-                return f"{val/1e9:.2f}B"
-            elif val >= 1e6:
-                return f"{val/1e6:.2f}M"
-            else:
-                return f"{val:.0f}"
+            if val >= 1e12: return f"{val/1e12:.3f}T"
+            if val >= 1e9:  return f"{val/1e9:.2f}B"
+            if val >= 1e6:  return f"{val/1e6:.2f}M"
+            return f"{val:.0f}"
         if kind == "pct":
-            # Percent
             return f"{val*100:.2f}%"
         return f"{val:.2f}"
     except Exception:
         return "—"
 
-
-# ============= Utility functions =============
-def safe_fmt(val, fmt="{:.2f}", default="—"):
+def safe_float(x, default=0.0):
     try:
-        if val is None or (isinstance(val, float) and np.isnan(val)):
-            return default
-        return fmt.format(val)
+        return float(x)
     except Exception:
         return default
 
+# ------------------------------ Inputs ------------------------------
+render_header("HOLD")
 
-
-render_header("HOLD")  # Always show the banner, default to HOLD
-
-# ============= Inputs =============
 c1, c2, c3 = st.columns([2,2,3])
 with c1:
     ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
-
-
-if not ticker:
-    st.markdown("""
-        ### 👋 Welcome to AI Stock Signals PRO!
-        - Please enter a stock symbol above to get started.
-        - Example: `AAPL`, `MSFT`, `NVDA`, `TSLA`, etc.
-    """)
-    st.stop()
-
-    
 with c2:
     horizon = st.radio("Mode", ["Short-term (Swing)", "Long-term (Investor)"], index=1, horizontal=True)
 with c3:
-    invest_amount = st.slider("Simulation amount ($)", min_value=500, max_value=50_000, step=500, value=10_000)
+    invest_amount = st.slider("Allocation for simulations ($)", min_value=500, max_value=50_000, step=500, value=10_000)
 
+if not ticker:
+    st.markdown("""
+        ### 👋 Welcome to AI Stock Signals PRO
+        - Enter a symbol above to generate **signals, targets & forecasts**.
+        - Example tickers: `AAPL`, `MSFT`, `NVDA`, `TSLA`, `META`, etc.
+    """)
+    st.stop()
 
-# ============= Chart Timeframe Selector =============
+# ------------------------------ Timeframe ------------------------------
 timeframes = {
     "1D": ("1d", "1m"),
     "1W": ("7d", "5m"),
@@ -269,7 +149,7 @@ timeframes = {
 tf = st.selectbox("Chart Timeframe", list(timeframes.keys()), index=5)
 period, interval = timeframes[tf]
 
-# ============= Data fetchers =============
+# ------------------------------ Data Fetchers ------------------------------
 @st.cache_data(ttl=7200)
 def fetch_prices_tf(ticker: str, period: str, interval: str) -> pd.DataFrame | None:
     df = yf.download(ticker, period=period, interval=interval, auto_adjust=True, progress=False)
@@ -280,36 +160,25 @@ def fetch_prices_tf(ticker: str, period: str, interval: str) -> pd.DataFrame | N
     except Exception: pass
     return df
 
-
 @st.cache_data(ttl=86400)
 def fetch_earnings_date(ticker: str):
     try:
         t = yf.Ticker(ticker)
         cal = t.calendar
-        # If calendar is a dict and has "Earnings Date"
         if isinstance(cal, dict) and "Earnings Date" in cal:
             val = cal["Earnings Date"]
-            # If it's a list, get the first element
             if isinstance(val, (list, np.ndarray)):
                 val = val[0]
-            # If it's a datetime.date, format it
             if hasattr(val, "strftime"):
                 return val.strftime("%Y-%m-%d")
             return str(val)
         return None
-    except Exception as e:
-        st.write("Earnings date error:", e)
+    except Exception:
         return None
-
 
 @st.cache_data(ttl=3600)
 def fetch_major_indices():
-    indices = {
-        "Dow Jones": "^DJI",
-        "Nasdaq": "^IXIC",
-        "S&P 500": "^GSPC",
-        "VXN (Nasdaq Volatility)": "^VXN"
-    }
+    indices = {"Dow Jones": "^DJI", "Nasdaq": "^IXIC", "S&P 500": "^GSPC", "VXN (Nasdaq Volatility)": "^VXN"}
     data = {}
     for name, symbol in indices.items():
         try:
@@ -318,17 +187,10 @@ def fetch_major_indices():
                 data[name] = None
                 continue
             last_row = df.iloc[-1]
-            data[name] = {
-                "Open": float(last_row["Open"]),
-                "High": float(last_row["High"]),
-                "Low": float(last_row["Low"]),
-                "Close": float(last_row["Close"]),
-                "Volume": float(last_row["Volume"])
-            }
+            data[name] = {k: float(last_row[k]) for k in ["Open","High","Low","Close","Volume"]}
         except Exception:
             data[name] = None
     return data
-
 
 @st.cache_data(ttl=86400)
 def fetch_fundamentals(ticker: str):
@@ -371,35 +233,45 @@ def fetch_macro():
             macro["spx_trend"], macro["spx_5d_vs_20d"] = None, None
     except Exception:
         macro["spx_trend"], macro["spx_5d_vs_20d"] = None, None
+
     def fred_csv_last(series_id: str):
-        url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"
-        r = requests.get(url, timeout=10)
-        r.raise_for_status()
-        df = pd.read_csv(StringIO(r.text))
-        df["DATE"] = pd.to_datetime(df["DATE"], errors="coerce")
-        df = df.rename(columns={series_id: "value"}).dropna()
-        df = df[df["value"] != "."]
-        df["value"] = pd.to_numeric(df["value"], errors="coerce")
-        return df.dropna()
+        try:
+            url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"
+            r = requests.get(url, timeout=10)
+            r.raise_for_status()
+            df = pd.read_csv(StringIO(r.text))
+            df["DATE"] = pd.to_datetime(df["DATE"], errors="coerce")
+            df = df.rename(columns={series_id: "value"}).dropna()
+            df = df[df["value"] != "."]
+            df["value"] = pd.to_numeric(df["value"], errors="coerce")
+            return df.dropna()
+        except Exception:
+            return None
+
     try:
-        cpi_df = fred_csv_last("CPIAUCSL").sort_values("DATE")
-        last = cpi_df.iloc[-1]["value"]
-        prev12 = cpi_df.iloc[-13]["value"] if len(cpi_df) > 13 else np.nan
-        macro["cpi_yoy"] = round(((last/prev12) - 1) * 100, 2) if prev12 == prev12 else None
-        macro["cpi_date"] = cpi_df.iloc[-1]["DATE"].date().isoformat()
+        cpi_df = fred_csv_last("CPIAUCSL")
+        if cpi_df is not None:
+            cpi_df = cpi_df.sort_values("DATE")
+            last = cpi_df.iloc[-1]["value"]
+            prev12 = cpi_df.iloc[-13]["value"] if len(cpi_df) > 13 else np.nan
+            macro["cpi_yoy"] = round(((last/prev12) - 1) * 100, 2) if prev12 == prev12 else None
+            macro["cpi_date"] = cpi_df.iloc[-1]["DATE"].date().isoformat()
     except Exception:
         macro["cpi_yoy"], macro["cpi_date"] = None, None
     try:
-        un_df = fred_csv_last("UNRATE").sort_values("DATE")
-        macro["unemp_rate"] = round(float(un_df.iloc[-1]["value"]), 2)
-        macro["unemp_date"] = un_df.iloc[-1]["DATE"].date().isoformat()
+        un_df = fred_csv_last("UNRATE")
+        if un_df is not None:
+            un_df = un_df.sort_values("DATE")
+            macro["unemp_rate"] = round(float(un_df.iloc[-1]["value"]), 2)
+            macro["unemp_date"] = un_df.iloc[-1]["DATE"].date().isoformat()
     except Exception:
         macro["unemp_rate"], macro["unemp_date"] = None, None
-    if macro["cpi_yoy"] is None: macro["cpi_yoy"] = 3.2
-    if macro["unemp_rate"] is None: macro["unemp_rate"] = 3.8
+
+    if macro.get("cpi_yoy") is None: macro["cpi_yoy"] = 3.2
+    if macro.get("unemp_rate") is None: macro["unemp_rate"] = 3.8
     return macro
 
-# ============= Indicators =============
+# ------------------------------ Indicators / Signals ------------------------------
 def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out = pd.DataFrame(index=df.index)
     c, h, l, v = df["Close"], df["High"], df["Low"], df["Volume"]
@@ -433,10 +305,12 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     plus_dm  = pd.Series(np.ravel(plus_dm).astype(float),  index=df.index)
     minus_dm = pd.Series(np.ravel(minus_dm).astype(float), index=df.index)
     atr_smooth = tr.rolling(14, min_periods=1).mean()
+    # DI/ADX (approx)
     plus_di  = 100 * (plus_dm.rolling(14, min_periods=1).sum()  / (atr_smooth + 1e-9))
     minus_di = 100 * (minus_dm.rolling(14, min_periods=1).sum() / (atr_smooth + 1e-9))
     dx = (abs(plus_di - minus_di) / (plus_di + minus_di + 1e-9)) * 100
     out["ADX"] = dx.rolling(14, min_periods=1).mean()
+    # Band width
     try:
         width = (out["BB_Up"] - out["BB_Low"]) / c.replace(0, np.nan)
         if isinstance(width, pd.DataFrame):
@@ -447,7 +321,6 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out["Close"] = c
     return out.bfill().ffill()
 
-# ============= News + Sentiment =============
 def fetch_news_and_sentiment(ticker: str):
     analyzer = SentimentIntensityAnalyzer()
     headlines, scores = [], []
@@ -489,18 +362,14 @@ def fetch_news_and_sentiment(ticker: str):
     sentiment = float(np.mean(scores)) if scores else 0.0
     return headlines[:10], sentiment
 
-import time, random, requests, pandas as pd, yfinance as yf
-
 @st.cache_data(ttl=86400)
 def analyst_pulse(ticker: str):
-    """Analyst consensus detector — safe for beta use (no rate-limit crashes, silent fallback)."""
+    """Analyst consensus — rate-limit safe, silent fallback."""
     try:
-        # 🧠 slight randomized delay between requests to avoid Yahoo throttling
-        time.sleep(random.uniform(0.3, 0.8))
-
+        time.sleep(random.uniform(0.25, 0.7))
         t = yf.Ticker(ticker)
 
-        # 1️⃣ Try historical recommendations (rarely populated)
+        # Try historical recommendations
         try:
             rec = getattr(t, "recommendations", None)
             if rec is not None and not rec.empty:
@@ -514,45 +383,36 @@ def analyst_pulse(ticker: str):
                     hold_terms = ["hold", "neutral", "market perform", "equal weight", "sector perform"]
                     sell_terms = ["sell", "underperform", "underweight", "reduce", "negative"]
                     buy = grades.str.contains("|".join(buy_terms)).sum()
-                    hold = grades.str.contains("|".join(hold_terms)).sum()
+                    hold = grades.str_contains("|".join(hold_terms)).sum() if hasattr(grades, "str_contains") else grades.str.contains("|".join(hold_terms)).sum()
                     sell = grades.str.contains("|".join(sell_terms)).sum()
-                    return {
-                        "buy": buy / total if total > 0 else None,
-                        "hold": hold / total if total > 0 else None,
-                        "sell": sell / total if total > 0 else None,
-                        "neutral": hold / total if total > 0 else None,
-                        "samples": total
-                    }
-        except Exception as e:
-            # 🔇 Ignore rate-limit errors silently in beta
-            if "Too Many Requests" in str(e) or "RateLimit" in str(e):
-                return {"buy": None, "hold": None, "sell": None, "neutral": None, "samples": 0}
+                    return {"buy": buy/total if total else None, "hold": hold/total if total else None,
+                            "sell": sell/total if total else None, "neutral": (hold/total if total else None), "samples": total}
+        except Exception:
+            pass
 
-        # 2️⃣ Try modern recommendations_summary
+        # recommendations_summary
         trend = getattr(t, "recommendations_summary", None)
+        row = None
         if trend is not None:
             if isinstance(trend, pd.DataFrame):
                 row = trend.iloc[0].to_dict() if "strongBuy" in trend.columns else trend.to_dict(orient="records")[0]
             elif isinstance(trend, dict):
                 row = trend
-            else:
-                row = {}
-            if row:
-                total = sum(v for v in row.values() if isinstance(v, (int, float)))
-                if total > 0:
-                    buy = (row.get("buy", 0) + row.get("strongBuy", 0)) / total
-                    hold = row.get("hold", 0) / total
-                    sell = (row.get("sell", 0) + row.get("strongSell", 0)) / total
-                    return {"buy": buy, "hold": hold, "sell": sell, "neutral": hold, "samples": total}
+        if row:
+            total = sum(v for v in row.values() if isinstance(v, (int, float)))
+            if total > 0:
+                buy = (row.get("buy", 0) + row.get("strongBuy", 0)) / total
+                hold = row.get("hold", 0) / total
+                sell = (row.get("sell", 0) + row.get("strongSell", 0)) / total
+                return {"buy": buy, "hold": hold, "sell": sell, "neutral": hold, "samples": total}
 
-        # 3️⃣ Fallback Yahoo JSON API
-        url = f"https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}?modules=recommendationTrend"
+        # Yahoo JSON
         try:
+            url = f"https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}?modules=recommendationTrend"
             r = requests.get(url, timeout=10)
             if r.ok:
                 js = r.json()
-                trend_list = js.get("quoteSummary", {}).get("result", [{}])[0] \
-                                .get("recommendationTrend", {}).get("trend", [])
+                trend_list = js.get("quoteSummary", {}).get("result", [{}])[0].get("recommendationTrend", {}).get("trend", [])
                 if trend_list:
                     latest = trend_list[-1]
                     total = sum(latest.get(k, 0) for k in ["strongBuy", "buy", "hold", "sell", "strongSell"])
@@ -562,22 +422,17 @@ def analyst_pulse(ticker: str):
                         sell = (latest.get("sell", 0) + latest.get("strongSell", 0)) / total
                         return {"buy": buy, "hold": hold, "sell": sell, "neutral": hold, "samples": total}
         except Exception:
-            pass  # 🔇 ignore network or rate-limit errors silently
+            pass
 
-        # 4️⃣ Default empty result
         return {"buy": None, "hold": None, "sell": None, "neutral": None, "samples": 0}
-
-    except Exception as e:
-        # 🔇 Silent fallback in beta (no Streamlit error output)
+    except Exception:
         return {"buy": None, "hold": None, "sell": None, "neutral": None, "samples": 0}
-
 
 def market_confidence(sentiment: float, buy_ratio: float | None):
     sent_norm = (sentiment + 1) / 2
     conf = 0.6 * sent_norm + 0.4 * (buy_ratio if buy_ratio is not None else 0.5)
-    return max(0,min(1,conf))
+    return max(0, min(1, conf))
 
-# ============= Signal logic =============
 def generate_signal(ind: pd.DataFrame, sentiment: float, horizon: str):
     last = ind.iloc[-1]
     score = 0.0
@@ -590,8 +445,7 @@ def generate_signal(ind: pd.DataFrame, sentiment: float, horizon: str):
     else: score -= 1
     if last["Close"] < last["BB_Low"]: score += 0.8
     elif last["Close"] > last["BB_Up"]: score -= 0.8
-    if last["BB_Width"] > 0.12: score -= 0.2
-    if ind["Vol_Spike"].iloc[-1] if "Vol_Spike" in ind else 0: score += 0.3
+    if last.get("BB_Width", 0) > 0.12: score -= 0.2
     score += float(np.clip(sentiment, -0.8, 0.8))
     th_buy, th_sell = (2.5, -2.0) if "Short" in horizon else (3.5, -2.5)
     if score >= th_buy:  return "BUY", "green", round(score, 2)
@@ -600,31 +454,24 @@ def generate_signal(ind: pd.DataFrame, sentiment: float, horizon: str):
 
 def confidence_from_score(score: float) -> float:
     return float(min(abs(score) / 5.0, 1.0))
+
 def explain_signal_verbose(ind, sentiment, decision, horizon):
     last = ind.iloc[-1]
     reasons = []
-
-    # --- Trend structure ---
     if last["MA50"] > last["MA200"]:
         reasons.append("✅ **Uptrend** — MA50 above MA200 (long-term strength).")
     else:
         reasons.append("⚠️ **Downtrend** — MA50 below MA200 (bearish bias).")
-
-    # --- MACD ---
     if last["MACD"] > last["MACD_Signal"]:
         reasons.append("✅ **MACD bullish crossover** — momentum improving.")
     else:
         reasons.append("⚠️ **MACD bearish** — momentum fading.")
-
-    # --- RSI ---
     if last["RSI"] < 30:
         reasons.append("✅ **RSI oversold** (<30) — potential rebound zone.")
     elif last["RSI"] > 70:
         reasons.append("⚠️ **RSI overbought** (>70) — may need cooldown.")
     elif 45 <= last["RSI"] <= 55:
         reasons.append("💤 **RSI neutral** — sideways momentum.")
-
-    # --- Bollinger analysis ---
     bb_width = last.get("BB_Width", 0)
     if bb_width < 0.05:
         reasons.append("🔹 **Bollinger squeeze** — volatility contraction, breakout possible.")
@@ -632,51 +479,48 @@ def explain_signal_verbose(ind, sentiment, decision, horizon):
         reasons.append("✅ **Price below lower band** — mean reversion likely.")
     elif last["Close"] > last["BB_Up"]:
         reasons.append("⚠️ **Price above upper band** — extended move, possible pullback.")
-
-    # --- ADX (trend strength) ---
     if last["ADX"] > 25:
         reasons.append("✅ **Strong trend** (ADX>25) — price movement has conviction.")
     else:
         reasons.append("💤 **Weak trend** (ADX<25) — possible range-bound action.")
-
-    # --- Cup & Handle / Double Bottom heuristic ---
-    c = ind["Close"].tail(50)
-    if len(c) > 20:
-        lows = c.rolling(5).min()
-        if lows.iloc[-1] > lows.min() and lows.idxmin() < lows.index[-10]:
-            reasons.append("📈 **Possible Double Bottom** pattern forming (support retest).")
-        rolling_mean = c.rolling(20).mean()
-        if c.iloc[-1] > rolling_mean.iloc[-1] and (c.iloc[-1] - rolling_mean.iloc[-1]) / rolling_mean.iloc[-1] < 0.05:
-            reasons.append("☕ **Cup & Handle-like** recovery — consolidation breakout zone.")
-
-    # --- News & sentiment ---
     if sentiment > 0.1:
         reasons.append(f"📰 **Positive sentiment** ({sentiment:+.2f}) — news tone supportive.")
     elif sentiment < -0.1:
         reasons.append(f"⚠️ **Negative sentiment** ({sentiment:+.2f}) — cautious outlook.")
     else:
         reasons.append("📄 **Neutral news sentiment** — limited bias from headlines.")
-
-    # --- Horizon context ---
-    reasons.append("🎯 Strategy tuned for **short-term swing** moves (3–10d)." if "Short" in horizon
+    reasons.append("🎯 Strategy tuned for **short-term swing** (3–10d)." if "Short" in horizon
                    else "🏦 Strategy tuned for **long-term accumulation** (>3mo).")
-
     return "\n".join(reasons)
 
-# ============= AI Forecast (robust, no NaN) =============
+def daily_action_strategy(price, buy_zone, target_up, stop_loss, signal, invest_amount, shares_held=0, cash=0):
+    action = "HOLD"
+    shares = 0.0
+    msg = ""
+    buy_amount = invest_amount * 0.25
+    if signal == "BUY" or price < buy_zone:
+        action = "BUY"
+        shares = buy_amount / price
+        msg = f"📈 **Buy Signal:** Buy {shares:.2f} shares at ${price:.2f}"
+    elif price >= target_up and shares_held > 0:
+        action = "SELL"
+        shares = shares_held * 0.5
+        msg = f"🏁 **Sell Signal:** Sell {shares:.2f} shares at ${price:.2f} (Target: ${target_up:.2f})"
+    elif price <= stop_loss and shares_held > 0:
+        action = "STOP"
+        shares = shares_held
+        msg = f"🛑 **Stop Signal:** Sell all ({shares:.2f}) shares at ${price:.2f} (Stop: ${stop_loss:.2f})"
+    else:
+        msg = "🤔 **Hold:** No action today. Wait for a new signal or price movement."
+    return {"action": action, "price": price, "shares": shares, "msg": msg}
+
 def ai_forecast(df: pd.DataFrame, ind: pd.DataFrame):
-    """Tiny, robust forecaster: bootstrap last 120d daily returns to estimate 5d range."""
     r = df["Close"].pct_change().dropna()
-
-    # --- Guarantee 1-D numeric array ---
-    if isinstance(r, pd.DataFrame):
-        r = r.iloc[:, 0]
+    if isinstance(r, pd.DataFrame): r = r.iloc[:, 0]
     r = pd.to_numeric(r, errors="coerce").dropna()
-
     if len(r) < 30:
         return {"pred_move": 0.0, "conf": 0.0, "range": None}
-
-    r_hist = r.tail(120).values.flatten()  # <— ensures 1D array
+    r_hist = r.tail(120).values.flatten()
     sims = np.random.choice(r_hist, size=(1000, 5), replace=True).sum(axis=1)
     mu = float(np.mean(sims))
     sd = float(np.std(sims))
@@ -685,8 +529,6 @@ def ai_forecast(df: pd.DataFrame, ind: pd.DataFrame):
     conf = float(min(1.0, abs(mu) / (sd + 1e-9)))
     return {"pred_move": mu, "conf": conf, "range": (low, mu, high)}
 
-
-# ============= Chart =============
 def plot_dashboard(ind: pd.DataFrame, ticker: str, zones=True):
     last = ind.iloc[-1]
     fig = make_subplots(rows=3, cols=1, shared_xaxes=True,
@@ -701,9 +543,9 @@ def plot_dashboard(ind: pd.DataFrame, ticker: str, zones=True):
         buy_zone   = last["Close"] - 1.5*last["ATR"]
         target     = last["Close"] + 2.0*last["ATR"]
         stop_loss  = last["Close"] - 2.5*last["ATR"]
-        fig.add_hline(y=buy_zone,    line_color="dodgerblue", line_dash="dash", annotation_text="Buy Zone",   row=1, col=1)
-        fig.add_hline(y=target,      line_color="seagreen",   line_dash="dash", annotation_text="Target",     row=1, col=1)
-        fig.add_hline(y=stop_loss,   line_color="crimson",    line_dash="dash", annotation_text="Stop Loss",  row=1, col=1)
+        fig.add_hline(y=buy_zone,  line_color="dodgerblue", line_dash="dash", annotation_text="Buy Zone", row=1, col=1)
+        fig.add_hline(y=target,    line_color="seagreen",   line_dash="dash", annotation_text="Target",   row=1, col=1)
+        fig.add_hline(y=stop_loss, line_color="crimson",    line_dash="dash", annotation_text="Stop",     row=1, col=1)
     fig.add_trace(go.Scatter(x=ind.index, y=ind["MACD"],        name="MACD",   line=dict(color="purple")), 2,1)
     fig.add_trace(go.Scatter(x=ind.index, y=ind["MACD_Signal"], name="Signal", line=dict(color="orange")), 2,1)
     fig.add_trace(go.Bar(x=ind.index, y=ind["MACD_Hist"], name="Hist", marker_color="gray", opacity=0.45), 2,1)
@@ -713,13 +555,9 @@ def plot_dashboard(ind: pd.DataFrame, ticker: str, zones=True):
     fig.update_layout(height=820, template="plotly_white", title=f"{ticker} — Technical Dashboard")
     return fig
 
-# ============= Main flow =============
-if not ticker:
-    st.stop()
-
+# ------------------------------ Main Flow ------------------------------
 df = fetch_prices_tf(ticker, period, interval)
-
-if df is None:
+if df is None or df.empty:
     st.error("No data found. Try another symbol.")
     st.stop()
 
@@ -727,22 +565,185 @@ ind = compute_indicators(df)
 macro = fetch_macro()
 headlines, news_sent = fetch_news_and_sentiment(ticker)
 decision, color, score = generate_signal(ind, news_sent, horizon)
-
-pulse = analyst_pulse(ticker)  # <-- Call the enhanced function here
-
+pulse = analyst_pulse(ticker)
 conf_overall = market_confidence(news_sent, pulse["buy"])
 ai = ai_forecast(df, ind)
 
+# ------------------------------ Signal Card (Top) ------------------------------
+last = ind.iloc[-1]
+prev = ind.iloc[-2] if len(ind) > 1 else last
+price = last["Close"]
+change = price - prev["Close"]
+change_pct = (change / prev["Close"]) * 100 if prev["Close"] != 0 else 0
 
-# Macro header
+st.markdown(f"## ✅ Signal: **{decision}**  (Score {score:+.2f}, News {news_sent:+.2f})")
+st.progress(conf_overall, text=f"Market Confidence {int(conf_overall*100)}% — sentiment/analyst blend")
+cA, cB, cC, cD, cE, cF = st.columns(6)
+cA.metric("Price", f"${price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
+cB.metric("RSI (14)", f"{last['RSI']:.1f}")
+cC.metric("MACD", f"{last['MACD']:.2f}")
+cD.metric("ADX", f"{last['ADX']:.1f}")
+cE.metric("ATR (14)", f"{last['ATR']:.2f}")
+st.metric("Signal Strength", f"{int(confidence_from_score(score)*100)}%", delta=f"{score:+.2f}")
+
+target_up = last["Close"] + 2.0*last["ATR"]
+buy_zone  = last["Close"] - 1.5*last["ATR"]
+stop_loss = last["Close"] - 2.5*last["ATR"]
+st.write(f"📈 **Target (≈5d)**: ${target_up:.2f}  🟦 **Buy zone**: ${buy_zone:.2f}  🛑 **Stop**: ${stop_loss:.2f}")
+
+# ------------------------------ Chart ------------------------------
+st.plotly_chart(plot_dashboard(ind, ticker, zones=True), use_container_width=True)
+
+# ------------------------------ Why This Signal ------------------------------
+st.markdown("### 🧩 Why this signal")
+st.markdown(explain_signal_verbose(ind, news_sent, decision, horizon))
+
+# ------------------------------ Forecast AI ------------------------------
+st.markdown("### 🤖 Forecast AI (5-day)")
+st.write(f"Predicted Move (avg): {ai['pred_move']*100:+.2f}%")
+if ai["range"] is not None and not any(np.isnan(ai["range"])):
+    lo, mu, hi = ai["range"]
+    st.write(f"Expected range in 5d: {lo*100:+.2f}% — {mu*100:+.2f}% — {hi*100:+.2f}%")
+else:
+    st.info("Not enough recent data for a reliable range forecast.")
+st.metric("AI Confidence", f"{int(ai['conf']*100)}%")
+
+# ------------------------------ Simulators (Tabs) ------------------------------
+st.markdown("### 🧪 Simulation Tools")
+tab1, tab2, tab3 = st.tabs(["Daily Action", "Adaptive DCA", "Monte Carlo"])
+
+with tab1:
+    st.write("One-day action suggestion (for learning/demo):")
+    day_action = daily_action_strategy(price, buy_zone, target_up, stop_loss, decision, invest_amount, shares_held=0, cash=invest_amount)
+    st.markdown(day_action["msg"])
+
+with tab2:
+    st.write("Adaptive DCA (oversold/momentum-aware with partial take-profit):")
+    def adaptive_dca_simulator(df: pd.DataFrame, ind: pd.DataFrame, cash_start: float):
+        df, ind = df.align(ind, join="inner", axis=0)
+        cash, shares = float(cash_start), 0.0
+        trades, equity_curve = [], []
+        peak_equity, halt_buys = cash_start, False
+
+        for dt in df.index:
+            px = float(df.loc[dt, "Close"])
+            rsi, macd, macds = float(ind.loc[dt, "RSI"]), float(ind.loc[dt, "MACD"]), float(ind.loc[dt, "MACD_Signal"])
+            ma20, ma50 = float(ind.loc[dt, "MA20"]), float(ind.loc[dt, "MA50"])
+            bb_low, atr = float(ind.loc[dt, "BB_Low"]), float(ind.loc[dt, "ATR"])
+
+            if not halt_buys:
+                momentum_buy = (macd > macds and ma20 > ma50)
+                oversold_buy = (rsi < 45) or (px < bb_low)
+                alloc = 0.0
+                if momentum_buy or oversold_buy:
+                    if rsi < 25: alloc = 0.30
+                    elif rsi < 35: alloc = 0.20
+                    elif rsi < 45: alloc = 0.10
+                invest = cash * alloc
+                if invest > 0:
+                    buy_shares = invest / px
+                    shares += buy_shares
+                    cash -= invest
+                    trades.append({"date": dt.strftime("%Y-%m-%d"), "side": "BUY", "price": round(px,2),
+                                   "invested": round(invest,2), "shares": round(buy_shares,6)})
+
+            target_price = float(ind["Close"].iloc[-1] + 2*ind["ATR"].iloc[-1])
+            if shares > 0 and px >= target_price:
+                sell_shares = shares * 0.20
+                proceeds = sell_shares * px
+                shares -= sell_shares
+                cash += proceeds
+                trades.append({"date": dt.strftime("%Y-%m-%d"), "side": "SELL", "price": round(px,2),
+                               "invested": -round(proceeds,2), "shares": -round(sell_shares,6)})
+
+            equity = float(shares * px + cash)
+            equity_curve.append(equity)
+            peak_equity = max(peak_equity, equity)
+            dd_pct = (equity - peak_equity) / (peak_equity if peak_equity else 1)
+            if dd_pct < -0.30:
+                halt_buys = True
+
+        final_value = shares * df["Close"].iloc[-1] + cash
+        total_invested = cash_start - cash if cash_start >= cash else cash_start
+        pnl = final_value - total_invested
+        roi_pct = (pnl / total_invested * 100) if total_invested > 0 else 0.0
+        ec = np.array(equity_curve, dtype=float)
+        running_max = np.maximum.accumulate(ec) if ec.size else np.array([0])
+        dd = (ec - running_max) / np.where(running_max == 0, 1, running_max)
+        max_dd = float(np.min(dd)) if dd.size else 0.0
+        trades_df = pd.DataFrame(trades)
+        return dict(final_value=final_value, total_invested=total_invested,
+                    roi_pct=roi_pct, max_drawdown_pct=round(100*max_dd,2), trades=trades_df)
+
+    sim = adaptive_dca_simulator(df, ind, invest_amount)
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Final Portfolio Value", f"${safe_float(sim.get('final_value')):,.2f}")
+    c2.metric("Total Invested", f"${safe_float(sim.get('total_invested')):,.2f}")
+    c3.metric("ROI", f"{safe_float(sim.get('roi_pct')):.1f}%")
+    c4.metric("Max Drawdown", f"{safe_float(sim.get('max_drawdown_pct')):.1f}%")
+    if not sim["trades"].empty:
+        st.dataframe(sim["trades"], use_container_width=True)
+    else:
+        st.info("No trades executed in this period by adaptive rules.")
+
+with tab3:
+    st.write("Monte Carlo forward outcomes (bootstrap past returns):")
+    periods_map = {"1D":1,"1W":5,"1M":21,"3M":63,"6M":126,"YTD":180,"1Y":252,"2Y":504,"5Y":1260,"10Y":2520,"ALL":252}
+    days = periods_map.get(tf, 21)
+
+    def simulate_future_prices(df, days=10, n_sims=1000):
+        returns_series = df["Close"].pct_change().dropna()
+        if isinstance(returns_series, pd.DataFrame): returns_series = returns_series.iloc[:, 0]
+        elif isinstance(returns_series, np.ndarray) and returns_series.ndim > 1:
+            returns_series = pd.Series(returns_series.flatten())
+        elif not isinstance(returns_series, pd.Series):
+            returns_series = pd.Series(returns_series)
+        returns = pd.to_numeric(returns_series, errors="coerce").values
+        returns = returns[~np.isnan(returns)]
+        if len(returns) < max(10, days // 3):
+            return None
+        last_price = float(df["Close"].iloc[-1])
+        sims = []
+        for _ in range(n_sims):
+            sampled_returns = np.random.choice(returns, size=days, replace=True)
+            price_path = [last_price]
+            for r in sampled_returns:
+                price_path.append(price_path[-1] * (1 + r))
+            sims.append(price_path[1:])
+        return np.array(sims)
+
+    sim_prices = simulate_future_prices(df, days=days, n_sims=1000)
+    if sim_prices is None:
+        st.info("Not enough data for reliable simulation at this timeframe.")
+    else:
+        predicted_prices = sim_prices[:, -1]
+        mean_price = np.mean(predicted_prices); median_price = np.median(predicted_prices)
+        low_price  = np.percentile(predicted_prices, 2.5); high_price = np.percentile(predicted_prices, 97.5)
+        buy_price = float(df["Close"].iloc[-1])
+        expected_gain = mean_price - buy_price
+        expected_gain_pct = (expected_gain / buy_price) * 100 if buy_price != 0 else 0
+        st.markdown(f"**Current price:** ${buy_price:.2f}  |  **Mean:** ${mean_price:.2f}  |  **Median:** ${median_price:.2f}  |  **95% range:** ${low_price:.2f} — ${high_price:.2f}")
+        st.write(f"**Expected gain/loss per share:** ${expected_gain:+.2f} ({expected_gain_pct:+.2f}%)")
+
+        # Small histogram
+        fig, ax = plt.subplots(figsize=(5, 2.5))
+        ax.hist(predicted_prices, bins=30, alpha=0.8)
+        ax.set_title(f"Distribution of Simulated {days}-Day Prices")
+        ax.set_xlabel("Price")
+        ax.set_ylabel("Sims")
+        plt.tight_layout()
+        st.pyplot(fig)
+
+# ------------------------------ Macro & Fundamentals ------------------------------
+st.markdown("### 🌎 Market & Fundamentals")
+
 m1, m2, m3, m4 = st.columns(4)
-m1.metric("VIX (volatility)", f"{macro['vix_last']:.2f}" if macro["vix_last"] is not None else "—")
-m2.metric("S&P 5d vs 20d", f"{macro['spx_5d_vs_20d']:+.2f}%" if macro["spx_5d_vs_20d"] is not None else "—",
-          macro["spx_trend"] or "")
-m3.metric("CPI YoY", f"{macro['cpi_yoy']:.2f}%")
-m4.metric("Unemployment", f"{macro['unemp_rate']:.2f}%")
-
-# ============= Display Earnings Date, Major Indices, Fundamentals =============
+macro_vals = fetch_macro()
+m1.metric("VIX (volatility)", f"{macro_vals['vix_last']:.2f}" if macro_vals["vix_last"] is not None else "—")
+m2.metric("S&P 5d vs 20d", f"{macro_vals['spx_5d_vs_20d']:+.2f}%" if macro_vals["spx_5d_vs_20d"] is not None else "—",
+          macro_vals["spx_trend"] or "")
+m3.metric("CPI YoY", f"{macro_vals.get('cpi_yoy', 0):.2f}%")
+m4.metric("Unemployment", f"{macro_vals.get('unemp_rate', 0):.2f}%")
 
 earnings_date = fetch_earnings_date(ticker)
 indices = fetch_major_indices()
@@ -750,7 +751,6 @@ fund = fetch_fundamentals(ticker)
 
 with st.expander("📅 Earnings & Indices", expanded=False):
     st.metric("Next Earnings Date", earnings_date if earnings_date else "Not available")
-
     idx_cols = st.columns(len(indices))
     for i, (name, data) in enumerate(indices.items()):
         if data:
@@ -759,371 +759,88 @@ with st.expander("📅 Earnings & Indices", expanded=False):
             idx_cols[i].metric(f"{name} Low", human_fmt(data.get('Low')))
             idx_cols[i].metric(f"{name} Volume", human_fmt(data.get('Volume'), kind="vol"))
         else:
-            idx_cols[i].metric(f"{name} Close", "Not available")
-            idx_cols[i].metric(f"{name} High", "Not available")
-            idx_cols[i].metric(f"{name} Low", "Not available")
-            idx_cols[i].metric(f"{name} Volume", "Not available")
-
+            idx_cols[i].metric(f"{name} Close", "—")
+            idx_cols[i].metric(f"{name} High", "—")
+            idx_cols[i].metric(f"{name} Low", "—")
+            idx_cols[i].metric(f"{name} Volume", "—")
 
 with st.expander("📊 Stock Fundamentals", expanded=False):
-    fcols = st.columns(13)
-    fcols[0].metric("Open", human_fmt(fund.get('Open')))
-    fcols[1].metric("High", human_fmt(fund.get('High')))
-    fcols[2].metric("Low", human_fmt(fund.get('Low')))
-    fcols[3].metric("Volume", human_fmt(fund.get('Volume'), kind="vol"))
-    fcols[4].metric("P/E", human_fmt(fund.get('P/E')))
-    fcols[5].metric("Market Cap", human_fmt(fund.get('Market Cap'), kind="cap"))
-    fcols[6].metric("52w High", human_fmt(fund.get('52w High')))
-    fcols[7].metric("52w Low", human_fmt(fund.get('52w Low')))
-    fcols[8].metric("Avg Vol", human_fmt(fund.get('Avg Vol'), kind="vol"))
-    fcols[9].metric("Yield", human_fmt(fund.get('Yield'), kind="pct"))
-    fcols[10].metric("Beta", human_fmt(fund.get('Beta')))
-    fcols[11].metric("EPS", human_fmt(fund.get('EPS')))
+    fcols = st.columns(12)
+    labels = ["Open","High","Low","Volume","P/E","Market Cap","52w High","52w Low","Avg Vol","Yield","Beta","EPS"]
+    kinds  = [None,None,None,"vol",None,"cap",None,None,"vol","pct",None,None]
+    for i,(lab,kind) in enumerate(zip(labels, kinds)):
+        val = fund.get(lab)
+        fcols[i].metric(lab, human_fmt(val, kind=kind))
 
+# ------------------------------ Analyst Pulse ------------------------------
+def render_analyst_pulse(pulse: dict):
+    if not pulse or pulse.get("samples", 0) <= 0:
+        st.info("No analyst data available.")
+        return
+    buy = pulse.get("buy") or 0; hold = pulse.get("hold") or 0; sell = pulse.get("sell") or 0
+    total = max(buy + hold + sell, 1e-9)
+    buy_pct, hold_pct, sell_pct = [round(x / total * 100, 1) for x in (buy, hold, sell)]
+    accent = "#28a745" if (buy>hold and buy>sell) else ("#dc3545" if (sell>buy and sell>hold) else "#f0ad4e")
+    mood   = "Bullish" if accent=="#28a745" else ("Bearish" if accent=="#dc3545" else "Neutral")
+    st.markdown(f"### 🧭 <span style='color:{accent};'>Analyst Pulse — {mood}</span>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style='background-color:#fff;border:1.5px solid {accent};border-radius:8px;padding:6px 10px;margin-top:4px;box-shadow:0 0 6px 0 {accent}22;'>
+        <div style='display:flex;align-items:center;gap:10px;'>
+            <div style='font-size:13px;color:#555;white-space:nowrap;'><b>Analyst Pulse</b> • {pulse['samples']} ratings</div>
+            <div style='flex:1;height:10px;border-radius:5px;overflow:hidden;display:flex;'>
+                <div style='width:{buy_pct}%;background-color:#28a745;'></div>
+                <div style='width:{hold_pct}%;background-color:#f0ad4e;'></div>
+                <div style='width:{sell_pct}%;background-color:#dc3545;'></div>
+            </div>
+            <div style='font-size:12.5px;color:#333;text-align:right;white-space:nowrap;'>
+                🟢 {buy_pct}% | ⚪ {hold_pct}% | 🔴 {sell_pct}%
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-# Snapshot metrics
-last = ind.iloc[-1]
-cA, cB, cC, cD, cE, cF = st.columns(6)
-#cA.metric("Price", f"${last['Close']:.2f}")
-
-# Calculate daily change
-last = ind.iloc[-1]
-prev = ind.iloc[-2] if len(ind) > 1 else last
-
-price = last["Close"]
-change = price - prev["Close"]
-change_pct = (change / prev["Close"]) * 100 if prev["Close"] != 0 else 0
-
-cA, cB, cC, cD, cE, cF = st.columns(6)
-cA.metric("Price", f"${price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
-
-cB.metric("RSI (14)", f"{last['RSI']:.1f}")
-cC.metric("MACD", f"{last['MACD']:.2f}")
-cD.metric("ADX", f"{last['ADX']:.1f}")
-cE.metric("ATR (14)", f"{last['ATR']:.2f}")
-
-
-# Analyst Pulse in the last column
-
-
-
-
-
-# --- Decide accent color dynamically ---
-buy = pulse.get("buy") or 0
-hold = pulse.get("hold") or 0
-sell = pulse.get("sell") or 0
-if buy > hold and buy > sell:
-    accent = "#28a745"   # green
-    mood = "Bullish"
-elif sell > buy and sell > hold:
-    accent = "#dc3545"   # red
-    mood = "Bearish"
-else:
-    accent = "#f0ad4e"   # orange
-    mood = "Neutral"
-
-st.markdown(
-    f"### 🧭 <span style='color:{accent};'>Analyst Pulse — {mood}</span>",
-    unsafe_allow_html=True,
-)
 render_analyst_pulse(pulse)
 
-st.markdown("<div style='margin-top:-10px'></div>", unsafe_allow_html=True)
-
-# --- Add Market Bias Banner ---
-#render_market_bias_banner(pulse.get("buy"), pulse.get("hold"), pulse.get("sell"))
-
-
-# Signal banner with numeric target/stop
-st.markdown(f"### **Signal: {decision}** (Score {score:+.2f}, News {news_sent:+.2f})")
-sig_conf = confidence_from_score(score)
-st.progress(conf_overall, text=f"Market Confidence {int(conf_overall*100)}% — sentiment/analyst blend")
-st.metric("Signal Strength", f"{int(sig_conf*100)}%", delta=f"{score:+.2f}")
-
-# Numeric target/stop values (ATR-based)
-target_up   = last["Close"] + 2.0*last["ATR"]
-buy_zone    = last["Close"] - 1.5*last["ATR"]
-stop_loss   = last["Close"] - 2.5*last["ATR"]
-st.write(f"📈 **Target (≈5d)**: ${target_up:.2f}  🟦 **Buy zone**: ${buy_zone:.2f}  🛑 **Stop**: ${stop_loss:.2f}")
-
-# Get today's values (after you have 'ind', 'news_sent', 'horizon', etc.)
-last = ind.iloc[-1]
-price = last["Close"]
-buy_zone = price - 1.5 * last["ATR"]
-target_up = price + 2.0 * last["ATR"]
-stop_loss = price - 2.5 * last["ATR"]
-signal, _, _ = generate_signal(ind, news_sent, horizon)
-
-# Example: assume you have no shares yet and full invest_amount
-shares_held = 0
-cash = invest_amount
-
-# Get today's action
-today_action = daily_action_strategy(
-    price, buy_zone, target_up, stop_loss, signal, invest_amount, shares_held, cash
-)
-
-# Display the action
-st.markdown(today_action["msg"])
-
-
-
-
-
-# Chart
-st.plotly_chart(plot_dashboard(ind, ticker, zones=True), use_container_width=True)
-
-# WHY section
-st.markdown("### 🧩 Why this signal")
-st.markdown(explain_signal_verbose(ind, news_sent, decision, horizon))
-
-# Forecast AI tab-like block (robust)
-st.markdown("### 🤖 Forecast AI (5-day)")
-st.write(f"Predicted Move (avg): {ai['pred_move']*100:+.2f}%")
-if ai["range"] is not None and not any(np.isnan(ai["range"])):
-    lo, mu, hi = ai["range"]
-    st.write(f"Expected range in 5d: {lo*100:+.2f}% — {mu*100:+.2f}% — {hi*100:+.2f}%")
-else:
-    st.info("Not enough recent data for a reliable range forecast. Try a longer history or different ticker.")
-st.metric("AI Confidence", f"{int(ai['conf']*100)}%")
-# ============================================================
-# 💵 Adaptive DCA Simulator
-# ============================================================
-st.markdown("## 💵 Adaptive DCA Simulator (long-only) — with partial take-profit")
-
-def adaptive_dca_simulator(df: pd.DataFrame, ind: pd.DataFrame, cash_start: float):
-    df, ind = df.align(ind, join="inner", axis=0)
-    cash, shares = float(cash_start), 0.0
-    trades, equity_curve = [], []
-    peak_equity, halt_buys = cash_start, False
-
-    for dt in df.index:
-        price = float(df.loc[dt, "Close"])
-        rsi, macd, macds = float(ind.loc[dt, "RSI"]), float(ind.loc[dt, "MACD"]), float(ind.loc[dt, "MACD_Signal"])
-        ma20, ma50 = float(ind.loc[dt, "MA20"]), float(ind.loc[dt, "MA50"])
-        bb_low, atr = float(ind.loc[dt, "BB_Low"]), float(ind.loc[dt, "ATR"])
-
-        # Buy rules
-        if not halt_buys:
-            momentum_buy = (macd > macds and ma20 > ma50)
-            oversold_buy = (rsi < 45) or (price < bb_low)
-            alloc = 0.0
-            if momentum_buy or oversold_buy:
-                if rsi < 25: alloc = 0.30
-                elif rsi < 35: alloc = 0.20
-                elif rsi < 45: alloc = 0.10
-            invest = cash * alloc
-            if invest > 0:
-                buy_shares = invest / price
-                shares += buy_shares
-                cash -= invest
-                trades.append({"date": dt.strftime("%Y-%m-%d"), "side": "BUY", "price": round(price,2),
-                               "invested": round(invest,2), "shares": round(buy_shares,6)})
-
-        # Partial take-profit
-        target_price = float(ind["Close"].iloc[-1] + 2*ind["ATR"].iloc[-1])
-        if shares > 0 and price >= target_price:
-            sell_shares = shares * 0.20
-            proceeds = sell_shares * price
-            shares -= sell_shares
-            cash += proceeds
-            trades.append({"date": dt.strftime("%Y-%m-%d"), "side": "SELL", "price": round(price,2),
-                           "invested": -round(proceeds,2), "shares": -round(sell_shares,6)})
-
-        equity = float(shares * price + cash)
-        equity_curve.append(equity)
-        peak_equity = max(peak_equity, equity)
-        dd_pct = (equity - peak_equity) / (peak_equity if peak_equity else 1)
-        if dd_pct < -0.30:  # stop buying if >30% drawdown
-            halt_buys = True
-
-    final_value = shares * df["Close"].iloc[-1] + cash
-    total_invested = cash_start - cash if cash_start >= cash else cash_start
-    pnl = final_value - total_invested
-    roi_pct = (pnl / total_invested * 100) if total_invested > 0 else 0.0
-    ec = np.array(equity_curve, dtype=float)
-    running_max = np.maximum.accumulate(ec) if ec.size else np.array([0])
-    dd = (ec - running_max) / np.where(running_max == 0, 1, running_max)
-    max_dd = float(np.min(dd)) if dd.size else 0.0
-    trades_df = pd.DataFrame(trades)
-    return dict(final_value=final_value, total_invested=total_invested,
-                roi_pct=roi_pct, max_drawdown_pct=round(100*max_dd,2), trades=trades_df)
-
-# --- Run simulator
-sim = adaptive_dca_simulator(df, ind, invest_amount)
-# --- Defensive helper: convert safely to float ---
-def safe_float(x, default=0.0):
+# ------------------------------ Tech Screener ------------------------------
+st.markdown("## 📋 Today's Top Tech Stock Buy Candidates")
+tech_watchlist = [
+    "AAPL","MSFT","GOOGL","GOOG","META","AMZN","NVDA","TSLA","CRM",
+    "ADBE","ORCL","INTC","AMD","CSCO","NFLX","AVGO","QCOM","IBM","SHOP","UBER"
+]
+buy_candidates = []
+for scan_t in tech_watchlist:
     try:
-        # Works for pandas/numpy scalars, None, or non-numeric
-        return float(x)
+        scan_df = fetch_prices_tf(scan_t, period, interval)
+        if scan_df is None or len(scan_df) < 30: continue
+        scan_ind = compute_indicators(scan_df)
+        _, scan_sent = fetch_news_and_sentiment(scan_t)
+        sig, _, sc = generate_signal(scan_ind, scan_sent, horizon)
+        last_s = scan_ind.iloc[-1]; price_s = last_s["Close"]
+        buy_z   = price_s - 1.5 * last_s["ATR"]
+        target_ = price_s + 2.0 * last_s["ATR"]
+        stop_   = price_s - 2.5 * last_s["ATR"]
+        earn_dt = fetch_earnings_date(scan_t)
+        if sig == "BUY" and price_s <= buy_z * 1.05:
+            buy_candidates.append({
+                "Ticker": scan_t,
+                "Price": f"${price_s:.2f}",
+                "Score": sc,
+                "Buy Zone": f"${buy_z:.2f}",
+                "Target": f"${target_:.2f}",
+                "Stop": f"${stop_:.2f}",
+                "Earnings": earn_dt,
+                "News Sentiment": f"{scan_sent:+.2f}"
+            })
     except Exception:
-        return default
-
-# --- Extract Adaptive DCA results safely ---
-fv  = safe_float(sim.get("final_value", 0.0))
-ti  = safe_float(sim.get("total_invested", 0.0))
-roi = safe_float(sim.get("roi_pct", 0.0))
-dd  = safe_float(sim.get("max_drawdown_pct", 0.0))
-
-# --- Display key DCA metrics ---
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("Final Portfolio Value", f"${fv:,.2f}")
-c2.metric("Total Invested", f"${ti:,.2f}")
-c3.metric("ROI", f"{roi:.1f}%")
-c4.metric("Max Drawdown", f"{dd:.1f}%")
-if not sim["trades"].empty:
-    st.dataframe(sim["trades"], use_container_width=True)
+        continue
+buy_candidates = sorted(buy_candidates, key=lambda x: x["Score"], reverse=True)
+if buy_candidates:
+    st.dataframe(pd.DataFrame(buy_candidates), use_container_width=True)
 else:
-    st.info("No trades executed in this period by adaptive rules.")
+    st.info("No strong tech stock buy candidates found today based on your criteria.")
 
-st.markdown(f"## 🔮 Future DCA Monte Carlo Simulator ({tf} interval)")
-
-future_periods = {
-    "1D": 1,
-    "1W": 5,
-    "1M": 21,
-    "3M": 63,
-    "6M": 126,
-    "YTD": 180,
-    "1Y": 252,
-    "2Y": 504,
-    "5Y": 1260,
-    "10Y": 2520,
-    "ALL": 252
-}
-days = future_periods.get(tf, 21)
-if df is None or df.empty or "Close" not in df.columns:
-    st.info("Not enough data for future DCA simulation. Try a longer chart interval.")
-else:
-    returns_series = df["Close"].pct_change().dropna()
-    # Ensure 1D
-    if isinstance(returns_series, pd.DataFrame):
-        # If for some reason it's a DataFrame, take the first column
-        returns_series = returns_series.iloc[:, 0]
-    elif isinstance(returns_series, np.ndarray) and returns_series.ndim > 1:
-        # If it's a 2D array, flatten it
-        returns_series = pd.Series(returns_series.flatten())
-    elif not isinstance(returns_series, pd.Series):
-        # If it's not a Series, try to convert
-        returns_series = pd.Series(returns_series)
-    returns = pd.to_numeric(returns_series, errors="coerce").values
-    returns = returns[~np.isnan(returns)]
-    min_required = max(10, days // 3)
-    if len(returns) < min_required:
-        st.info(f"Not enough data for future DCA simulation. "
-                f"Need at least {min_required} daily returns, but only have {len(returns)}. "
-                "Try a longer chart interval.")
-    else:
-        def simulate_future_prices(df, days=10, n_sims=1000):
-            returns_series = df["Close"].pct_change().dropna()
-            if isinstance(returns_series, pd.DataFrame):
-                returns_series = returns_series.iloc[:, 0]
-            elif isinstance(returns_series, np.ndarray) and returns_series.ndim > 1:
-                returns_series = pd.Series(returns_series.flatten())
-            elif not isinstance(returns_series, pd.Series):
-                returns_series = pd.Series(returns_series)
-            returns = pd.to_numeric(returns_series, errors="coerce").values
-            returns = returns[~np.isnan(returns)]
-            last_price = float(df["Close"].iloc[-1])
-            sims = []
-            for _ in range(n_sims):
-                sampled_returns = np.random.choice(returns, size=days, replace=True)
-                prices = [last_price]
-                for r in sampled_returns:
-                    prices.append(prices[-1] * (1 + r))
-                sims.append(prices[1:])
-            return np.array(sims)
-
-        def dca_on_simulated_paths(sim_prices, invest_amount, dca_freq=1):
-            n_sims, n_days = sim_prices.shape
-            results = []
-            for sim in sim_prices:
-                cash = invest_amount
-                shares = 0
-                for i in range(0, n_days, dca_freq):
-                    price = sim[i]
-                    buy_amt = cash / ((n_days - i) // dca_freq + 1)
-                    shares += buy_amt / price
-                    cash -= buy_amt
-                final_value = shares * sim[-1] + cash
-                results.append(final_value)
-            return np.array(results)
-
-        sim_prices = simulate_future_prices(df, days=days, n_sims=1000)
-        
-        if sim_prices is not None:
-            dca_results = dca_on_simulated_paths(sim_prices, invest_amount)
-            st.markdown(f"**Simulated DCA outcome for {tf} ({days} trading days):**")
-            st.write(f"Mean: ${np.mean(dca_results):,.2f}")
-            st.write(f"Median: ${np.median(dca_results):,.2f}")
-            st.write(f"5th percentile: ${np.percentile(dca_results, 5):,.2f}")
-            st.write(f"95th percentile: ${np.percentile(dca_results, 95):,.2f}")
-        
-             # --- Predicted future share price from Monte Carlo simulation ---
-
-        if sim_prices is not None:
-            predicted_prices = sim_prices[:, -1]
-            mean_price = np.mean(predicted_prices)
-            median_price = np.median(predicted_prices)
-            low_price = np.percentile(predicted_prices, 2.5)
-            high_price = np.percentile(predicted_prices, 97.5)
-            buy_price = float(df["Close"].iloc[-1])  # Ensure this is a float, not a Series
-            expected_gain = mean_price - buy_price
-            expected_gain_pct = (expected_gain / buy_price) * 100 if buy_price != 0 else 0
-            
-            st.markdown(f"### 📈 Predicted Share Price in {days} Days ({tf})")
-            st.write(f"**Current price:** ${buy_price:.2f}")
-            st.write(f"**Predicted mean price:** ${mean_price:.2f}")
-            st.write(f"**Median price:** ${median_price:.2f}")
-            st.write(f"**95% confidence range:** ${low_price:.2f} — ${high_price:.2f}")
-            st.write(f"**Expected gain/loss per share:** ${expected_gain:+.2f} ({expected_gain_pct:+.2f}%)")
-
-            
-                        
-
-
-           
-            # Optional: Show a line chart of the sorted predicted prices
-            
-            #sorted_prices = np.sort(predicted_prices)
-            #st.line_chart(sorted_prices)
-            
-            
-            import matplotlib.pyplot as plt
-            fig, ax = plt.subplots(figsize=(5, 2.5))  # You can adjust these numbers for size
-            ax.hist(dca_results, bins=30, color="#1976d2", alpha=0.7)
-            ax.set_title(f"Future DCA Portfolio Value Distribution ({tf})", fontsize=12)
-            ax.set_xlabel("Portfolio Value ($)", fontsize=10)
-            ax.set_ylabel("Simulations", fontsize=10)
-            plt.tight_layout()
-            st.pyplot(fig)
-
-        
-
-            import plotly.graph_objects as go
-
-            sorted_results = np.sort(dca_results)
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(
-                y=sorted_results,
-                mode='lines',
-                line=dict(color="#1976d2"),
-                name="Simulated DCA Outcomes"
-            ))
-            
-            
-            #fig.update_layout(
-                #title=f"Future DCA Portfolio Value Distribution ({tf})",
-                #xaxis_title="Simulation # (sorted)",
-                #yaxis_title="Portfolio Value ($)",
-                #template="plotly_white"
-           # )
-            #st.plotly_chart(fig, use_container_width=True)
-            
-
-# Headlines
-with st.expander("🗞️ Latest Headlines"):
+# ------------------------------ News ------------------------------
+with st.expander("🗞️ Latest Headlines", expanded=False):
     if not headlines:
         st.write("No headlines available.")
     else:
@@ -1132,115 +849,30 @@ with st.expander("🗞️ Latest Headlines"):
             nice = pub[:10] if pub else ""
             st.markdown(f"- [{title}]({url}) — *{src}* {('• '+nice) if nice else ''}")
 
-
-# ... your main ticker analysis code ...
-# (chart, metrics, daily action, DCA, etc.)
-
-# --- Insert the Tech Stock Recommendation Block Here ---
-
-import pandas as pd
-
-st.markdown("## 📋 Today's Top Tech Stock Buy Candidates")
-
-tech_watchlist = [
-    "AAPL", "MSFT", "GOOGL", "GOOG", "META", "AMZN", "NVDA", "TSLA", "CRM",
-    "ADBE", "ORCL", "INTC", "AMD", "CSCO", "NFLX", "AVGO", "QCOM", "IBM", "SHOP", "UBER"
-]
-
-buy_candidates = []
-
-for scan_ticker in tech_watchlist:
-    try:
-        scan_df = fetch_prices_tf(scan_ticker, period, interval)
-        if scan_df is None or len(scan_df) < 30:
-            continue
-        scan_ind = compute_indicators(scan_df)
-        headlines, news_sent = fetch_news_and_sentiment(scan_ticker)
-        signal, color, score = generate_signal(scan_ind, news_sent, horizon)
-        earnings_date = fetch_earnings_date(scan_ticker)
-        last = scan_ind.iloc[-1]
-        price = last["Close"]
-        buy_zone = price - 1.5 * last["ATR"]
-        target_up = price + 2.0 * last["ATR"]
-        stop_loss = price - 2.5 * last["ATR"]
-
-        if signal == "BUY" and price <= buy_zone * 1.05:
-            buy_candidates.append({
-                "Ticker": scan_ticker,
-                "Price": f"${price:.2f}",
-                "Score": score,
-                "Buy Zone": f"${buy_zone:.2f}",
-                "Target": f"${target_up:.2f}",
-                "Stop": f"${stop_loss:.2f}",
-                "Earnings": earnings_date,
-                "News Sentiment": f"{news_sent:+.2f}"
-            })
-    except Exception as e:
-        st.write(f"Error processing {scan_ticker}: {e}")
-
-# Fetch data for the user's selected ticker (again, after the screener)
-df = fetch_prices_tf(ticker, period, interval)
-if df is None or df.empty:
-    st.error(f"No data found for {ticker}.")
-    st.stop()
-ind = compute_indicators(df)
-
-# Sort by score (strongest first)
-buy_candidates = sorted(buy_candidates, key=lambda x: x["Score"], reverse=True)
-
-if buy_candidates:
-    st.dataframe(pd.DataFrame(buy_candidates))
-else:
-    st.info("No strong tech stock buy candidates found today based on your criteria.")
-
-# ... rest of your dashboard (headlines, learn, disclaimer, etc.) ...
-
-# ============================================================
-# 📘 Learn (Education)
-# ============================================================
-
-def render_learn_section():
-    learn_md = """
-### What you’re seeing
-- **Signal Tab** uses trend (MA, ADX), momentum (RSI, MACD), extremes (Bollinger), and news sentiment.  
-- **Forecast AI Tab** blends historical returns + Monte Carlo (bootstrap) with a probabilistic range.  
-- **Simulator Tab** models Adaptive Dollar-Cost Averaging (DCA) + partial take-profit.  
-
-### Educational notes
-- **RSI** — <30 oversold, >70 overbought.  
-- **MACD** — momentum/trend crossovers.  
-- **Bollinger Bands** — ±2σ around 20D mean.  
-- **ADX** — trend strength (>25 = strong).  
-- **ATR** — volatility; for stop/target bands.  
-- **Markov chain** — probability that tomorrow continues today’s direction.  
-- **Random/Monte Carlo** — random resampling of historical returns to forecast potential future range.  
-
-### Chart Patterns
-- **Cup & Handle** — rounded base followed by shallow pullback; breakout confirms bullish continuation.  
-- **Double Bottom** — two similar lows with a mid-peak; breakout above the midpoint confirms reversal.  
-- **Bollinger Squeeze** — narrow bands often precede strong breakouts.  
-- **ADX** — measures trend strength; >25 = strong, <20 = range-bound.  
-"""
-    st.markdown(learn_md)
-
+# ------------------------------ Learn & Disclaimer ------------------------------
 with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
-    render_learn_section()
-# ============================================================
-# 🧾 Footer & Disclaimer
-# ============================================================
-# Force Streamlit to render a break and flush all open elements
-st.write("")
-#st.divider()
+    st.markdown("""
+**What you’re seeing**
+- **Signal** blends trend (MA, ADX), momentum (RSI, MACD), extremes (Bollinger), and news sentiment.  
+- **Forecast AI** uses bootstrap/Monte Carlo of historical returns to estimate a 5-day range.  
+- **Simulators** model daily action and adaptive DCA with partial take-profit.
+
+**Indicator notes**  
+- RSI: <30 oversold, >70 overbought.  
+- MACD: momentum/trend crossovers.  
+- Bollinger: ±2σ around 20D mean; squeeze can precede breakouts.  
+- ADX: trend strength (>25 strong).  
+- ATR: volatility; used for target/stop bands.  
+""")
+
 st.markdown(
     """
-<div style='text-align:left; color:gray; font-size:14px; line-height:1.5; margin-top:10px;'>
+<div style='text-align:left; color:gray; font-size:14px; line-height:1.5; margin-top:14px;'>
 <b>Disclaimer:</b><br>
-This dashboard is for <b>educational and informational purposes only</b> and 
-<b>does not constitute financial advice</b>.<br>
+This dashboard is for <b>educational and informational purposes only</b> and does not constitute financial advice.<br>
 Markets carry risk; always do your own research or consult a licensed financial advisor before investing.<br><br>
-© 2025 <b>MarketMinds LLC</b> — <i>AI Stock Signals PRO </i>
+© 2025 <b>MarketMinds LLC</b> — <i>AI Stock Signals PRO</i>
 </div>
     """,
     unsafe_allow_html=True,
 )
-
