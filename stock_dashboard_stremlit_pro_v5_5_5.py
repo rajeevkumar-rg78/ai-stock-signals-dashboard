@@ -1035,7 +1035,30 @@ Markets carry risk; always do your own research or consult a licensed financial 
 # 💳 Pricing & Plans — MarketMinds LLC
 # ============================================================
 
-pricing_html = """
+# ============================================================
+# 💳 Pricing & Plans — MarketMinds LLC
+# ============================================================
+
+pricing_html = """\
+<hr style="margin-top:40px; margin-bottom:20px;">
+<h2 style="text-align:center;">💳 Pricing & Plans</h2>
+<p style="text-align:center; font-size:16px; color:gray;">
+Choose the plan that fits your investing style — upgrade anytime.
+</p>
+
+<div style="
+    display:flex;
+    justify-content:center;
+    gap:25px;
+    flex-wrap:wrap;
+    margin-top:25px;
+">
+    <!-- Plan cards go here (Free / Pro / Institutional) -->
+</div>
+"""
+
+st.markdown(pricing_html, unsafe_allow_html=True)
+
 <hr style="margin-top:40px; margin-bottom:20px;">
 <h2 style="text-align:center;">💳 Pricing & Plans</h2>
 <p style="text-align:center; font-size:16px; color:gray;">
