@@ -1315,7 +1315,11 @@ logbook_df = paper_trading_logbook(df_daily, ind_daily, invest_amount)
 st.write(f"### Paper Trading Log Book for {ticker}")
 st.dataframe(logbook_df, use_container_width=True)
 st.write("### Portfolio Value Over Time")
-st.line_chart(logbook_df.set_index("date")["portfolio_value"])
+# Ensure "date" is datetime (for nice x-axis) or string
+logbook_df["date"] = pd.to_datetime(logbook_df["date"])
+logbook_df = logbook_df.set_index("date")
+st.line_chart(logbook_df["portfolio_value"])
+
 
 
 
