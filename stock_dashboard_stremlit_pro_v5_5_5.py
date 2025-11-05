@@ -113,6 +113,131 @@ def safe_float(x, default=0.0):
     except Exception:
         return default
 
+
+# ============================================================
+# 🎓 In-App Tutorial: How AI Stock Signals PRO Works
+# ============================================================
+
+with st.expander("🎓 Learn How AI Stock Signals PRO Works", expanded=False):
+    st.markdown("""
+## 🧠 What Is AI Stock Signals PRO?
+AI Stock Signals PRO is an **AI-powered analytics dashboard** that blends:
+- 📊 Technical indicators (RSI, MACD, ADX, Bollinger, MAs)
+- 📰 News sentiment (via NLP / VADER)
+- 👥 Analyst consensus trends
+- 🤖 Monte Carlo–based AI forecasting
+- 💵 Adaptive DCA and paper-trading simulations
+
+It’s built for **education, research, and strategy testing** — *not live brokerage execution.*
+
+---
+
+## 💻 How the Dashboard Works
+
+1️⃣ **Enter a stock symbol** (e.g. `MSFT`, `NVDA`, `META`)  
+2️⃣ **Choose mode** — short-term swing or long-term investor  
+3️⃣ The system instantly:
+   - Pulls real market and news data
+   - Computes 9+ technical indicators
+   - Runs sentiment + forecast models  
+4️⃣ Displays your **AI Signal (Buy/Hold/Sell)** with confidence  
+5️⃣ Interactive chart shows **Buy Zone**, **Target**, and **Stop** levels  
+6️⃣ **"Why this signal"** section explains every factor  
+7️⃣ **Forecast AI (5d)** shows the probability-based move range  
+8️⃣ **Simulators** help test strategies (DCA, Monte Carlo)
+9️⃣ **Analyst Pulse + Macro Dashboard** summarize the broader market view
+
+---
+
+## 📈 Signal Interpretation
+
+| Signal | Meaning | Educational Insight |
+|---------|----------|---------------------|
+| 🟢 **BUY** | Technical + sentiment trend aligned bullish | Potential short-term or accumulation zone |
+| 🟠 **HOLD** | Mixed indicators or neutral momentum | Wait for confirmation |
+| 🔴 **SELL** | Overbought or weakening trend | Consider trimming or avoiding new positions |
+
+**Targets & Zones**
+- **Buy Zone** — algorithmic dip area (ATR-based)
+- **Target** — short-term upside range
+- **Stop** — volatility-adjusted downside guardrail
+
+---
+
+## 💰 Paper Trading Strategy
+
+- Track simulated “buys” in your paper-trade log or Excel
+- Monitor if price hits the Target or Stop
+- Assess signal success over time
+- Adjust DCA frequency, position sizing, or stop width
+
+---
+
+## ⚙️ Indicators Used
+
+| Indicator | Purpose |
+|------------|----------|
+| MA50 / MA200 | Trend direction |
+| MACD | Momentum crossover |
+| RSI | Overbought / Oversold levels |
+| Bollinger Bands | Volatility squeeze or break |
+| ADX | Trend strength |
+| ATR | Stop/target calibration |
+| Sentiment | News tone via AI |
+| Analyst Pulse | Consensus from experts |
+
+---
+
+## 🤖 AI Forecast Engine
+Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
+- **Expected Move (μ)**  
+- **Confidence (σ)**  
+- **Range (±95%)**
+
+🧮 *Example:*  
+> Predicted move: +3.2% in 5d  
+> Range: –4.5% → +7.8%  
+> Confidence: 68%
+
+---
+
+## 💵 DCA & Monte Carlo Simulators
+
+- **Adaptive DCA Simulator** tests buying on dips + partial selling in rallies  
+- **Monte Carlo Future DCA** predicts potential portfolio outcomes  
+- Metrics: ROI %, Max Drawdown, Final Value
+
+---
+
+## 🌎 Macro & Analyst Insight
+
+| Section | Description |
+|----------|--------------|
+| **Macro Dashboard** | VIX, CPI, Unemployment, S&P trend |
+| **Analyst Pulse** | Aggregated expert buy/hold/sell sentiment |
+| **Market Bias** | Visual summary (Bullish / Bearish / Neutral) |
+| **Top Tech Scans** | Daily AI-screened BUY signals from major tech stocks |
+
+---
+
+## ⚖️ Legal Disclaimer
+> AI Stock Signals PRO is for **educational and informational purposes only**.  
+> It does **not** constitute financial advice or trading recommendations.  
+> All simulations are hypothetical. Investing carries risk — always research independently.
+
+---
+
+### 💬 Support
+**MarketMinds LLC** — Seattle, WA  
+🌐 [www.aistocksignals.com](https://www.aistocksignals.com)  
+📧 support@aistocksignals.com  
+© 2025 MarketMinds LLC. All rights reserved.
+""")
+
+
+
+
+
 # ------------------------------ Inputs ------------------------------
 render_header("HOLD")
 
