@@ -271,24 +271,6 @@ Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
 # mark tutorial as shown for current session
 st.session_state.tutorial_shown = True
 
-
-
-c1, c2, c3 = st.columns([2,2,3])
-with c1:
-    ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
-with c2:
-    horizon = st.radio("Mode", ["Short-term (Swing)", "Long-term (Investor)"], index=1, horizontal=True)
-with c3:
-    invest_amount = st.slider("Allocation for simulations ($)", min_value=500, max_value=50_000, step=500, value=10_000)
-
-if not ticker:
-    st.markdown("""
-        ### 👋 Welcome to AI Stock Signals PRO
-        - Enter a symbol above to generate **signals, targets & forecasts**.
-        - Example tickers: `AAPL`, `MSFT`, `NVDA`, `TSLA`, `META`, etc.
-    """)
-    st.stop()
-
 # ============================================================
 # 💳 PRICING & STRIPE CHECKOUT SECTION
 # ============================================================
@@ -332,6 +314,24 @@ pricing_html = """
 """
 
 st.markdown(pricing_html, unsafe_allow_html=True)
+
+c1, c2, c3 = st.columns([2,2,3])
+with c1:
+    ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
+with c2:
+    horizon = st.radio("Mode", ["Short-term (Swing)", "Long-term (Investor)"], index=1, horizontal=True)
+with c3:
+    invest_amount = st.slider("Allocation for simulations ($)", min_value=500, max_value=50_000, step=500, value=10_000)
+
+if not ticker:
+    st.markdown("""
+        ### 👋 Welcome to AI Stock Signals PRO
+        - Enter a symbol above to generate **signals, targets & forecasts**.
+        - Example tickers: `AAPL`, `MSFT`, `NVDA`, `TSLA`, `META`, etc.
+    """)
+    st.stop()
+
+
 
 # ------------------------------ Timeframe ------------------------------
 timeframes = {
