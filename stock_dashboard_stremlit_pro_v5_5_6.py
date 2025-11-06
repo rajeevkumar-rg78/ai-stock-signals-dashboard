@@ -271,6 +271,38 @@ Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
 # mark tutorial as shown for current session
 st.session_state.tutorial_shown = True
 
+# ============================================================
+# ✅ Stripe Checkout Return Handler (Success / Cancel)
+# ============================================================
+
+# Read URL query parameters after redirect from Stripe
+query_params = st.experimental_get_query_params()
+
+# Success page
+if "success" in query_params:
+    st.markdown("""
+    <div style='padding:20px;border-radius:10px;background:#E6FFED;border:2px solid #00B871;margin-bottom:15px;'>
+        <h3 style='color:#00B871;'>✅ Payment Successful!</h3>
+        <p style='font-size:16px;'>Thank you for subscribing to <strong>AI Stock Signals PRO</strong>.<br>
+        You now have full access to <b>AI-based signals, simulators, and forecasts</b>.</p>
+        <p style='font-size:15px;'>You can close this message and start exploring your dashboard.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Cancelled payment page
+elif "cancelled" in query_params:
+    st.markdown("""
+    <div style='padding:20px;border-radius:10px;background:#FFF4E6;border:2px solid #FF9900;margin-bottom:15px;'>
+        <h3 style='color:#FF9900;'>⚠️ Payment Cancelled</h3>
+        <p style='font-size:16px;'>Your payment was not completed.<br>
+        You can upgrade anytime by selecting <b>PRO</b> or <b>ELITE</b> below.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+
+
+
 st.markdown("## 💳 Upgrade Your Plan — Unlock Full AI Access")
 
 pricing_html = """
