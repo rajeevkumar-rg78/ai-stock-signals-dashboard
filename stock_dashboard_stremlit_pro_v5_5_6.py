@@ -306,7 +306,7 @@ pricing_html = """
     <p style="font-size:14px;">Everything in PRO + Forecast AI</p>
     <p style="font-size:13px;">Macro Dashboard + Screener Access</p>
     <h2>$29.99/mo</h2>
-    <form action="https://checkout.stripe.com/pay/https://buy.stripe.com/test_9B6eV58cJ41H1L27Jhg3601" method="GET">
+    <form action="https://buy.stripe.com/test_9B6eV58cJ41H1L27Jhg3601" method="GET">
       <button style="background:#ffffff;color:#ff007f;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;">Upgrade to ELITE</button>
     </form>
   </div>
