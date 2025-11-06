@@ -281,39 +281,37 @@ st.markdown("## 💳 Upgrade Your Plan — Unlock Full AI Access")
 
 stripe.api_key = st.secrets["stripe"]["secret_key"]
 
+
 pricing_html = """
-<div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 10px;">
-  <div style="background: linear-gradient(135deg, #00c6ff, #0072ff); color: white; padding: 25px; border-radius: 12px; width: 290px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center;">
+<div style='display:flex;justify-content:center;gap:30px;margin:30px 0;'>
+  <div style='background:#007BFF;color:white;padding:25px;border-radius:12px;width:280px;text-align:center;'>
     <h3>Free Tier</h3>
-    <p style="font-size:14px;">Access up to 3 tickers/day</p>
-    <p style="font-size:13px;">Basic indicators only</p>
+    <p>Access up to 3 tickers/day<br>Basic indicators only</p>
     <h2>$0</h2>
-    <button disabled style="background:#ccc;border:none;color:white;padding:10px 20px;border-radius:6px;cursor:not-allowed;">Current</button>
+    <button disabled style='background:gray;border:none;color:white;padding:8px 20px;border-radius:8px;'>Current</button>
   </div>
 
-  <div style="background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; padding: 25px; border-radius: 12px; width: 290px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center;">
+  <div style='background:#00BFFF;color:white;padding:25px;border-radius:12px;width:280px;text-align:center;'>
     <h3>Pro</h3>
-    <p style="font-size:14px;">Full signals + simulators</p>
-    <p style="font-size:13px;">AI-based Buy/Sell + RSI + DCA</p>
+    <p>Full signals + simulators<br>AI-based Buy/Sell + RSI + DCA</p>
     <h2>$9.99/mo</h2>
-    <form action="https://buy.stripe.com/test_eVq7sD78FgOt61i0gPg3600" method="GET">
-      <button style="background:#ffffff;color:#0072ff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;">Upgrade to PRO</button>
+    <form action="https://buy.stripe.com/test_14AfZ9akR7dTexO4x5g3602" method="GET">
+        <button style='background:white;color:#00BFFF;border:none;padding:8px 20px;border-radius:8px;font-weight:600;'>Upgrade to PRO</button>
     </form>
   </div>
 
-  <div style="background: linear-gradient(135deg, #ff758c, #ff7eb3); color: white; padding: 25px; border-radius: 12px; width: 290px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center;">
+  <div style='background:#FF6699;color:white;padding:25px;border-radius:12px;width:280px;text-align:center;'>
     <h3>Elite</h3>
-    <p style="font-size:14px;">Everything in PRO + Forecast AI</p>
-    <p style="font-size:13px;">Macro Dashboard + Screener Access</p>
+    <p>Everything in PRO + Forecast AI<br>Macro Dashboard + Screener Access</p>
     <h2>$29.99/mo</h2>
     <form action="https://buy.stripe.com/test_9B6eV58cJ41H1L27Jhg3601" method="GET">
-      <button style="background:#ffffff;color:#ff007f;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;">Upgrade to ELITE</button>
+        <button style='background:white;color:#FF6699;border:none;padding:8px 20px;border-radius:8px;font-weight:600;'>Upgrade to ELITE</button>
     </form>
   </div>
 </div>
 """
-
 st.markdown(pricing_html, unsafe_allow_html=True)
+
 
 c1, c2, c3 = st.columns([2,2,3])
 with c1:
