@@ -295,8 +295,8 @@ pricing_html = """
     <h3>Pro</h3>
     <p>Full signals + simulators<br>AI-based Buy/Sell + RSI + DCA</p>
     <h2>$9.99/mo</h2>
-    <form action="https://buy.stripe.com/test_14AfZ9akR7dTexO4x5g3602" method="GET">
-        <button style='background:white;color:#00BFFF;border:none;padding:8px 20px;border-radius:8px;font-weight:600;'>Upgrade to PRO</button>
+    <form action="https://buy.stripe.com/test_YOUR_PRO_LINK" method="GET">
+      <button style='background:white;color:#00BFFF;border:none;padding:8px 20px;border-radius:8px;font-weight:600;'>Upgrade to PRO</button>
     </form>
   </div>
 
@@ -304,13 +304,14 @@ pricing_html = """
     <h3>Elite</h3>
     <p>Everything in PRO + Forecast AI<br>Macro Dashboard + Screener Access</p>
     <h2>$29.99/mo</h2>
-    <form action="https://buy.stripe.com/test_9B6eV58cJ41H1L27Jhg3601" method="GET">
-        <button style='background:white;color:#FF6699;border:none;padding:8px 20px;border-radius:8px;font-weight:600;'>Upgrade to ELITE</button>
+    <form action="https://buy.stripe.com/test_YOUR_ELITE_LINK" method="GET">
+      <button style='background:white;color:#FF6699;border:none;padding:8px 20px;border-radius:8px;font-weight:600;'>Upgrade to ELITE</button>
     </form>
   </div>
 </div>
 """
 st.markdown(pricing_html, unsafe_allow_html=True)
+
 
 
 c1, c2, c3 = st.columns([2,2,3])
