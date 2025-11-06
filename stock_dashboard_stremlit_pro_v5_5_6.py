@@ -524,43 +524,71 @@ def plot_dashboard(ind: pd.DataFrame, ticker: str, zones=True):
     return fig
 
 # ------------------------------ LIVE PRICE FIX ------------------------------
-@st.cache_data(ttl=15)
-def fetch_live_quote(ticker: str):
+@st.cache_data(ttl=10)  # refresh quickly; Yahoo quotes change a lot intraday
+def get_live_quote(ticker: str):
+    """
+    Returns a dict:
+      {price, prev_close, change, change_pct, source, session}
+    Uses Yahoo quote endpoint first; falls back to 1m bars if needed.
+    """
+    import requests, pandas as pd, yfinance as yf
+    url = f"https://query1.finance.yahoo.com/v7/finance/quote?symbols={ticker}"
     try:
-        q = requests.get(f"https://query1.finance.yahoo.com/v7/finance/quote?symbols={ticker}", timeout=5)
-        if not q.ok: return None
-        res = q.json().get("quoteResponse", {}).get("result", [])
-        if not res: return None
-        r = res[0]
-        f = lambda x: float(x) if x is not None else None
-        return {
-            "price": f(r.get("regularMarketPrice")),
-            "prev":  f(r.get("regularMarketPreviousClose")),
-            "change": f(r.get("regularMarketChange")),
-            "pct":   f(r.get("regularMarketChangePercent")),
-            "post_price": f(r.get("postMarketPrice")),
-            "post_change": f(r.get("postMarketChange")),
-            "post_pct": f(r.get("postMarketChangePercent")),
-        }
-    except Exception:
-        return None
+        r = requests.get(url, timeout=6)
+        if r.ok:
+            q = r.json()["quoteResponse"]["result"][0]
 
-def fallback_intraday_delta(ticker: str):
-    try:
-        intr = yf.download(ticker, period="2d", interval="1m", auto_adjust=False, progress=False)
-        if intr.empty: return None
-        intr = intr.dropna()
-        last_price = float(intr["Close"].iloc[-1])
-        # previous session close
-        prev_session = intr.index[-1].date()
-        prev_mask = intr.index.date < prev_session
-        if not prev_mask.any(): return None
-        prev_close = float(intr.loc[prev_mask, "Close"].iloc[-1])
-        chg = last_price - prev_close
-        pct = (chg / prev_close) * 100 if prev_close else 0
-        return {"price": last_price, "prev": prev_close, "change": chg, "pct": pct}
+            # Prefer post/pre prices if present (so close delta matches tape)
+            price = (
+                q.get("postMarketPrice")
+                or q.get("regularMarketPrice")
+                or q.get("preMarketPrice")
+            )
+            prev_close = q.get("regularMarketPreviousClose")
+
+            # If both exist, compute delta without mixing adjusted data
+            if isinstance(price, (int, float)) and isinstance(prev_close, (int, float)):
+                change = price - prev_close
+                change_pct = (change / prev_close) * 100 if prev_close else 0.0
+                session = "post" if q.get("postMarketPrice") else ("pre" if q.get("preMarketPrice") else "regular")
+                return dict(
+                    price=float(price),
+                    prev_close=float(prev_close),
+                    change=float(change),
+                    change_pct=float(change_pct),
+                    source="quote",
+                    session=session,
+                )
     except Exception:
-        return None
+        pass
+
+    # ---- Fallback: 1-minute bars (still unadjusted), align to regular session ----
+    try:
+        df_1m = yf.download(ticker, period="2d", interval="1m", auto_adjust=False, progress=False)
+        if df_1m is None or df_1m.empty:
+            raise RuntimeError("no 1m data")
+
+        df_1m = df_1m.tz_localize(None, errors="ignore")
+        # Determine "yesterday regular close" (last bar from the first day)
+        first_day = df_1m.index[0].date()
+        prev_close = float(df_1m[df_1m.index.date == first_day]["Close"].iloc[-1])
+
+        # Price = latest bar (could be after-hours; still consistent with prev_close here)
+        price = float(df_1m["Close"].iloc[-1])
+
+        change = price - prev_close
+        change_pct = (change / prev_close) * 100 if prev_close else 0.0
+        return dict(
+            price=price,
+            prev_close=prev_close,
+            change=float(change),
+            change_pct=float(change_pct),
+            source="intraday_fallback",
+            session="intraday",
+        )
+    except Exception:
+        return dict(price=None, prev_close=None, change=None, change_pct=None, source="none", session=None)
+
 
 # ------------------------------ Main Flow ------------------------------
 df = fetch_prices_tf(ticker, period, interval)
@@ -577,21 +605,22 @@ conf_overall = market_confidence(news_sent, pulse["buy"])
 ai = ai_forecast(df, ind)
 
 # Live price & delta (correct during market hours; shows after-hours)
-q = fetch_live_quote(ticker)
-if q and q["price"] and q["prev"]:
-    live_price = q["price"]; delta = q["change"]; delta_pct = q["pct"]
-    if q["post_price"]:
-        st.caption(f"🕔 After-hours: ${q['post_price']:.2f} ({q['post_change']:+.2f}, {q['post_pct']:+.2f}%)")
+q = get_live_quote(ticker)
+
+if q["source"] == "quote":
+    # hide the gray note in production if you want
+    pass
+elif q["source"] == "intraday_fallback":
+    st.caption("🪶 Using intraday fallback for live delta.")
 else:
-    fb = fallback_intraday_delta(ticker)
-    if fb:
-        live_price, delta, delta_pct = fb["price"], fb["change"], fb["pct"]
-        st.caption("📡 Using intraday fallback for live delta.")
-    else:
-        last = ind.iloc[-1]; prev = ind.iloc[-2] if len(ind) > 1 else last
-        live_price = float(last["Close"])
-        delta = live_price - float(prev["Close"])
-        delta_pct = (delta / float(prev["Close"])) * 100 if prev["Close"] else 0
+    st.caption("⚠️ Live quote unavailable; showing last computed values.")
+
+price = q["price"] if q["price"] is not None else float(ind["Close"].iloc[-1])
+change = q["change"] if q["change"] is not None else 0.0
+change_pct = q["change_pct"] if q["change_pct"] is not None else 0.0
+
+cA.metric("Price", f"${price:,.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
+
 
 # ------------------------------ Signal Card ------------------------------
 last = ind.iloc[-1]
