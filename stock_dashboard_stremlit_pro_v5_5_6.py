@@ -296,7 +296,7 @@ pricing_html = """
     <p style="font-size:14px;">Full signals + simulators</p>
     <p style="font-size:13px;">AI-based Buy/Sell + RSI + DCA</p>
     <h2>$9.99/mo</h2>
-    <form action="https://checkout.stripe.com/pay/YOUR_PRO_PRICE_ID" method="GET">
+    <form action="https://dashboard.stripe.com/acct_1SQLiO0huGTLEOVb/test/payment-links/create?price=price_1SQMTA0huGTLEOVbE3UHoBro" method="GET">
       <button style="background:#ffffff;color:#0072ff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;">Upgrade to PRO</button>
     </form>
   </div>
