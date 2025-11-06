@@ -271,16 +271,7 @@ Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
 # mark tutorial as shown for current session
 st.session_state.tutorial_shown = True
 
-# ============================================================
-# 💳 PRICING & STRIPE CHECKOUT SECTION
-# ============================================================
-
-import stripe
-
 st.markdown("## 💳 Upgrade Your Plan — Unlock Full AI Access")
-
-stripe.api_key = st.secrets["stripe"]["secret_key"]
-
 
 pricing_html = """
 <div style='display:flex;justify-content:center;gap:30px;margin:30px 0;'>
@@ -295,22 +286,23 @@ pricing_html = """
     <h3>Pro</h3>
     <p>Full signals + simulators<br>AI-based Buy/Sell + RSI + DCA</p>
     <h2>$9.99/mo</h2>
-    <form action="https://buy.stripe.com/test_14AfZ9akR7dTexO4x5g3602" method="GET">
-      <button style='background:white;color:#00BFFF;border:none;padding:8px 20px;border-radius:8px;font-weight:600;'>Upgrade to PRO</button>
-    </form>
+    <a href="https://buy.stripe.com/test_14AfZ9akR7dTexO4x5g3602" target="_blank">
+      <button style='background:white;color:#00BFFF;border:none;padding:8px 20px;border-radius:8px;font-weight:600;cursor:pointer;'>Upgrade to PRO</button>
+    </a>
   </div>
 
   <div style='background:#FF6699;color:white;padding:25px;border-radius:12px;width:280px;text-align:center;'>
     <h3>Elite</h3>
     <p>Everything in PRO + Forecast AI<br>Macro Dashboard + Screener Access</p>
     <h2>$29.99/mo</h2>
-    <form action="https://buy.stripe.com/test_6oU28j64B1Tz1L23t1g3603" method="GET">
-      <button style='background:white;color:#FF6699;border:none;padding:8px 20px;border-radius:8px;font-weight:600;'>Upgrade to ELITE</button>
-    </form>
+    <a href="https://buy.stripe.com/test_6oU28j64B1Tz1L23t1g3603" target="_blank">
+      <button style='background:white;color:#FF6699;border:none;padding:8px 20px;border-radius:8px;font-weight:600;cursor:pointer;'>Upgrade to ELITE</button>
+    </a>
   </div>
 </div>
 """
 st.markdown(pricing_html, unsafe_allow_html=True)
+
 
 
 
