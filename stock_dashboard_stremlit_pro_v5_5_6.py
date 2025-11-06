@@ -344,39 +344,70 @@ def fetch_macro():
 
 # ------------------------------ Indicators / Signals ------------------------------
 def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
+    # Base series
+    c = df["Close"].astype(float)
+    h = df["High"].astype(float)
+    l = df["Low"].astype(float)
+    v = df["Volume"].astype(float)
+
     out = pd.DataFrame(index=df.index)
-    c, h, l = df["Close"], df["High"], df["Low"]
+
+    # Moving averages
     out["MA20"]  = c.rolling(20, min_periods=1).mean()
     out["MA50"]  = c.rolling(50, min_periods=1).mean()
     out["MA200"] = c.rolling(200, min_periods=1).mean()
-    delta = c.diff(); gain = delta.clip(lower=0); loss = -delta.clip(upper=0)
+    out["EMA20"] = c.ewm(span=20, adjust=False).mean()
+
+    # RSI (14)
+    delta = c.diff()
+    gain  = delta.clip(lower=0.0)
+    loss  = -delta.clip(upper=0.0)
     avg_gain = gain.ewm(alpha=1/14, min_periods=14, adjust=False).mean()
     avg_loss = loss.ewm(alpha=1/14, min_periods=14, adjust=False).mean()
-    rs  = avg_gain / (avg_loss + 1e-9)
-    out["RSI"] = (100 - (100/(1+rs))).fillna(50)
-    ema12 = c.ewm(span=12, adjust=False).mean(); ema26 = c.ewm(span=26, adjust=False).mean()
-    out["MACD"] = ema12 - ema26; out["MACD_Signal"] = out["MACD"].ewm(span=9, adjust=False).mean()
+    rs = avg_gain / (avg_loss + 1e-9)
+    out["RSI"] = (100 - (100/(1 + rs))).fillna(50.0)
+
+    # MACD
+    ema12 = c.ewm(span=12, adjust=False).mean()
+    ema26 = c.ewm(span=26, adjust=False).mean()
+    out["MACD"]        = ema12 - ema26
+    out["MACD_Signal"] = out["MACD"].ewm(span=9, adjust=False).mean()
     out["MACD_Hist"]   = out["MACD"] - out["MACD_Signal"]
-    bb_mid = c.rolling(20, min_periods=1).mean(); bb_std = c.rolling(20, min_periods=1).std(ddof=0)
-    out["BB_Up"]  = bb_mid + 2*bb_std; out["BB_Low"] = bb_mid - 2*bb_std
+
+    # Bollinger Bands
+    bb_mid = c.rolling(20, min_periods=1).mean()
+    bb_std = c.rolling(20, min_periods=1).std(ddof=0)
+    out["BB_Up"]  = bb_mid + 2.0 * bb_std
+    out["BB_Low"] = bb_mid - 2.0 * bb_std
+
+    # ATR (14)
     prev_close = c.shift(1)
-    tr = pd.concat([(h-l), (h-prev_close).abs(), (l-prev_close).abs()], axis=1).max(axis=1)
+    tr = pd.concat([(h - l).abs(),
+                    (h - prev_close).abs(),
+                    (l - prev_close).abs()], axis=1).max(axis=1)
     out["ATR"] = tr.rolling(14, min_periods=1).mean()
-    out["Close"] = c
-    try:
-        out["BB_Width"] = ((out["BB_Up"] - out["BB_Low"]) / c.replace(0, np.nan)).astype(float).fillna(0)
-    except Exception:
-        out["BB_Width"] = pd.Series(0.0, index=df.index)
-    # ADX quick approximation
-    up_move   = h.diff(); down_move = -l.diff()
-    plus_dm  = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
-    minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0.0)
+
+    # DI / ADX (keep everything as Series, no np.where)
+    up_move   = h.diff()
+    down_move = -l.diff()
+
+    plus_dm  = up_move.where((up_move > down_move) & (up_move > 0), 0.0).astype(float)
+    minus_dm = down_move.where((down_move > up_move) & (down_move > 0), 0.0).astype(float)
+
     atr_smooth = tr.rolling(14, min_periods=1).mean()
-    plus_di  = 100 * (pd.Series(plus_dm, index=df.index).rolling(14, min_periods=1).sum() / (atr_smooth + 1e-9))
-    minus_di = 100 * (pd.Series(minus_dm, index=df.index).rolling(14, min_periods=1).sum() / (atr_smooth + 1e-9))
-    dx = (abs(plus_di - minus_di) / (plus_di + minus_di + 1e-9)) * 100
+    plus_di  = 100.0 * (plus_dm.rolling(14, min_periods=1).sum()  / (atr_smooth + 1e-9))
+    minus_di = 100.0 * (minus_dm.rolling(14, min_periods=1).sum() / (atr_smooth + 1e-9))
+
+    dx = (abs(plus_di - minus_di) / (plus_di + minus_di + 1e-9)) * 100.0
     out["ADX"] = dx.rolling(14, min_periods=1).mean()
+
+    # Band width (safe)
+    bw = (out["BB_Up"] - out["BB_Low"]) / c.replace(0, np.nan)
+    out["BB_Width"] = pd.to_numeric(bw, errors="coerce").fillna(0.0)
+
+    out["Close"] = c
     return out.bfill().ffill()
+
 
 def fetch_news_and_sentiment(ticker: str):
     analyzer = SentimentIntensityAnalyzer()
