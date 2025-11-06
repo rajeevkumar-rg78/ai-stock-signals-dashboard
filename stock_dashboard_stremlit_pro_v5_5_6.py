@@ -304,7 +304,7 @@ pricing_html = """
     <h3>Elite</h3>
     <p>Everything in PRO + Forecast AI<br>Macro Dashboard + Screener Access</p>
     <h2>$29.99/mo</h2>
-    <form action="https://buy.stripe.com/test_YOUR_ELITE_LINK" method="GET">
+    <form action="https://buy.stripe.com/test_6oU28j64B1Tz1L23t1g3603" method="GET">
       <button style='background:white;color:#FF6699;border:none;padding:8px 20px;border-radius:8px;font-weight:600;'>Upgrade to ELITE</button>
     </form>
   </div>
