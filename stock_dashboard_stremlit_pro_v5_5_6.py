@@ -395,20 +395,22 @@ if not ticker:
     """)
     st.stop()
 
+# Fetch live price and delta at the top
 df_daily = yf.download(ticker, period="5d", interval="1d", auto_adjust=True, progress=False)
 if df_daily.empty or len(df_daily) < 2:
     st.error("Not enough daily data for this ticker.")
     st.stop()
-prev_close = float(df_daily["Close"].iloc[-2])  # Ensure this is a float
+prev_close = float(df_daily["Close"].iloc[-2])
 
 df_intraday = yf.download(ticker, period="1d", interval="1m", auto_adjust=True, progress=False)
 if not df_intraday.empty:
-    live_price = float(df_intraday["Close"].iloc[-1])  # Ensure this is a float
+    live_price = float(df_intraday["Close"].iloc[-1])
     change = live_price - prev_close
     change_pct = (change / prev_close) * 100 if prev_close != 0 else 0
-    st.metric("Live Price", f"${live_price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
 else:
-    st.metric("Price", f"${prev_close:.2f}", delta="—")
+    live_price = prev_close
+    change = 0
+    change_pct = 0
 
 
 # ------------------------------ Timeframe ------------------------------
@@ -858,7 +860,8 @@ change_pct = (change / prev["Close"]) * 100 if prev["Close"] != 0 else 0
 st.markdown(f"## ✅ Signal: **{decision}**  (Score {score:+.2f}, News {news_sent:+.2f})")
 st.progress(conf_overall, text=f"Market Confidence {int(conf_overall*100)}% — sentiment/analyst blend")
 cA, cB, cC, cD, cE, cF = st.columns(6)
-cA.metric("Price", f"${price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
+#cA.metric("Price", f"${price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
+cA.metric("Price", f"${live_price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
 cB.metric("RSI (14)", f"{last['RSI']:.1f}")
 cC.metric("MACD", f"{last['MACD']:.2f}")
 cD.metric("ADX", f"{last['ADX']:.1f}")
