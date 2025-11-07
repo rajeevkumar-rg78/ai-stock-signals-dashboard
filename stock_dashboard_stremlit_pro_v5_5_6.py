@@ -395,6 +395,9 @@ if not ticker:
     """)
     st.stop()
 
+import numpy as np
+import yfinance as yf
+
 # Get official previous close and live price
 t = yf.Ticker(ticker)
 prev_close = t.info.get("previousClose", np.nan)
@@ -407,13 +410,13 @@ if np.isnan(live_price):
         live_price = float(df_intraday["Close"].iloc[-1])
 
 if not np.isnan(live_price) and not np.isnan(prev_close):
-    change = live_price - prev_close
-    change_pct = (change / prev_close) * 100 if prev_close != 0 else 0
-    st.metric("Price", f"${live_price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
+    current_price = live_price
+    current_change = live_price - prev_close
+    current_change_pct = (current_change / prev_close) * 100 if prev_close != 0 else 0
 else:
-    st.metric("Price", "—", delta="—")
-
-
+    current_price = np.nan
+    current_change = 0
+    current_change_pct = 0
 
 
 
