@@ -307,32 +307,73 @@ st.markdown("## 💳 Upgrade Your Plan — Unlock Full AI Access")
 
 pricing_html = """
 <style>
+.pricing-flex {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+  margin: 30px 0;
+}
+.pricing-card {
+  background: #fff;
+  color: #222;
+  padding: 22px 18px 18px 18px;
+  border-radius: 12px;
+  max-width: 320px;
+  width: 100%;
+  min-width: 220px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  margin-bottom: 0;
+  flex: 1 1 260px;
+}
+.pricing-card h3 { margin-top: 0; font-size: 1.3em; }
+.pricing-card h2 { margin: 10px 0 18px 0; font-size: 2em; }
+.pricing-card button, .pricing-card a button {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 1.1em;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  margin-top: 8px;
+  cursor: pointer;
+}
+.pricing-card .current-btn {
+  background: #e0e0e0;
+  color: #888;
+  cursor: default;
+}
+.pricing-card.pro { background: #00BFFF; color: #fff; }
+.pricing-card.pro button { background: #fff; color: #00BFFF; }
+.pricing-card.elite { background: #FF6699; color: #fff; }
+.pricing-card.elite button { background: #fff; color: #FF6699; }
 @media (max-width: 900px) {
-  .pricing-flex { flex-direction: column !important; align-items: stretch !important; }
-  .pricing-card { max-width: 100% !important; margin-bottom: 18px !important; }
+  .pricing-flex { flex-direction: column; align-items: center; }
+  .pricing-card { max-width: 98vw; }
 }
 </style>
-<div class="pricing-flex" style='display:flex;justify-content:center;gap:30px;margin:30px 0;flex-wrap:wrap;'>
-  <div class="pricing-card" style='background:#007BFF;color:white;padding:25px;border-radius:12px;max-width:280px;width:100%;text-align:center;flex:1 1 250px;'>
+<div class="pricing-flex">
+  <div class="pricing-card">
     <h3>Free Tier</h3>
     <p>Access up to 3 tickers/day<br>Basic indicators only</p>
     <h2>$0</h2>
-    <button disabled style='background:gray;border:none;color:white;padding:12px 0px;border-radius:8px;width:100%;font-size:17px;'>Current</button>
+    <button class="current-btn" disabled>Current</button>
   </div>
-  <div class="pricing-card" style='background:#00BFFF;color:white;padding:25px;border-radius:12px;max-width:280px;width:100%;text-align:center;flex:1 1 250px;'>
+  <div class="pricing-card pro">
     <h3>Pro</h3>
     <p>Full signals + simulators<br>AI-based Buy/Sell + RSI + DCA</p>
     <h2>$9.99/mo</h2>
-    <a href="https://buy.stripe.com/test_14AfZ9akR7dTexO4x5g3602" target="_blank" style="width:100%;display:block;">
-      <button style='background:white;color:#00BFFF;border:none;padding:12px 0px;border-radius:8px;font-weight:600;cursor:pointer;width:100%;font-size:17px;'>Upgrade to PRO</button>
+    <a href="https://buy.stripe.com/test_14AfZ9akR7dTexO4x5g3602" target="_blank">
+      <button>Upgrade to PRO</button>
     </a>
   </div>
-  <div class="pricing-card" style='background:#FF6699;color:white;padding:25px;border-radius:12px;max-width:280px;width:100%;text-align:center;flex:1 1 250px;'>
+  <div class="pricing-card elite">
     <h3>Elite</h3>
     <p>Everything in PRO + Forecast AI<br>Macro Dashboard + Screener Access</p>
     <h2>$29.99/mo</h2>
-    <a href="https://buy.stripe.com/test_6oU28j64B1Tz1L23t1g3603" target="_blank" style="width:100%;display:block;">
-      <button style='background:white;color:#FF6699;border:none;padding:12px 0px;border-radius:8px;font-weight:600;cursor:pointer;width:100%;font-size:17px;'>Upgrade to ELITE</button>
+    <a href="https://buy.stripe.com/test_6oU28j64B1Tz1L23t1g3603" target="_blank">
+      <button>Upgrade to ELITE</button>
     </a>
   </div>
 </div>
