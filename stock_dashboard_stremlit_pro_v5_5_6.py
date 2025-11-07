@@ -395,22 +395,26 @@ if not ticker:
     """)
     st.stop()
 
-# Fetch live price and delta at the top
-df_daily = yf.download(ticker, period="5d", interval="1d", auto_adjust=True, progress=False)
-if df_daily.empty or len(df_daily) < 2:
-    st.error("Not enough daily data for this ticker.")
+ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
+if not ticker:
     st.stop()
-prev_close = float(df_daily["Close"].iloc[-2])
 
+# Get official previous close from yfinance info
+try:
+    t = yf.Ticker(ticker)
+    prev_close = float(t.info.get("previousClose", np.nan))
+except Exception:
+    prev_close = np.nan
+
+# Get latest price from intraday data
 df_intraday = yf.download(ticker, period="1d", interval="1m", auto_adjust=True, progress=False)
-if not df_intraday.empty:
+if not df_intraday.empty and not np.isnan(prev_close):
     live_price = float(df_intraday["Close"].iloc[-1])
     change = live_price - prev_close
     change_pct = (change / prev_close) * 100 if prev_close != 0 else 0
+    st.metric("Price", f"${live_price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
 else:
-    live_price = prev_close
-    change = 0
-    change_pct = 0
+    st.metric("Price", "—", delta="—")
 
 
 # ------------------------------ Timeframe ------------------------------
