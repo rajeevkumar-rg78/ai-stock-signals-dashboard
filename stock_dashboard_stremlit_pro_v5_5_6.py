@@ -395,25 +395,27 @@ if not ticker:
     """)
     st.stop()
 
+# Get official previous close and live price
+t = yf.Ticker(ticker)
+prev_close = t.info.get("previousClose", np.nan)
+live_price = t.fast_info.get("last_price", np.nan)
 
+# Fallback to intraday if fast_info is missing
+if np.isnan(live_price):
+    df_intraday = yf.download(ticker, period="1d", interval="1m", auto_adjust=True, progress=False)
+    if not df_intraday.empty:
+        live_price = float(df_intraday["Close"].iloc[-1])
 
-# Get official previous close from yfinance info
-try:
-    t = yf.Ticker(ticker)
-    prev_close = float(t.info.get("previousClose", np.nan))
-except Exception:
-    prev_close = np.nan
-
-# Get latest price from intraday data
-df_intraday = yf.download(ticker, period="1d", interval="1m", auto_adjust=True, progress=False)
-if not df_intraday.empty and not np.isnan(prev_close):
-    current_price = float(df_intraday["Close"].iloc[-1])
-    current_change = current_price - prev_close
-    current_change_pct = (current_change / prev_close) * 100 if prev_close != 0 else 0
+if not np.isnan(live_price) and not np.isnan(prev_close):
+    change = live_price - prev_close
+    change_pct = (change / prev_close) * 100 if prev_close != 0 else 0
+    st.metric("Price", f"${live_price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
 else:
-    current_price = prev_close
-    current_change = 0
-    current_change_pct = 0
+    st.metric("Price", "—", delta="—")
+
+
+
+
 
 
 
