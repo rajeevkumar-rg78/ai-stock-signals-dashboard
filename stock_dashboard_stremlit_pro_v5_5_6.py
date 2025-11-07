@@ -395,16 +395,15 @@ if not ticker:
     """)
     st.stop()
 
-# --- True Live Price and Delta Display ---
 df_daily = yf.download(ticker, period="5d", interval="1d", auto_adjust=True, progress=False)
 if df_daily.empty or len(df_daily) < 2:
     st.error("Not enough daily data for this ticker.")
     st.stop()
-prev_close = df_daily["Close"].iloc[-2]
+prev_close = float(df_daily["Close"].iloc[-2])  # Ensure this is a float
 
 df_intraday = yf.download(ticker, period="1d", interval="1m", auto_adjust=True, progress=False)
 if not df_intraday.empty:
-    live_price = df_intraday["Close"].iloc[-1]
+    live_price = float(df_intraday["Close"].iloc[-1])  # Ensure this is a float
     change = live_price - prev_close
     change_pct = (change / prev_close) * 100 if prev_close != 0 else 0
     st.metric("Live Price", f"${live_price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
