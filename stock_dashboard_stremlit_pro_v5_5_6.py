@@ -395,9 +395,7 @@ if not ticker:
     """)
     st.stop()
 
-ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
-if not ticker:
-    st.stop()
+
 
 # Get official previous close from yfinance info
 try:
