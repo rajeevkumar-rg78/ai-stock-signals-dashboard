@@ -863,7 +863,7 @@ st.markdown(f"## ✅ Signal: **{decision}**  (Score {score:+.2f}, News {news_sen
 st.progress(conf_overall, text=f"Market Confidence {int(conf_overall*100)}% — sentiment/analyst blend")
 cA, cB, cC, cD, cE, cF = st.columns(6)
 #cA.metric("Price", f"${price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
-cA.metric("Price", f"${live_price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
+cA.metric("Price", f"${current_price:.2f}", delta=f"{current_change:+.2f} ({current_change_pct:+.2f}%)")
 cB.metric("RSI (14)", f"{last['RSI']:.1f}")
 cC.metric("MACD", f"{last['MACD']:.2f}")
 cD.metric("ADX", f"{last['ADX']:.1f}")
