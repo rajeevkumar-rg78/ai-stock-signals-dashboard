@@ -871,8 +871,8 @@ st.progress(conf_overall, text=f"Market Confidence {int(conf_overall*100)}% — 
 cA, cB, cC, cD, cE, cF = st.columns(6)
 cA.metric("Price", f"${current_price:.2f}", delta=f"{current_change:+.2f} ({current_change_pct:+.2f}%)")
 st.caption("Note: Price and change may be delayed by a few minutes compared to Yahoo/Google.")
-st.write("Live price from yfinance:", live_price)
-st.write("Previous close from yfinance:", prev_close)
+#st.write("Live price from yfinance:", live_price)
+#st.write("Previous close from yfinance:", prev_close)
 
 cB.metric("RSI (14)", f"{last['RSI']:.1f}")
 cC.metric("MACD", f"{last['MACD']:.2f}")
