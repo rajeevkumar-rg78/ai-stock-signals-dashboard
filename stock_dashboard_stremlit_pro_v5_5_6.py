@@ -407,12 +407,14 @@ except Exception:
 # Get latest price from intraday data
 df_intraday = yf.download(ticker, period="1d", interval="1m", auto_adjust=True, progress=False)
 if not df_intraday.empty and not np.isnan(prev_close):
-    live_price = float(df_intraday["Close"].iloc[-1])
-    change = live_price - prev_close
-    change_pct = (change / prev_close) * 100 if prev_close != 0 else 0
-    st.metric("Price", f"${live_price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
+    current_price = float(df_intraday["Close"].iloc[-1])
+    current_change = current_price - prev_close
+    current_change_pct = (current_change / prev_close) * 100 if prev_close != 0 else 0
 else:
-    st.metric("Price", "—", delta="—")
+    current_price = prev_close
+    current_change = 0
+    current_change_pct = 0
+
 
 
 # ------------------------------ Timeframe ------------------------------
