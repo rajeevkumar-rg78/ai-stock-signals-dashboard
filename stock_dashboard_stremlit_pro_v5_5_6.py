@@ -306,34 +306,39 @@ elif "cancelled" in query_params:
 st.markdown("## 💳 Upgrade Your Plan — Unlock Full AI Access")
 
 pricing_html = """
-<div style='display:flex;justify-content:center;gap:30px;margin:30px 0;'>
-  <div style='background:#007BFF;color:white;padding:25px;border-radius:12px;width:280px;text-align:center;'>
+<style>
+@media (max-width: 900px) {
+  .pricing-flex { flex-direction: column !important; align-items: stretch !important; }
+  .pricing-card { max-width: 100% !important; margin-bottom: 18px !important; }
+}
+</style>
+<div class="pricing-flex" style='display:flex;justify-content:center;gap:30px;margin:30px 0;flex-wrap:wrap;'>
+  <div class="pricing-card" style='background:#007BFF;color:white;padding:25px;border-radius:12px;max-width:280px;width:100%;text-align:center;flex:1 1 250px;'>
     <h3>Free Tier</h3>
     <p>Access up to 3 tickers/day<br>Basic indicators only</p>
     <h2>$0</h2>
-    <button disabled style='background:gray;border:none;color:white;padding:8px 20px;border-radius:8px;'>Current</button>
+    <button disabled style='background:gray;border:none;color:white;padding:12px 0px;border-radius:8px;width:100%;font-size:17px;'>Current</button>
   </div>
-
-  <div style='background:#00BFFF;color:white;padding:25px;border-radius:12px;width:280px;text-align:center;'>
+  <div class="pricing-card" style='background:#00BFFF;color:white;padding:25px;border-radius:12px;max-width:280px;width:100%;text-align:center;flex:1 1 250px;'>
     <h3>Pro</h3>
     <p>Full signals + simulators<br>AI-based Buy/Sell + RSI + DCA</p>
     <h2>$9.99/mo</h2>
-    <a href="https://buy.stripe.com/test_14AfZ9akR7dTexO4x5g3602" target="_blank">
-      <button style='background:white;color:#00BFFF;border:none;padding:8px 20px;border-radius:8px;font-weight:600;cursor:pointer;'>Upgrade to PRO</button>
+    <a href="https://buy.stripe.com/test_14AfZ9akR7dTexO4x5g3602" target="_blank" style="width:100%;display:block;">
+      <button style='background:white;color:#00BFFF;border:none;padding:12px 0px;border-radius:8px;font-weight:600;cursor:pointer;width:100%;font-size:17px;'>Upgrade to PRO</button>
     </a>
   </div>
-
-  <div style='background:#FF6699;color:white;padding:25px;border-radius:12px;width:280px;text-align:center;'>
+  <div class="pricing-card" style='background:#FF6699;color:white;padding:25px;border-radius:12px;max-width:280px;width:100%;text-align:center;flex:1 1 250px;'>
     <h3>Elite</h3>
     <p>Everything in PRO + Forecast AI<br>Macro Dashboard + Screener Access</p>
     <h2>$29.99/mo</h2>
-    <a href="https://buy.stripe.com/test_6oU28j64B1Tz1L23t1g3603" target="_blank">
-      <button style='background:white;color:#FF6699;border:none;padding:8px 20px;border-radius:8px;font-weight:600;cursor:pointer;'>Upgrade to ELITE</button>
+    <a href="https://buy.stripe.com/test_6oU28j64B1Tz1L23t1g3603" target="_blank" style="width:100%;display:block;">
+      <button style='background:white;color:#FF6699;border:none;padding:12px 0px;border-radius:8px;font-weight:600;cursor:pointer;width:100%;font-size:17px;'>Upgrade to ELITE</button>
     </a>
   </div>
 </div>
 """
 st.markdown(pricing_html, unsafe_allow_html=True)
+
 
 
 
