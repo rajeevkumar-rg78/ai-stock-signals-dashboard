@@ -315,8 +315,6 @@ pricing_html = """
   margin: 30px 0;
 }
 .pricing-card {
-  background: #fff;
-  color: #222;
   padding: 22px 18px 18px 18px;
   border-radius: 12px;
   max-width: 320px;
@@ -339,22 +337,19 @@ pricing_html = """
   margin-top: 8px;
   cursor: pointer;
 }
-.pricing-card .current-btn {
-  background: #e0e0e0;
-  color: #888;
-  cursor: default;
-}
-.pricing-card.pro { background: #00BFFF; color: #fff; }
-.pricing-card.pro button { background: #fff; color: #00BFFF; }
-.pricing-card.elite { background: #FF6699; color: #fff; }
-.pricing-card.elite button { background: #fff; color: #FF6699; }
+.pricing-card.free { background: #43e97b; color: #fff; }
+.pricing-card.free .current-btn { background: #fff; color: #43e97b; }
+.pricing-card.pro { background: #1976d2; color: #fff; }
+.pricing-card.pro button { background: #fff; color: #1976d2; }
+.pricing-card.elite { background: #8e24aa; color: #fff; }
+.pricing-card.elite button { background: #fff; color: #8e24aa; }
 @media (max-width: 900px) {
   .pricing-flex { flex-direction: column; align-items: center; }
   .pricing-card { max-width: 98vw; }
 }
 </style>
 <div class="pricing-flex">
-  <div class="pricing-card">
+  <div class="pricing-card free">
     <h3>Free Tier</h3>
     <p>Access up to 3 tickers/day<br>Basic indicators only</p>
     <h2>$0</h2>
