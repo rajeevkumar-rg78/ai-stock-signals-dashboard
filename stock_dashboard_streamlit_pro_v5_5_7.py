@@ -276,7 +276,9 @@ st.session_state.tutorial_shown = True
 # ============================================================
 
 # Read URL query parameters after redirect from Stripe
-query_params = st.experimental_get_query_params()
+#query_params = st.experimental_get_query_params()
+# Read URL query parameters after redirect from Stripe (new API)
+query_params = st.query_params
 
 # Success page
 if "success" in query_params:
