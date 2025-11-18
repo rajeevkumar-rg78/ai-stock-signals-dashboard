@@ -1,4 +1,16 @@
-# app.py — AI Stock Signals PRO (Business-Ready UI, v5.5.7 clean)
+# app.py — AI Stock Signals PRO (Business-Ready UI)
+# ----------------------------------------------------------------------
+# Clean layout flow:
+# Inputs → Signal Card → Chart → Why → Forecast → [Sim Tabs]
+# → Macro & Fundamentals & Analyst Pulse → Tech Screener → News → Learn → Disclaimer
+#
+# Notes:
+# - No paper-trading state/logs.
+# - Rate-limit safe analyst_pulse (soft-fail).
+# - Silent fallbacks on Yahoo News/FRED where appropriate.
+# - Keep your core logic intact; UI is restructured for business use.
+# ----------------------------------------------------------------------
+
 
 import streamlit as st
 import yfinance as yf
@@ -7,16 +19,9 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-import requests
-import feedparser
-import time
-import random
+import requests, feedparser, time, random
 from io import StringIO
 import matplotlib.pyplot as plt
-import warnings
-
-# Optional: suppress just this specific deprecation warning (defensive)
-warnings.filterwarnings("ignore", message=".*experimental_get_query_params.*")
 
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
@@ -109,9 +114,17 @@ def safe_float(x, default=0.0):
     except Exception:
         return default
 
-# ------------------------------ Header & Tutorial ------------------------------
+
+
+
+# ------------------------------ Inputs ------------------------------
 render_header("HOLD")
 
+# ============================================================
+# 🎓 Onboarding Tutorial Section — AI Stock Signals PRO
+# ============================================================
+
+# 👋 Eye-catching gradient banner below header
 st.markdown("""
 <div style="
     background: linear-gradient(90deg, #4A00E0 0%, #8E2DE2 100%);
@@ -130,8 +143,17 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+
+# 🧠 Tutorial: expanded on first visit only
+#if "tutorial_shown" not in st.session_state:
+   #st.session_state.tutorial_shown = False
+
+#with st.expander("🎓 Learn How AI Stock Signals PRO Works", expanded=not st.session_state.tutorial_shown):
+    #st.markdown("""
 with st.expander("🎓 Learn How AI Stock Signals PRO Works", expanded=False):
     st.markdown("""
+   
+
 ## 🧠 What Is AI Stock Signals PRO?
 AI Stock Signals PRO is an **AI-powered analytics dashboard** that blends:
 - 📊 Technical indicators (RSI, MACD, ADX, Bollinger, MAs)
@@ -145,33 +167,118 @@ It’s built for **education, research, and strategy testing** — *not live bro
 ---
 
 ## 💻 How the Dashboard Works
-1️⃣ Enter a stock symbol (e.g. `MSFT`, `NVDA`, `META`)  
-2️⃣ Choose mode — short-term swing or long-term investor  
-3️⃣ The system:
-- Pulls market + news data  
-- Computes 9+ indicators  
-- Runs sentiment + forecast models  
 
-4️⃣ Shows an **AI Signal (Buy/Hold/Sell)** with confidence  
-5️⃣ Chart shows **Buy Zone / Target / Stop**  
-6️⃣ "Why this signal" explains the logic  
-7️⃣ Forecast AI (5d) shows scenario range  
-8️⃣ Simulators test DCA / Monte Carlo  
-9️⃣ Analyst & Macro sections provide context  
+1️⃣ **Enter a stock symbol** (e.g. `MSFT`, `NVDA`, `META`)  
+2️⃣ **Choose mode** — short-term swing or long-term investor  
+3️⃣ The system instantly:
+   - Pulls real market and news data
+   - Computes 9+ technical indicators
+   - Runs sentiment + forecast models  
+4️⃣ Displays your **AI Signal (Buy/Hold/Sell)** with confidence  
+5️⃣ Interactive chart shows **Buy Zone**, **Target**, and **Stop** levels  
+6️⃣ **"Why this signal"** section explains every factor  
+7️⃣ **Forecast AI (5d)** shows the probability-based move range  
+8️⃣ **Simulators** help test strategies (DCA, Monte Carlo)
+9️⃣ **Analyst Pulse + Macro Dashboard** summarize the broader market view
 
 ---
 
-## ⚖️ Disclaimer
-This tool is for **educational & informational** purposes only.  
-It is **not financial advice**. Always do your own research or consult a licensed advisor.
+## 📈 Signal Interpretation
+
+| Signal | Meaning | Educational Insight |
+|---------|----------|---------------------|
+| 🟢 **BUY** | Technical + sentiment trend aligned bullish | Potential short-term or accumulation zone |
+| 🟠 **HOLD** | Mixed indicators or neutral momentum | Wait for confirmation |
+| 🔴 **SELL** | Overbought or weakening trend | Consider trimming or avoiding new positions |
+
+**Targets & Zones**
+- **Buy Zone** — algorithmic dip area (ATR-based)
+- **Target** — short-term upside range
+- **Stop** — volatility-adjusted downside guardrail
+
+---
+
+## 💰 Paper Trading Strategy
+
+- Track simulated “buys” in your paper-trade log or Excel
+- Monitor if price hits the Target or Stop
+- Assess signal success over time
+- Adjust DCA frequency, position sizing, or stop width
+
+---
+
+## ⚙️ Indicators Used
+
+| Indicator | Purpose |
+|------------|----------|
+| MA50 / MA200 | Trend direction |
+| MACD | Momentum crossover |
+| RSI | Overbought / Oversold levels |
+| Bollinger Bands | Volatility squeeze or break |
+| ADX | Trend strength |
+| ATR | Stop/target calibration |
+| Sentiment | News tone via AI |
+| Analyst Pulse | Consensus from experts |
+
+---
+
+## 🤖 AI Forecast Engine
+Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
+- **Expected Move (μ)**  
+- **Confidence (σ)**  
+- **Range (±95%)**
+
+🧮 *Example:*  
+> Predicted move: +3.2% in 5d  
+> Range: –4.5% → +7.8%  
+> Confidence: 68%
+
+---
+
+## 💵 DCA & Monte Carlo Simulators
+
+- **Adaptive DCA Simulator** tests buying on dips + partial selling in rallies  
+- **Monte Carlo Future DCA** predicts potential portfolio outcomes  
+- Metrics: ROI %, Max Drawdown, Final Value
+
+---
+
+## 🌎 Macro & Analyst Insight
+
+| Section | Description |
+|----------|--------------|
+| **Macro Dashboard** | VIX, CPI, Unemployment, S&P trend |
+| **Analyst Pulse** | Aggregated expert buy/hold/sell sentiment |
+| **Market Bias** | Visual summary (Bullish / Bearish / Neutral) |
+| **Top Tech Scans** | Daily AI-screened BUY signals from major tech stocks |
+
+---
+
+## ⚖️ Legal Disclaimer
+> AI Stock Signals PRO is for **educational and informational purposes only**.  
+> It does **not** constitute financial advice or trading recommendations.  
+> All simulations are hypothetical. Investing carries risk — always research independently.
+
+---
+
+### 💬 Support
+**MarketMinds LLC** — Seattle, WA  
+🌐 [www.aistocksignals.com](https://www.aistocksignals.com)  
+📧 support@aistocksignals.com  
+© 2025 MarketMinds LLC. All rights reserved.
 """)
+
+# mark tutorial as shown for current session
+st.session_state.tutorial_shown = True
 
 # ============================================================
 # ✅ Stripe Checkout Return Handler (Success / Cancel)
 # ============================================================
-# Uses new st.query_params (no experimental API)
-query_params = st.query_params
 
+# Read URL query parameters after redirect from Stripe
+query_params = st.experimental_get_query_params()
+
+# Success page
 if "success" in query_params:
     st.markdown("""
     <div style='padding:20px;border-radius:10px;background:#E6FFED;border:2px solid #00B871;margin-bottom:15px;'>
@@ -181,6 +288,8 @@ if "success" in query_params:
         <p style='font-size:15px;'>You can close this message and start exploring your dashboard.</p>
     </div>
     """, unsafe_allow_html=True)
+
+# Cancelled payment page
 elif "cancelled" in query_params:
     st.markdown("""
     <div style='padding:20px;border-radius:10px;background:#FFF4E6;border:2px solid #FF9900;margin-bottom:15px;'>
@@ -190,9 +299,10 @@ elif "cancelled" in query_params:
     </div>
     """, unsafe_allow_html=True)
 
-# ============================================================
-# Pricing Section
-# ============================================================
+
+
+
+
 st.markdown("## 💳 Upgrade Your Plan — Unlock Full AI Access")
 
 pricing_html = """
@@ -265,8 +375,11 @@ pricing_html = """
 """
 st.markdown(pricing_html, unsafe_allow_html=True)
 
-# ------------------------------ User Inputs ------------------------------
-c1, c2, c3 = st.columns([2, 2, 3])
+
+
+
+
+c1, c2, c3 = st.columns([2,2,3])
 with c1:
     ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
 with c2:
@@ -282,11 +395,15 @@ if not ticker:
     """)
     st.stop()
 
-# ------------------------------ Live Price Snapshot ------------------------------
+import numpy as np
+import yfinance as yf
+
+# Get official previous close and live price
 t = yf.Ticker(ticker)
 prev_close = t.info.get("previousClose", np.nan)
-live_price = getattr(t, "fast_info", {}).get("last_price", np.nan) if hasattr(t, "fast_info") else np.nan
+live_price = t.fast_info.get("last_price", np.nan)
 
+# Fallback to intraday if fast_info is missing
 if np.isnan(live_price):
     df_intraday = yf.download(ticker, period="1d", interval="1m", auto_adjust=True, progress=False)
     if not df_intraday.empty:
@@ -298,8 +415,12 @@ if not np.isnan(live_price) and not np.isnan(prev_close):
     current_change_pct = (current_change / prev_close) * 100 if prev_close != 0 else 0
 else:
     current_price = np.nan
-    current_change = 0.0
-    current_change_pct = 0.0
+    current_change = 0
+    current_change_pct = 0
+
+
+
+
 
 # ------------------------------ Timeframe ------------------------------
 timeframes = {
@@ -320,15 +441,13 @@ period, interval = timeframes[tf]
 
 # ------------------------------ Data Fetchers ------------------------------
 @st.cache_data(ttl=7200)
-def fetch_prices_tf(ticker: str, period: str, interval: str):
+def fetch_prices_tf(ticker: str, period: str, interval: str) -> pd.DataFrame | None:
     df = yf.download(ticker, period=period, interval=interval, auto_adjust=True, progress=False)
     if df.empty:
         return None
-    df = df[["Open", "High", "Low", "Close", "Volume"]].dropna()
-    try:
-        df.index = df.index.tz_localize(None)
-    except Exception:
-        pass
+    df = df[["Open","High","Low","Close","Volume"]].dropna()
+    try: df.index = df.index.tz_localize(None)
+    except Exception: pass
     return df
 
 @st.cache_data(ttl=86400)
@@ -358,7 +477,7 @@ def fetch_major_indices():
                 data[name] = None
                 continue
             last_row = df.iloc[-1]
-            data[name] = {k: float(last_row[k]) for k in ["Open", "High", "Low", "Close", "Volume"]}
+            data[name] = {k: float(last_row[k]) for k in ["Open","High","Low","Close","Volume"]}
         except Exception:
             data[name] = None
     return data
@@ -425,11 +544,10 @@ def fetch_macro():
             cpi_df = cpi_df.sort_values("DATE")
             last = cpi_df.iloc[-1]["value"]
             prev12 = cpi_df.iloc[-13]["value"] if len(cpi_df) > 13 else np.nan
-            macro["cpi_yoy"] = round(((last / prev12) - 1) * 100, 2) if prev12 == prev12 else None
+            macro["cpi_yoy"] = round(((last/prev12) - 1) * 100, 2) if prev12 == prev12 else None
             macro["cpi_date"] = cpi_df.iloc[-1]["DATE"].date().isoformat()
     except Exception:
         macro["cpi_yoy"], macro["cpi_date"] = None, None
-
     try:
         un_df = fred_csv_last("UNRATE")
         if un_df is not None:
@@ -439,22 +557,18 @@ def fetch_macro():
     except Exception:
         macro["unemp_rate"], macro["unemp_date"] = None, None
 
-    if macro.get("cpi_yoy") is None:
-        macro["cpi_yoy"] = 3.2
-    if macro.get("unemp_rate") is None:
-        macro["unemp_rate"] = 3.8
+    if macro.get("cpi_yoy") is None: macro["cpi_yoy"] = 3.2
+    if macro.get("unemp_rate") is None: macro["unemp_rate"] = 3.8
     return macro
 
 # ------------------------------ Indicators / Signals ------------------------------
 def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out = pd.DataFrame(index=df.index)
     c, h, l, v = df["Close"], df["High"], df["Low"], df["Volume"]
-
     out["MA20"]  = c.rolling(20, min_periods=1).mean()
     out["MA50"]  = c.rolling(50, min_periods=1).mean()
     out["MA200"] = c.rolling(200, min_periods=1).mean()
     out["EMA20"] = c.ewm(span=20, adjust=False).mean()
-
     delta = c.diff()
     gain  = delta.clip(lower=0)
     loss  = -delta.clip(upper=0)
@@ -462,22 +576,18 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     avg_loss = loss.ewm(alpha=1/14, min_periods=14, adjust=False).mean()
     rs  = avg_gain / (avg_loss + 1e-9)
     out["RSI"] = (100 - (100/(1+rs))).fillna(50)
-
     ema12 = c.ewm(span=12, adjust=False).mean()
     ema26 = c.ewm(span=26, adjust=False).mean()
     out["MACD"] = ema12 - ema26
     out["MACD_Signal"] = out["MACD"].ewm(span=9, adjust=False).mean()
     out["MACD_Hist"]   = out["MACD"] - out["MACD_Signal"]
-
     bb_mid = c.rolling(20, min_periods=1).mean()
     bb_std = c.rolling(20, min_periods=1).std(ddof=0)
     out["BB_Up"]  = bb_mid + 2*bb_std
     out["BB_Low"] = bb_mid - 2*bb_std
-
     prev_close = c.shift(1)
     tr = pd.concat([(h-l), (h-prev_close).abs(), (l-prev_close).abs()], axis=1).max(axis=1)
     out["ATR"] = tr.rolling(14, min_periods=1).mean()
-
     up_move   = h.diff()
     down_move = -l.diff()
     plus_dm  = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
@@ -485,12 +595,12 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     plus_dm  = pd.Series(np.ravel(plus_dm).astype(float),  index=df.index)
     minus_dm = pd.Series(np.ravel(minus_dm).astype(float), index=df.index)
     atr_smooth = tr.rolling(14, min_periods=1).mean()
-
+    # DI/ADX (approx)
     plus_di  = 100 * (plus_dm.rolling(14, min_periods=1).sum()  / (atr_smooth + 1e-9))
     minus_di = 100 * (minus_dm.rolling(14, min_periods=1).sum() / (atr_smooth + 1e-9))
     dx = (abs(plus_di - minus_di) / (plus_di + minus_di + 1e-9)) * 100
     out["ADX"] = dx.rolling(14, min_periods=1).mean()
-
+    # Band width
     try:
         width = (out["BB_Up"] - out["BB_Low"]) / c.replace(0, np.nan)
         if isinstance(width, pd.DataFrame):
@@ -498,14 +608,12 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
         out["BB_Width"] = pd.Series(width, index=df.index).astype(float).fillna(0)
     except Exception:
         out["BB_Width"] = pd.Series(0.0, index=df.index)
-
     out["Close"] = c
     return out.bfill().ffill()
 
 def fetch_news_and_sentiment(ticker: str):
     analyzer = SentimentIntensityAnalyzer()
     headlines, scores = [], []
-
     api_key = st.secrets.get("NEWSAPI_KEY") if hasattr(st, "secrets") else None
     if api_key:
         try:
@@ -524,7 +632,6 @@ def fetch_news_and_sentiment(ticker: str):
                     scores.append(analyzer.polarity_scores(title)["compound"])
         except Exception:
             pass
-
     if not headlines:
         feeds = [
             f"https://feeds.finance.yahoo.com/rss/2.0/headline?s={ticker}",
@@ -542,16 +649,17 @@ def fetch_news_and_sentiment(ticker: str):
                     scores.append(analyzer.polarity_scores(title)["compound"])
             except Exception:
                 continue
-
     sentiment = float(np.mean(scores)) if scores else 0.0
     return headlines[:10], sentiment
 
 @st.cache_data(ttl=86400)
 def analyst_pulse(ticker: str):
+    """Analyst consensus — rate-limit safe, silent fallback."""
     try:
         time.sleep(random.uniform(0.25, 0.7))
         t = yf.Ticker(ticker)
 
+        # Try historical recommendations
         try:
             rec = getattr(t, "recommendations", None)
             if rec is not None and not rec.empty:
@@ -564,37 +672,31 @@ def analyst_pulse(ticker: str):
                     buy_terms = ["buy", "strong buy", "outperform", "overweight", "add", "accumulate", "top pick"]
                     hold_terms = ["hold", "neutral", "market perform", "equal weight", "sector perform"]
                     sell_terms = ["sell", "underperform", "underweight", "reduce", "negative"]
-                    buy  = grades.str.contains("|".join(buy_terms)).sum()
-                    hold = grades.str.contains("|".join(hold_terms)).sum()
+                    buy = grades.str.contains("|".join(buy_terms)).sum()
+                    hold = grades.str_contains("|".join(hold_terms)).sum() if hasattr(grades, "str_contains") else grades.str.contains("|".join(hold_terms)).sum()
                     sell = grades.str.contains("|".join(sell_terms)).sum()
-                    return {
-                        "buy": buy/total if total else None,
-                        "hold": hold/total if total else None,
-                        "sell": sell/total if total else None,
-                        "neutral": (hold/total if total else None),
-                        "samples": total
-                    }
+                    return {"buy": buy/total if total else None, "hold": hold/total if total else None,
+                            "sell": sell/total if total else None, "neutral": (hold/total if total else None), "samples": total}
         except Exception:
             pass
 
+        # recommendations_summary
         trend = getattr(t, "recommendations_summary", None)
         row = None
         if trend is not None:
             if isinstance(trend, pd.DataFrame):
-                if "strongBuy" in trend.columns:
-                    row = trend.iloc[0].to_dict()
-                else:
-                    row = trend.to_dict(orient="records")[0]
+                row = trend.iloc[0].to_dict() if "strongBuy" in trend.columns else trend.to_dict(orient="records")[0]
             elif isinstance(trend, dict):
                 row = trend
         if row:
             total = sum(v for v in row.values() if isinstance(v, (int, float)))
             if total > 0:
-                buy  = (row.get("buy", 0) + row.get("strongBuy", 0)) / total
+                buy = (row.get("buy", 0) + row.get("strongBuy", 0)) / total
                 hold = row.get("hold", 0) / total
                 sell = (row.get("sell", 0) + row.get("strongSell", 0)) / total
                 return {"buy": buy, "hold": hold, "sell": sell, "neutral": hold, "samples": total}
 
+        # Yahoo JSON
         try:
             url = f"https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}?modules=recommendationTrend"
             r = requests.get(url, timeout=10)
@@ -605,7 +707,7 @@ def analyst_pulse(ticker: str):
                     latest = trend_list[-1]
                     total = sum(latest.get(k, 0) for k in ["strongBuy", "buy", "hold", "sell", "strongSell"])
                     if total > 0:
-                        buy  = (latest.get("buy", 0) + latest.get("strongBuy", 0)) / total
+                        buy = (latest.get("buy", 0) + latest.get("strongBuy", 0)) / total
                         hold = latest.get("hold", 0) / total
                         sell = (latest.get("sell", 0) + latest.get("strongSell", 0)) / total
                         return {"buy": buy, "hold": hold, "sell": sell, "neutral": hold, "samples": total}
@@ -624,32 +726,20 @@ def market_confidence(sentiment: float, buy_ratio: float | None):
 def generate_signal(ind: pd.DataFrame, sentiment: float, horizon: str):
     last = ind.iloc[-1]
     score = 0.0
-    if last["MA20"] > last["MA50"]:
-        score += 1
-    if last["MA50"] > last["MA200"]:
-        score += 1
-    if last["ADX"] > 25:
-        score += 1
-    if last["RSI"] < 30:
-        score += 1.2
-    elif last["RSI"] > 70:
-        score -= 1.2
-    if last["MACD"] > last["MACD_Signal"]:
-        score += 1
-    else:
-        score -= 1
-    if last["Close"] < last["BB_Low"]:
-        score += 0.8
-    elif last["Close"] > last["BB_Up"]:
-        score -= 0.8
-    if last.get("BB_Width", 0) > 0.12:
-        score -= 0.2
+    if last["MA20"] > last["MA50"]:  score += 1
+    if last["MA50"] > last["MA200"]: score += 1
+    if last["ADX"] > 25:             score += 1
+    if last["RSI"] < 30: score += 1.2
+    elif last["RSI"] > 70: score -= 1.2
+    if last["MACD"] > last["MACD_Signal"]: score += 1
+    else: score -= 1
+    if last["Close"] < last["BB_Low"]: score += 0.8
+    elif last["Close"] > last["BB_Up"]: score -= 0.8
+    if last.get("BB_Width", 0) > 0.12: score -= 0.2
     score += float(np.clip(sentiment, -0.8, 0.8))
     th_buy, th_sell = (2.5, -2.0) if "Short" in horizon else (3.5, -2.5)
-    if score >= th_buy:
-        return "BUY", "green", round(score, 2)
-    if score <= th_sell:
-        return "SELL", "red", round(score, 2)
+    if score >= th_buy:  return "BUY", "green", round(score, 2)
+    if score <= th_sell: return "SELL", "red",  round(score, 2)
     return "HOLD", "orange", round(score, 2)
 
 def confidence_from_score(score: float) -> float:
@@ -689,10 +779,8 @@ def explain_signal_verbose(ind, sentiment, decision, horizon):
         reasons.append(f"⚠️ **Negative sentiment** ({sentiment:+.2f}) — cautious outlook.")
     else:
         reasons.append("📄 **Neutral news sentiment** — limited bias from headlines.")
-    reasons.append(
-        "🎯 Strategy tuned for **short-term swing** (3–10d)." if "Short" in horizon
-        else "🏦 Strategy tuned for **long-term accumulation** (>3mo)."
-    )
+    reasons.append("🎯 Strategy tuned for **short-term swing** (3–10d)." if "Short" in horizon
+                   else "🏦 Strategy tuned for **long-term accumulation** (>3mo).")
     return "\n".join(reasons)
 
 def daily_action_strategy(price, buy_zone, target_up, stop_loss, signal, invest_amount, shares_held=0, cash=0):
@@ -718,8 +806,7 @@ def daily_action_strategy(price, buy_zone, target_up, stop_loss, signal, invest_
 
 def ai_forecast(df: pd.DataFrame, ind: pd.DataFrame):
     r = df["Close"].pct_change().dropna()
-    if isinstance(r, pd.DataFrame):
-        r = r.iloc[:, 0]
+    if isinstance(r, pd.DataFrame): r = r.iloc[:, 0]
     r = pd.to_numeric(r, errors="coerce").dropna()
     if len(r) < 30:
         return {"pred_move": 0.0, "conf": 0.0, "range": None}
@@ -734,37 +821,27 @@ def ai_forecast(df: pd.DataFrame, ind: pd.DataFrame):
 
 def plot_dashboard(ind: pd.DataFrame, ticker: str, zones=True):
     last = ind.iloc[-1]
-    fig = make_subplots(
-        rows=3,
-        cols=1,
-        shared_xaxes=True,
-        row_heights=[0.5, 0.25, 0.25],
-        vertical_spacing=0.05,
-        subplot_titles=("Price / MAs / Bollinger + Zones", "MACD", "RSI")
-    )
-
-    fig.add_trace(go.Scatter(x=ind.index, y=ind["Close"], name="Close"), 1, 1)
-    fig.add_trace(go.Scatter(x=ind.index, y=ind["MA50"],  name="MA50"),  1, 1)
-    fig.add_trace(go.Scatter(x=ind.index, y=ind["MA200"], name="MA200"), 1, 1)
-    fig.add_trace(go.Scatter(x=ind.index, y=ind["BB_Up"],  name="BB Upper",  line=dict(dash="dot")), 1, 1)
-    fig.add_trace(go.Scatter(x=ind.index, y=ind["BB_Low"], name="BB Lower", line=dict(dash="dot")), 1, 1)
-
+    fig = make_subplots(rows=3, cols=1, shared_xaxes=True,
+                        row_heights=[0.5, 0.25, 0.25], vertical_spacing=0.05,
+                        subplot_titles=("Price / MAs / Bollinger + Zones", "MACD", "RSI"))
+    fig.add_trace(go.Scatter(x=ind.index, y=ind["Close"], name="Close", line=dict(color="blue")), 1,1)
+    fig.add_trace(go.Scatter(x=ind.index, y=ind["MA50"],  name="MA50",  line=dict(color="orange")), 1,1)
+    fig.add_trace(go.Scatter(x=ind.index, y=ind["MA200"], name="MA200", line=dict(color="green")), 1,1)
+    fig.add_trace(go.Scatter(x=ind.index, y=ind["BB_Up"],  name="BB Upper", line=dict(color="gray", dash="dot")), 1,1)
+    fig.add_trace(go.Scatter(x=ind.index, y=ind["BB_Low"], name="BB Lower", line=dict(color="gray", dash="dot")), 1,1)
     if zones:
         buy_zone   = last["Close"] - 1.5*last["ATR"]
         target     = last["Close"] + 2.0*last["ATR"]
         stop_loss  = last["Close"] - 2.5*last["ATR"]
-        fig.add_hline(y=buy_zone,  line_dash="dash", annotation_text="Buy Zone", row=1, col=1)
-        fig.add_hline(y=target,    line_dash="dash", annotation_text="Target",   row=1, col=1)
-        fig.add_hline(y=stop_loss, line_dash="dash", annotation_text="Stop",     row=1, col=1)
-
-    fig.add_trace(go.Scatter(x=ind.index, y=ind["MACD"],        name="MACD"),   2, 1)
-    fig.add_trace(go.Scatter(x=ind.index, y=ind["MACD_Signal"], name="Signal"), 2, 1)
-    fig.add_trace(go.Bar(x=ind.index, y=ind["MACD_Hist"], name="Hist", opacity=0.45), 2, 1)
-
-    fig.add_trace(go.Scatter(x=ind.index, y=ind["RSI"], name="RSI"), 3, 1)
-    fig.add_hline(y=70, line_dash="dot", row=3, col=1)
-    fig.add_hline(y=30, line_dash="dot", row=3, col=1)
-
+        fig.add_hline(y=buy_zone,  line_color="dodgerblue", line_dash="dash", annotation_text="Buy Zone", row=1, col=1)
+        fig.add_hline(y=target,    line_color="seagreen",   line_dash="dash", annotation_text="Target",   row=1, col=1)
+        fig.add_hline(y=stop_loss, line_color="crimson",    line_dash="dash", annotation_text="Stop",     row=1, col=1)
+    fig.add_trace(go.Scatter(x=ind.index, y=ind["MACD"],        name="MACD",   line=dict(color="purple")), 2,1)
+    fig.add_trace(go.Scatter(x=ind.index, y=ind["MACD_Signal"], name="Signal", line=dict(color="orange")), 2,1)
+    fig.add_trace(go.Bar(x=ind.index, y=ind["MACD_Hist"], name="Hist", marker_color="gray", opacity=0.45), 2,1)
+    fig.add_trace(go.Scatter(x=ind.index, y=ind["RSI"], name="RSI", line=dict(color="teal")), 3,1)
+    fig.add_hline(y=70, line_dash="dot", line_color="red",   row=3, col=1)
+    fig.add_hline(y=30, line_dash="dot", line_color="green", row=3, col=1)
     fig.update_layout(height=820, template="plotly_white", title=f"{ticker} — Technical Dashboard")
     return fig
 
@@ -772,15 +849,17 @@ def plot_dashboard(ind: pd.DataFrame, ticker: str, zones=True):
 df = fetch_prices_tf(ticker, period, interval)
 if df is None or df.empty:
     st.error("No data found. Try another symbol.")
-    raise SystemExit
+    st.stop()
 
 ind = compute_indicators(df)
 macro = fetch_macro()
 headlines, news_sent = fetch_news_and_sentiment(ticker)
 decision, color, score = generate_signal(ind, news_sent, horizon)
 pulse = analyst_pulse(ticker)
-conf_overall = market_confidence(news_sent, pulse.get("buy"))
+conf_overall = market_confidence(news_sent, pulse["buy"])
+ai = ai_forecast(df, ind)
 
+# ------------------------------ Signal Card (Top) ------------------------------
 last = ind.iloc[-1]
 prev = ind.iloc[-2] if len(ind) > 1 else last
 price = last["Close"]
@@ -789,10 +868,12 @@ change_pct = (change / prev["Close"]) * 100 if prev["Close"] != 0 else 0
 
 st.markdown(f"## ✅ Signal: **{decision}**  (Score {score:+.2f}, News {news_sent:+.2f})")
 st.progress(conf_overall, text=f"Market Confidence {int(conf_overall*100)}% — sentiment/analyst blend")
-
 cA, cB, cC, cD, cE, cF = st.columns(6)
 cA.metric("Price", f"${current_price:.2f}", delta=f"{current_change:+.2f} ({current_change_pct:+.2f}%)")
 st.caption("Note: Price and change may be delayed by a few minutes compared to Yahoo/Google.")
+#st.write("Live price from yfinance:", live_price)
+#st.write("Previous close from yfinance:", prev_close)
+
 cB.metric("RSI (14)", f"{last['RSI']:.1f}")
 cC.metric("MACD", f"{last['MACD']:.2f}")
 cD.metric("ADX", f"{last['ADX']:.1f}")
@@ -804,12 +885,14 @@ buy_zone  = last["Close"] - 1.5*last["ATR"]
 stop_loss = last["Close"] - 2.5*last["ATR"]
 st.write(f"📈 **Target (≈5d)**: ${target_up:.2f}  🟦 **Buy zone**: ${buy_zone:.2f}  🛑 **Stop**: ${stop_loss:.2f}")
 
+# ------------------------------ Chart ------------------------------
 st.plotly_chart(plot_dashboard(ind, ticker, zones=True), use_container_width=True)
 
+# ------------------------------ Why This Signal ------------------------------
 st.markdown("### 🧩 Why this signal")
 st.markdown(explain_signal_verbose(ind, news_sent, decision, horizon))
 
-ai = ai_forecast(df, ind)
+# ------------------------------ Forecast AI ------------------------------
 st.markdown("### 🤖 Forecast AI (5-day)")
 st.write(f"Predicted Move (avg): {ai['pred_move']*100:+.2f}%")
 if ai["range"] is not None and not any(np.isnan(ai["range"])):
@@ -819,6 +902,7 @@ else:
     st.info("Not enough recent data for a reliable range forecast.")
 st.metric("AI Confidence", f"{int(ai['conf']*100)}%")
 
+# ------------------------------ Simulators (Tabs) ------------------------------
 st.markdown("### 🧪 Simulation Tools")
 tab1, tab2, tab3 = st.tabs(["Daily Action", "Adaptive DCA", "Monte Carlo"])
 
@@ -877,20 +961,13 @@ with tab2:
         total_invested = cash_start - cash if cash_start >= cash else cash_start
         pnl = final_value - total_invested
         roi_pct = (pnl / total_invested * 100) if total_invested > 0 else 0.0
-
         ec = np.array(equity_curve, dtype=float)
         running_max = np.maximum.accumulate(ec) if ec.size else np.array([0])
         dd = (ec - running_max) / np.where(running_max == 0, 1, running_max)
         max_dd = float(np.min(dd)) if dd.size else 0.0
-
         trades_df = pd.DataFrame(trades)
-        return dict(
-            final_value=final_value,
-            total_invested=total_invested,
-            roi_pct=roi_pct,
-            max_drawdown_pct=round(100*max_dd, 2),
-            trades=trades_df
-        )
+        return dict(final_value=final_value, total_invested=total_invested,
+                    roi_pct=roi_pct, max_drawdown_pct=round(100*max_dd,2), trades=trades_df)
 
     sim = adaptive_dca_simulator(df, ind, invest_amount)
     c1, c2, c3, c4 = st.columns(4)
@@ -910,8 +987,7 @@ with tab3:
 
     def simulate_future_prices(df, days=10, n_sims=1000):
         returns_series = df["Close"].pct_change().dropna()
-        if isinstance(returns_series, pd.DataFrame):
-            returns_series = returns_series.iloc[:, 0]
+        if isinstance(returns_series, pd.DataFrame): returns_series = returns_series.iloc[:, 0]
         elif isinstance(returns_series, np.ndarray) and returns_series.ndim > 1:
             returns_series = pd.Series(returns_series.flatten())
         elif not isinstance(returns_series, pd.Series):
@@ -935,20 +1011,15 @@ with tab3:
         st.info("Not enough data for reliable simulation at this timeframe.")
     else:
         predicted_prices = sim_prices[:, -1]
-        mean_price = np.mean(predicted_prices)
-        median_price = np.median(predicted_prices)
-        low_price  = np.percentile(predicted_prices, 2.5)
-        high_price = np.percentile(predicted_prices, 97.5)
+        mean_price = np.mean(predicted_prices); median_price = np.median(predicted_prices)
+        low_price  = np.percentile(predicted_prices, 2.5); high_price = np.percentile(predicted_prices, 97.5)
         buy_price = float(df["Close"].iloc[-1])
         expected_gain = mean_price - buy_price
         expected_gain_pct = (expected_gain / buy_price) * 100 if buy_price != 0 else 0
-
-        st.markdown(
-            f"**Current price:** ${buy_price:.2f}  |  **Mean:** ${mean_price:.2f}  |  "
-            f"**Median:** ${median_price:.2f}  |  **95% range:** ${low_price:.2f} — ${high_price:.2f}"
-        )
+        st.markdown(f"**Current price:** ${buy_price:.2f}  |  **Mean:** ${mean_price:.2f}  |  **Median:** ${median_price:.2f}  |  **95% range:** ${low_price:.2f} — ${high_price:.2f}")
         st.write(f"**Expected gain/loss per share:** ${expected_gain:+.2f} ({expected_gain_pct:+.2f}%)")
 
+        # Small histogram
         fig, ax = plt.subplots(figsize=(5, 2.5))
         ax.hist(predicted_prices, bins=30, alpha=0.8)
         ax.set_title(f"Distribution of Simulated {days}-Day Prices")
@@ -961,10 +1032,10 @@ with tab3:
 st.markdown("### 🌎 Market & Fundamentals")
 
 m1, m2, m3, m4 = st.columns(4)
-macro_vals = macro
+macro_vals = fetch_macro()
 m1.metric("VIX (volatility)", f"{macro_vals['vix_last']:.2f}" if macro_vals["vix_last"] is not None else "—")
 m2.metric("S&P 5d vs 20d", f"{macro_vals['spx_5d_vs_20d']:+.2f}%" if macro_vals["spx_5d_vs_20d"] is not None else "—",
-          macro_vals.get("spx_trend") or "")
+          macro_vals["spx_trend"] or "")
 m3.metric("CPI YoY", f"{macro_vals.get('cpi_yoy', 0):.2f}%")
 m4.metric("Unemployment", f"{macro_vals.get('unemp_rate', 0):.2f}%")
 
@@ -1000,9 +1071,7 @@ def render_analyst_pulse(pulse: dict):
     if not pulse or pulse.get("samples", 0) <= 0:
         st.info("No analyst data available.")
         return
-    buy = pulse.get("buy") or 0
-    hold = pulse.get("hold") or 0
-    sell = pulse.get("sell") or 0
+    buy = pulse.get("buy") or 0; hold = pulse.get("hold") or 0; sell = pulse.get("sell") or 0
     total = max(buy + hold + sell, 1e-9)
     buy_pct, hold_pct, sell_pct = [round(x / total * 100, 1) for x in (buy, hold, sell)]
     accent = "#28a745" if (buy>hold and buy>sell) else ("#dc3545" if (sell>buy and sell>hold) else "#f0ad4e")
@@ -1036,13 +1105,11 @@ buy_candidates = []
 for scan_t in tech_watchlist:
     try:
         scan_df = fetch_prices_tf(scan_t, period, interval)
-        if scan_df is None or len(scan_df) < 30:
-            continue
+        if scan_df is None or len(scan_df) < 30: continue
         scan_ind = compute_indicators(scan_df)
         _, scan_sent = fetch_news_and_sentiment(scan_t)
         sig, _, sc = generate_signal(scan_ind, scan_sent, horizon)
-        last_s = scan_ind.iloc[-1]
-        price_s = last_s["Close"]
+        last_s = scan_ind.iloc[-1]; price_s = last_s["Close"]
         buy_z   = price_s - 1.5 * last_s["ATR"]
         target_ = price_s + 2.0 * last_s["ATR"]
         stop_   = price_s - 2.5 * last_s["ATR"]
@@ -1060,7 +1127,6 @@ for scan_t in tech_watchlist:
             })
     except Exception:
         continue
-
 buy_candidates = sorted(buy_candidates, key=lambda x: x["Score"], reverse=True)
 if buy_candidates:
     st.dataframe(pd.DataFrame(buy_candidates), use_container_width=True)
@@ -1073,10 +1139,7 @@ with st.expander("🗞️ Latest Headlines", expanded=False):
         st.write("No headlines available.")
     else:
         for h in headlines:
-            title = h["title"]
-            url = h["url"]
-            src = h.get("source", "")
-            pub = h.get("published", "")
+            title = h["title"]; url = h["url"]; src = h.get("source",""); pub = h.get("published","")
             nice = pub[:10] if pub else ""
             st.markdown(f"- [{title}]({url}) — *{src}* {('• '+nice) if nice else ''}")
 
@@ -1096,6 +1159,8 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
 - ATR: volatility; used for target/stop bands.  
 """)
 
+
+
 st.markdown(
     """
 <div style='text-align:left; color:gray; font-size:14px; line-height:1.5; margin-top:14px;'>
@@ -1106,4 +1171,7 @@ Markets carry risk; always do your own research or consult a licensed financial 
 </div>
     """,
     unsafe_allow_html=True,
+   
 )
+
+
