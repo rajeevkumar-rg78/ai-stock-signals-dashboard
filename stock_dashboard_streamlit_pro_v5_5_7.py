@@ -271,7 +271,7 @@ Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
 """)
 
 # mark tutorial as shown for current session
-st.session_state.tutorial_shown = True
+#st.session_state.tutorial_shown = True
 
 # ============================================================
 # ✅ Stripe Checkout Return Handler (Success / Cancel)
