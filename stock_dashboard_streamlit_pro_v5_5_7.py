@@ -22,6 +22,8 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import requests, feedparser, time, random
 from io import StringIO
 import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings("ignore", message=".*experimental_get_query_params.*")
 
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
