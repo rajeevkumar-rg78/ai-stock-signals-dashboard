@@ -230,11 +230,12 @@ st.markdown(
 AISigmaX is a product of <b>MarketSignal LLC</b>.<br>
 This dashboard is for <b>educational and informational purposes only</b> and does not constitute financial advice.<br>
 Markets carry risk; always do your own research or consult a licensed financial advisor before investing.<br><br>
-© 2025 <b>MarketSignal LLC</b> — <i>AISigmaX</i>
+&copy; 2025 <b>MarketSignal LLC</b> — <i>AISigmaX</i>
 </div>
     """,
     unsafe_allow_html=True,
 )
+
 
 
 ---
@@ -1184,7 +1185,7 @@ st.markdown(
 AISigmaX is a product of <b>MarketSignal LLC</b>.<br>
 This dashboard is for <b>educational and informational purposes only</b> and does not constitute financial advice.<br>
 Markets carry risk; always do your own research or consult a licensed financial advisor before investing.<br><br>
-© 2025 <b>MarketSignal LLC</b> — <i>AISigmaX</i>
+&copy; 2025 <b>MarketSignal LLC</b> — <i>AISigmaX</i>
 </div>
     """,
     unsafe_allow_html=True,
