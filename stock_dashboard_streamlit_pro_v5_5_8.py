@@ -395,21 +395,14 @@ if not ticker:
     """)
     st.stop()
 
-import numpy as np
-import yfinance as yf
-
-
-# Get official previous close and live price
+# --- Live price and delta logic (from v5.5.3) ---
 t = yf.Ticker(ticker)
 prev_close = t.info.get("previousClose", np.nan)
 live_price = t.fast_info.get("last_price", np.nan)
-
-# Fallback to intraday if fast_info is missing
 if np.isnan(live_price):
     df_intraday = yf.download(ticker, period="1d", interval="1m", auto_adjust=True, progress=False)
     if not df_intraday.empty:
         live_price = float(df_intraday["Close"].iloc[-1])
-
 if not np.isnan(live_price) and not np.isnan(prev_close):
     current_price = live_price
     current_change = live_price - prev_close
@@ -418,7 +411,6 @@ else:
     current_price = np.nan
     current_change = 0
     current_change_pct = 0
-
 
 
 
