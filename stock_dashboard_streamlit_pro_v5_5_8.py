@@ -1171,3 +1171,7 @@ Markets carry risk; always do your own research or consult a licensed financial 
 </div>
     """,
     unsafe_allow_html=True,
+   
+)
+
+
