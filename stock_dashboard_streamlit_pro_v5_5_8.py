@@ -263,8 +263,8 @@ Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
 
 ### 💬 Support
 **MarketMinds LLC** — Seattle, WA  
-🌐 [www.aistocksignals.com](https://www.aistocksignals.com)  
-📧 support@aistocksignals.com  
+🌐 [www.aisigmax.com](https://www.aisigmax.com)  
+📧 support@aisigmax.com  
 © 2025 MarketMinds LLC. All rights reserved.
 """)
 
