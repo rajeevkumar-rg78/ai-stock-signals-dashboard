@@ -379,6 +379,10 @@ st.markdown(pricing_html, unsafe_allow_html=True)
 
 
 
+import streamlit as st
+import yfinance as yf
+import numpy as np
+
 c1, c2, c3 = st.columns([2,2,3])
 with c1:
     ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
@@ -395,22 +399,43 @@ if not ticker:
     """)
     st.stop()
 
-# --- Live price and delta logic (from v5.5.3) ---
-t = yf.Ticker(ticker)
-prev_close = t.info.get("previousClose", np.nan)
-live_price = t.fast_info.get("last_price", np.nan)
+# --- Robust, cached previous close fetcher ---
+@st.cache_data(ttl=3600)
+def get_prev_close(ticker):
+    try:
+        t = yf.Ticker(ticker)
+        return float(t.info.get("previousClose", np.nan))
+    except Exception:
+        return np.nan
+
+prev_close = get_prev_close(ticker)
+
+# Fallback to daily data if needed
+if np.isnan(prev_close):
+    df_daily = yf.download(ticker, period="5d", interval="1d", auto_adjust=True, progress=False)
+    if not df_daily.empty and len(df_daily) > 1:
+        prev_close = float(df_daily["Close"].iloc[-2])
+
+# Get latest price from fast_info or intraday
+try:
+    t = yf.Ticker(ticker)
+    live_price = t.fast_info.get("last_price", np.nan)
+except Exception:
+    live_price = np.nan
+
 if np.isnan(live_price):
     df_intraday = yf.download(ticker, period="1d", interval="1m", auto_adjust=True, progress=False)
     if not df_intraday.empty:
         live_price = float(df_intraday["Close"].iloc[-1])
+
 if not np.isnan(live_price) and not np.isnan(prev_close):
     current_price = live_price
     current_change = live_price - prev_close
     current_change_pct = (current_change / prev_close) * 100 if prev_close != 0 else 0
+    st.metric("Price", f"${current_price:.2f}", delta=f"{current_change:+.2f} ({current_change_pct:+.2f}%)")
 else:
-    current_price = np.nan
-    current_change = 0
-    current_change_pct = 0
+    st.metric("Price", "—", delta="—")
+    st.warning("Live price or previous close not available (rate limit or data issue).")
 
 
 
