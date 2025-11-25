@@ -234,12 +234,11 @@ Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
 
 ### 💬 Support
 **AISigmaX** — Powered by MarketSignal LLC  
-🌐 [www.aisigmax.com](https://www.aisigmax.com)   
-📧 support@aisigmax.com  
+🌐[www.aisigmax.com](https://www.aisigmax.com)   
+📧support@aisigmax.com  
 © 2025 MarketMinds LLC. All rights reserved.
 """)
-st.markdown("""
----
+
 
 # mark tutorial as shown for current session
 st.session_state.tutorial_shown = True
