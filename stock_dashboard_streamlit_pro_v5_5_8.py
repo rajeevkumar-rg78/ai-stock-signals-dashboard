@@ -398,9 +398,6 @@ if not ticker:
 import numpy as np
 import yfinance as yf
 
-ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
-if not ticker:
-    st.stop()
 
 # Get official previous close and live price
 t = yf.Ticker(ticker)
