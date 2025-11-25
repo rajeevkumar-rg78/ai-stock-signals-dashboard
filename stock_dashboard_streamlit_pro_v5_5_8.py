@@ -781,6 +781,18 @@ def explain_signal_verbose(ind, sentiment, decision, horizon):
         reasons.append("✅ **Strong trend** (ADX>25) — price movement has conviction.")
     else:
         reasons.append("💤 **Weak trend** (ADX<25) — possible range-bound action.")
+
+    # --- Cup & Handle / Double Bottom heuristic ---
+    c = ind["Close"].tail(50)
+    if len(c) > 20:
+        lows = c.rolling(5).min()
+        if lows.iloc[-1] > lows.min() and lows.idxmin() < lows.index[-10]:
+            reasons.append("📈 **Possible Double Bottom** pattern forming (support retest).")
+        rolling_mean = c.rolling(20).mean()
+        if c.iloc[-1] > rolling_mean.iloc[-1] and (c.iloc[-1] - rolling_mean.iloc[-1]) / rolling_mean.iloc[-1] < 0.05:
+            reasons.append("☕ **Cup & Handle-like** recovery — consolidation breakout zone.")
+
+    # --- News & sentiment ---
     if sentiment > 0.1:
         reasons.append(f"📰 **Positive sentiment** ({sentiment:+.2f}) — news tone supportive.")
     elif sentiment < -0.1:
