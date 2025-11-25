@@ -398,6 +398,10 @@ if not ticker:
 import numpy as np
 import yfinance as yf
 
+ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
+if not ticker:
+    st.stop()
+
 # Get official previous close and live price
 t = yf.Ticker(ticker)
 prev_close = t.info.get("previousClose", np.nan)
@@ -417,6 +421,7 @@ else:
     current_price = np.nan
     current_change = 0
     current_change_pct = 0
+
 
 
 
@@ -860,17 +865,16 @@ conf_overall = market_confidence(news_sent, pulse["buy"])
 ai = ai_forecast(df, ind)
 
 # ------------------------------ Signal Card (Top) ------------------------------
-last = ind.iloc[-1]
-prev = ind.iloc[-2] if len(ind) > 1 else last
-price = last["Close"]
-change = price - prev["Close"]
-change_pct = (change / prev["Close"]) * 100 if prev["Close"] != 0 else 0
+
 
 st.markdown(f"## ✅ Signal: **{decision}**  (Score {score:+.2f}, News {news_sent:+.2f})")
 st.progress(conf_overall, text=f"Market Confidence {int(conf_overall*100)}% — sentiment/analyst blend")
+
 cA, cB, cC, cD, cE, cF = st.columns(6)
 cA.metric("Price", f"${current_price:.2f}", delta=f"{current_change:+.2f} ({current_change_pct:+.2f}%)")
 st.caption("Note: Price and change may be delayed by a few minutes compared to Yahoo/Google.")
+
+
 #st.write("Live price from yfinance:", live_price)
 #st.write("Previous close from yfinance:", prev_close)
 
