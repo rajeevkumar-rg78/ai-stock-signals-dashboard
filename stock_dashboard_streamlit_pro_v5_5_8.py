@@ -223,19 +223,28 @@ Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
 | **Top Tech Scans** | Daily AI-screened BUY signals from major tech stocks |
 
 ---
+st.markdown(
+    """
+<div style='text-align:left; color:gray; font-size:14px; line-height:1.5; margin-top:14px;'>
+<b>Disclaimer:</b><br>
+AISigmaX is a product of <b>MarketSignal LLC</b>.<br>
+This dashboard is for <b>educational and informational purposes only</b> and does not constitute financial advice.<br>
+Markets carry risk; always do your own research or consult a licensed financial advisor before investing.<br><br>
+© 2025 <b>MarketSignal LLC</b> — <i>AISigmaX</i>
+</div>
+    """,
+    unsafe_allow_html=True,
+)
 
-## ⚖️ Legal Disclaimer
-> AI Stock Signals PRO is for **educational and informational purposes only**.  
-> It does **not** constitute financial advice or trading recommendations.  
-> All simulations are hypothetical. Investing carries risk — always research independently.
 
 ---
 
+st.markdown("""
 ### 💬 Support
-**MarketMinds LLC** — Seattle, WA  
+**AISigmaX** — Powered by MarketSignal LLC  
 🌐 [www.aisigmax.com](https://www.aisigmax.com)  
 📧 support@aisigmax.com  
-© 2025 MarketMinds LLC. All rights reserved.
+© 2025 MarketSignal LLC. All rights reserved.
 """)
 
 # mark tutorial as shown for current session
@@ -1172,13 +1181,12 @@ st.markdown(
     """
 <div style='text-align:left; color:gray; font-size:14px; line-height:1.5; margin-top:14px;'>
 <b>Disclaimer:</b><br>
+AISigmaX is a product of <b>MarketSignal LLC</b>.<br>
 This dashboard is for <b>educational and informational purposes only</b> and does not constitute financial advice.<br>
 Markets carry risk; always do your own research or consult a licensed financial advisor before investing.<br><br>
-© 2025 <b>MarketSignal LLC</b> — <i>AI Stock Signals PRO</i>
+© 2025 <b>MarketSignal LLC</b> — <i>AISigmaX</i>
 </div>
     """,
     unsafe_allow_html=True,
-   
 )
-
 
