@@ -399,7 +399,6 @@ if not ticker:
     """)
     st.stop()
 
-# --- Robust, cached previous close fetcher ---
 @st.cache_data(ttl=3600)
 def get_prev_close(ticker):
     try:
@@ -432,10 +431,11 @@ if not np.isnan(live_price) and not np.isnan(prev_close):
     current_price = live_price
     current_change = live_price - prev_close
     current_change_pct = (current_change / prev_close) * 100 if prev_close != 0 else 0
-    st.metric("Price", f"${current_price:.2f}", delta=f"{current_change:+.2f} ({current_change_pct:+.2f}%)")
 else:
-    st.metric("Price", "—", delta="—")
-    st.warning("Live price or previous close not available (rate limit or data issue).")
+    current_price = np.nan
+    current_change = 0
+    current_change_pct = 0
+
 
 
 
