@@ -376,13 +376,6 @@ pricing_html = """
 st.markdown(pricing_html, unsafe_allow_html=True)
 
 
-
-
-
-import streamlit as st
-import yfinance as yf
-import numpy as np
-
 c1, c2, c3 = st.columns([2,2,3])
 with c1:
     ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
@@ -435,10 +428,6 @@ else:
     current_price = np.nan
     current_change = 0
     current_change_pct = 0
-
-
-
-
 
 
 # ------------------------------ Timeframe ------------------------------
