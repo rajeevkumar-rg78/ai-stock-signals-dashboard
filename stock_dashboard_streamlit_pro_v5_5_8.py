@@ -227,50 +227,19 @@ Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
 
 ---
 ## ⚖️ Legal Disclaimer
-> AI Stock Signals PRO is for **educational and informational purposes only**.  
+> AISigmaX is for **educational and informational purposes only**.  
 > It does **not** constitute financial advice or trading recommendations.  
 > All simulations are hypothetical. Investing carries risk — always research independently.
-
 ---
 
 ### 💬 Support
-**MarketMinds LLC** — Seattle, WA  
-🌐 [www.aistocksignals.com](https://www.aistocksignals.com)  
-📧 support@aistocksignals.com  
+**AISigmaX** — Powered by MarketSignal LLC  
+🌐 [www.aisigmax.com](https://www.aisigmax.com)   
+📧 support@aisigmax.com  
 © 2025 MarketMinds LLC. All rights reserved.
 """)
 st.markdown("""
 ---
-## Legal Disclaimer
-> AISigmaX is for **educational and informational purposes only**.  
-> It does **not** constitute financial advice or trading recommendations.  
-> All simulations are hypothetical. Investing carries risk — always research independently.
-
----
-
-### Support
-**AISigmaX** — Powered by MarketSignal LLC  
-[www.aisigmax.com](https://www.aisigmax.com)  
-support@aisigmax.com  
-(c) 2025 MarketSignal LLC. All rights reserved.
-""")
-st.markdown(
-    """
-<div style='text-align:left; color:gray; font-size:15px; line-height:1.6; margin-top:18px; border-radius:10px; background:#f8f9fa; padding:18px 18px 10px 18px; box-shadow:0 2px 8px rgba(0,0,0,0.04);'>
-<b>Disclaimer:</b><br>
-AISigmaX is a product and brand of <b>MarketSignal LLC</b>.<br>
-This platform is for <b>educational and informational purposes only</b> and does not constitute financial advice or trading recommendations.<br>
-All signals, forecasts, and simulations are hypothetical. Investing carries risk—always do your own research or consult a licensed financial advisor.<br><br>
-<b>Support:</b><br>
-AISigmaX — Powered by MarketSignal LLC<br>
-<a href="https://www.aisigmax.com" target="_blank">www.aisigmax.com</a><br>
-support@aisigmax.com<br>
-&copy; 2025 MarketSignal LLC. All rights reserved.
-</div>
-    """,
-    unsafe_allow_html=True,
-)
-
 
 # mark tutorial as shown for current session
 st.session_state.tutorial_shown = True
