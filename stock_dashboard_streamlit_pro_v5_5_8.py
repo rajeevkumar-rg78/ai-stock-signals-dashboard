@@ -867,6 +867,11 @@ ai = ai_forecast(df, ind)
 st.markdown(f"## ✅ Signal: **{decision}**  (Score {score:+.2f}, News {news_sent:+.2f})")
 st.progress(conf_overall, text=f"Market Confidence {int(conf_overall*100)}% — sentiment/analyst blend")
 
+# After you fetch and compute indicators:
+
+last = ind.iloc[-1]  # <-- Add this line
+
+
 cA, cB, cC, cD, cE, cF = st.columns(6)
 cA.metric("Price", f"${current_price:.2f}", delta=f"{current_change:+.2f} ({current_change_pct:+.2f}%)")
 st.caption("Note: Price and change may be delayed by a few minutes compared to Yahoo/Google.")
