@@ -914,6 +914,14 @@ buy_zone  = last["Close"] - 1.5*last["ATR"]
 stop_loss = last["Close"] - 2.5*last["ATR"]
 st.write(f"📈 **Target (≈5d)**: ${target_up:.2f}  🟦 **Buy zone**: ${buy_zone:.2f}  🛑 **Stop**: ${stop_loss:.2f}")
 
+# One-day action suggestion (immediately after target/stop)
+shares_held = 0  # or your actual shares held if you track it
+cash = invest_amount
+today_action = daily_action_strategy(
+    price, buy_zone, target_up, stop_loss, decision, invest_amount, shares_held, cash
+)
+st.markdown(today_action["msg"])
+
 # ------------------------------ Chart ------------------------------
 st.plotly_chart(plot_dashboard(ind, ticker, zones=True), use_container_width=True)
 
