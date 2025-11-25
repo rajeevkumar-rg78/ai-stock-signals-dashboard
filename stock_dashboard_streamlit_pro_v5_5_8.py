@@ -228,13 +228,12 @@ Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
 ---
 
 st.markdown("""
-### 💬 Support
-**AISigmaX** &mdash; Powered by MarketSignal LLC  
-🌐 [www.aisigmax.com](https://www.aisigmax.com)  
-📧 support@aisigmax.com  
+### 💬 Support  
+<b>AISigmaX</b> &mdash; Powered by MarketSignal LLC<br>
+<span>&#127760;</span> <a href="https://www.aisigmax.com" target="_blank">www.aisigmax.com</a><br>
+📧 support@aisigmax.com<br>
 &copy; 2025 MarketSignal LLC. All rights reserved.
 """, unsafe_allow_html=True)
-
 
 # mark tutorial as shown for current session
 st.session_state.tutorial_shown = True
