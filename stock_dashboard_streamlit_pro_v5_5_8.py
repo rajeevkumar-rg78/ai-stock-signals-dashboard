@@ -884,23 +884,28 @@ ai = ai_forecast(df, ind)
 st.markdown(f"## ✅ Signal: **{decision}**  (Score {score:+.2f}, News {news_sent:+.2f})")
 st.progress(conf_overall, text=f"Market Confidence {int(conf_overall*100)}% — sentiment/analyst blend")
 
-# After you fetch and compute indicators:
+# Snapshot metrics
+last = ind.iloc[-1]
+cA, cB, cC, cD, cE, cF = st.columns(6)
+#cA.metric("Price", f"${last['Close']:.2f}")
 
-last = ind.iloc[-1]  # <-- Add this line
+# Calculate daily change
+last = ind.iloc[-1]
+prev = ind.iloc[-2] if len(ind) > 1 else last
 
+price = last["Close"]
+change = price - prev["Close"]
+change_pct = (change / prev["Close"]) * 100 if prev["Close"] != 0 else 0
 
 cA, cB, cC, cD, cE, cF = st.columns(6)
-cA.metric("Price", f"${current_price:.2f}", delta=f"{current_change:+.2f} ({current_change_pct:+.2f}%)")
-st.caption("Note: Price and change may be delayed by a few minutes compared to Yahoo/Google.")
-
-
-#st.write("Live price from yfinance:", live_price)
-#st.write("Previous close from yfinance:", prev_close)
+cA.metric("Price", f"${price:.2f}", delta=f"{change:+.2f} ({change_pct:+.2f}%)")
 
 cB.metric("RSI (14)", f"{last['RSI']:.1f}")
 cC.metric("MACD", f"{last['MACD']:.2f}")
 cD.metric("ADX", f"{last['ADX']:.1f}")
 cE.metric("ATR (14)", f"{last['ATR']:.2f}")
+
+
 st.metric("Signal Strength", f"{int(confidence_from_score(score)*100)}%", delta=f"{score:+.2f}")
 
 target_up = last["Close"] + 2.0*last["ATR"]
