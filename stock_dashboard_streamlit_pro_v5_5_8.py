@@ -226,14 +226,20 @@ Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
 
 
 ---
+## ⚖️ Legal Disclaimer
+> AI Stock Signals PRO is for **educational and informational purposes only**.  
+> It does **not** constitute financial advice or trading recommendations.  
+> All simulations are hypothetical. Investing carries risk — always research independently.
 
-st.markdown("""
-### 💬 Support  
-<b>AISigmaX</b> &mdash; Powered by MarketSignal LLC<br>
-<span>&#127760;</span> <a href="https://www.aisigmax.com" target="_blank">www.aisigmax.com</a><br>
-📧 support@aisigmax.com<br>
-&copy; 2025 MarketSignal LLC. All rights reserved.
-""", unsafe_allow_html=True)
+---
+
+### 💬 Support
+**MarketMinds LLC** — Seattle, WA  
+🌐 [www.aistocksignals.com](https://www.aistocksignals.com)  
+📧 support@aistocksignals.com  
+© 2025 MarketMinds LLC. All rights reserved.
+""")
+
 
 # mark tutorial as shown for current session
 st.session_state.tutorial_shown = True
