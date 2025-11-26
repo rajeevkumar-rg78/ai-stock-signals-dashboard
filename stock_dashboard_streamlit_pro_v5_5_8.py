@@ -119,79 +119,7 @@ def render_header(decision: str = "HOLD"):
 st.set_page_config(page_title="AISigmaX — AI Stock Signals PRO", layout="wide")
 render_header("HOLD")
 
-def render_header():
-    st.markdown(
-        """
-        <style>
-        @keyframes bannerShift {
-            0% {background-position: 0% 50%;}
-            50% {background-position: 100% 50%;}
-            100% {background-position: 0% 50%;}
-        }
-        </style>
 
-        <div style="
-            background: linear-gradient(90deg, #4A00E0, #2E62F2, #00C6FB);
-            background-size: 250% 250%;
-            animation: bannerShift 10s ease-in-out infinite;
-
-            padding: 26px 32px;
-            border-radius: 16px;
-            color: white;
-            box-shadow: 0 4px 18px rgba(0,0,0,0.18);
-            margin-bottom: 25px;
-        ">
-        
-            <div style="display:flex;align-items:center;gap:22px;">
-                
-                <!-- LOGO ICON BLOCK -->
-                <div style="
-                    width:72px;
-                    height:72px;
-                    background: rgba(255,255,255,0.15);
-                    border-radius: 14px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    box-shadow: inset 0 0 12px rgba(255,255,255,0.15);
-                ">
-                
-                    <!-- ΣX + Chart Logo -->
-                    <svg width="55" height="55" viewBox="0 0 100 100">
-                        <!-- Chart line -->
-                        <polyline points="10,70 35,45 55,55 80,30"
-                            style="fill:none;stroke:white;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;"></polyline>
-
-                        <!-- ΣX text -->
-                        <text x="50%" y="88%" text-anchor="middle"
-                            font-size="36" font-weight="900" fill="white"
-                            style="letter-spacing:2px;">ΣX</text>
-                    </svg>
-                </div>
-
-                <!-- TEXT BLOCK -->
-                <div style="flex-grow:1;">
-                    <div style="font-size:32px;font-weight:900;letter-spacing:0.5px;">
-                        AISigmaX — AI Stock Signals
-                    </div>
-                    <div style="font-size:15px;opacity:0.92;margin-top:4px;">
-                        AI • Signals • Forecast • Screener • Market Intelligence
-                    </div>
-                </div>
-
-                <!-- COMPANY BLOCK -->
-                <div style="text-align:right;font-size:13.5px;opacity:0.85;">
-                    <b>MarketSignal LLC</b><br>
-                    <span style="font-size:12.5px;">AISigmaX.com</span>
-                </div>
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-st.set_page_config(page_title="AISigmaX — AI Stock Signals PRO", layout="wide")
-render_header("HOLD")
 
 # ============================================================
 # 🎓 Onboarding Tutorial Section — AISigmaX works
