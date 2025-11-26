@@ -52,7 +52,7 @@ def human_fmt(val, kind=None):
 
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
-def render_header(decision: str = "HOLD"):
+#def render_header(decision: str = "HOLD"):
     decision = (decision or "").upper()
     if "BUY" in decision:
         grad = "linear-gradient(270deg, #43e97b 0%, #38f9d7 100%)"
@@ -114,7 +114,7 @@ def render_header(decision: str = "HOLD"):
     )
 
 st.set_page_config(page_title="AISigmaX — AI Stock Signals PRO", layout="wide")
-render_header("HOLD")
+#render_header("HOLD")
 
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
