@@ -50,30 +50,6 @@ def human_fmt(val, kind=None):
         return "—"
 
 
-# ------------------------------ Page Config ------------------------------
-#st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
-
-# ============================================================
-# 🎓 Onboarding Tutorial Section — AISigmaX works
-# ============================================================
-# 👋 Eye-catching gradient banner below header
-st.markdown("""
-<div style="
-    background: linear-gradient(90deg, #4A00E0 0%, #8E2DE2 100%);
-    color: white;
-    text-align: left;
-    padding: 14px 18px;
-    border-radius: 10px;
-    margin-top: 8px;
-    margin-bottom: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: 0.3px;">
-    👋 <b>Welcome to AISigmaX</b><br>
-    <span style="font-size:15px;opacity:0.9;">Start by reading this short guide before exploring your first stock.</span>
-</div>
-""", unsafe_allow_html=True)
 
 # ============================================================
 # 🌟 AISigmaX / MarketSignal LLC — Modern Unified Banner
