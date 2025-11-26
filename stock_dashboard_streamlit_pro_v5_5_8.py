@@ -190,6 +190,8 @@ def render_header():
         """,
         unsafe_allow_html=True
     )
+st.set_page_config(page_title="AISigmaX — AI Stock Signals PRO", layout="wide")
+render_header("HOLD")
 
 # ============================================================
 # 🎓 Onboarding Tutorial Section — AISigmaX works
