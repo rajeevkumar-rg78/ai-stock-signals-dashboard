@@ -1182,4 +1182,25 @@ Markets carry risk; always do your own research or consult a licensed financial 
     """,
     unsafe_allow_html=True,
 )
+st.markdown(
+    """
+<div style='text-align:left; color:#444; font-size:15px; line-height:1.7; margin-top:18px; border-radius:12px; background:linear-gradient(90deg,#f8fafc 60%,#e3f0ff 100%); padding:20px 20px 12px 20px; box-shadow:0 2px 8px rgba(0,0,0,0.04);'>
+<span style="font-size:22px; font-weight:800; letter-spacing:1px; color:#1976d2;">
+    <span style="background: linear-gradient(90deg,#1976d2,#43e97b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display:inline-block;">AISigmaX</span>
+</span>
+<span style="font-size:15px; color:#888; font-weight:600;">&nbsp;by MarketSignal LLC</span>
+<br>
+<br>
+<b>Disclaimer:</b><br>
+AISigmaX is a product and brand of <b>MarketSignal LLC</b>.<br>
+This platform is for <b>educational and informational purposes only</b> and does not constitute financial advice or trading recommendations.<br>
+All signals, forecasts, and simulations are hypothetical. Investing carries risk—always do your own research or consult a licensed financial advisor.<br><br>
+<b>Support:</b><br>
+<a href="https://www.aisigmax.com" target="_blank" style="color:#1976d2; text-decoration:underline;">www.aisigmax.com</a><br>
+support@aisigmax.com<br>
+&copy; 2025 MarketSignal LLC. All rights reserved.
+</div>
+    """,
+    unsafe_allow_html=True,
+)
 
