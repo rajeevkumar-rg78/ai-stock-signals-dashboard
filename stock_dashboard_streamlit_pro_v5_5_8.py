@@ -213,7 +213,7 @@ render_header("HOLD")
 #with st.expander("🎓 Learn How AI Stock Signals Works", expanded=not st.session_state.tutorial_shown):
     #st.markdown("""
 with st.expander("🎓 Learn How AI Stock Signals Works", expanded=False):
-    #st.markdown(""". ok can we merge this into 1 banner.
+     st.markdown("""
 
 ## 🧠 What Is AISigmaX?
 AI Stock Signals PRO is an **AI-powered analytics dashboard** that blends:
