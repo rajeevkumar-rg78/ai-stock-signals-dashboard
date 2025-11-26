@@ -51,8 +51,6 @@ def human_fmt(val, kind=None):
         return "—"
 
 
-
-
 def render_header(decision: str = "HOLD"):
     decision = (decision or "").upper()
     if "BUY" in decision:
@@ -134,7 +132,7 @@ with st.expander("🎓 Learn How AI Stock Signals Works", expanded=False):
      st.markdown("""
 
 ## 🧠 What Is AISigmaX?
-AI Stock Signals PRO is an **AI-powered analytics dashboard** that blends:
+AI Stock Signals is an **AI-powered analytics dashboard** that blends:
 - 📊 Technical indicators (RSI, MACD, ADX, Bollinger, MAs)
 - 📰 News sentiment (via NLP / VADER)
 - 👥 Analyst consensus trends
