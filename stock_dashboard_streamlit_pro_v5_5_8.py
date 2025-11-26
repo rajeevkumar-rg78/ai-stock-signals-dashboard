@@ -49,7 +49,7 @@ def human_fmt(val, kind=None):
     except Exception:
         return "—"
 
-
+"""
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
 def render_header(decision: str = "HOLD"):
@@ -115,7 +115,7 @@ def render_header(decision: str = "HOLD"):
 
 st.set_page_config(page_title="AISigmaX — AI Stock Signals PRO", layout="wide")
 render_header("HOLD")
-
+"""
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
 
@@ -214,7 +214,7 @@ render_banner()
 # ============================================================
 # 🎓 Onboarding Tutorial Section — AISigmaX works
 # ============================================================
-
+"""
 # 👋 Eye-catching gradient banner below header
 st.markdown("""
 <div style="
@@ -233,7 +233,7 @@ st.markdown("""
     <span style="font-size:15px;opacity:0.9;">Start by reading this short guide before exploring your first stock.</span>
 </div>
 """, unsafe_allow_html=True)
-
+"""
 
 # 🧠 Tutorial: expanded on first visit only
 #if "tutorial_shown" not in st.session_state:
