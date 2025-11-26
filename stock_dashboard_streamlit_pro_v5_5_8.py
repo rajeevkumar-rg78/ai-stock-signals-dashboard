@@ -90,7 +90,7 @@ def render_header(decision: str = "HOLD"):
                         <span style="font-size:38px;">🧠</span>
                         <div>
                             <div style="font-size:25px;font-weight:800;letter-spacing:0.3px;">
-                                AI Stock Signals PRO
+                                AISigmaX-AI Stock Signal
                             </div>
                             <div style="font-size:14.5px;opacity:0.93;">
                                 Technicals • Macro • News • Analyst • AI Forecast
