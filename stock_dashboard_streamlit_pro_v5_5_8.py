@@ -49,7 +49,7 @@ def human_fmt(val, kind=None):
     except Exception:
         return "—"
 
-
+"""
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
 def render_header(decision: str = "HOLD"):
@@ -115,7 +115,7 @@ def render_header(decision: str = "HOLD"):
 
 st.set_page_config(page_title="AISigmaX — AI Stock Signals PRO", layout="wide")
 render_header("HOLD")
-
+"""
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
 
