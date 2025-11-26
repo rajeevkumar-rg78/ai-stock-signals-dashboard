@@ -23,6 +23,11 @@ import requests, feedparser, time, random
 from io import StringIO
 import matplotlib.pyplot as plt
 
+def safe_float(x, default=0.0):
+    try:
+        return float(x)
+    except Exception:
+        return default
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
 def render_header(decision: str = "HOLD"):
