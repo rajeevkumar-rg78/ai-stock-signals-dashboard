@@ -137,6 +137,7 @@ def human_fmt(val, kind=None):
 # 🎓 Onboarding Tutorial Section — AISigmaX works
 # ============================================================
 # 👋 Eye-catching gradient banner below header
+"""
 st.markdown("""
 <div style="
     background: linear-gradient(90deg, #4A00E0 0%, #8E2DE2 100%);
@@ -155,7 +156,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-
+"""
 
 # 🧠 Tutorial: expanded on first visit only
 #if "tutorial_shown" not in st.session_state:
