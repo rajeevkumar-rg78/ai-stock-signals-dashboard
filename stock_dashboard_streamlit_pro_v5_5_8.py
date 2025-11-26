@@ -1222,6 +1222,26 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
 - ATR: volatility; used for target/stop bands.  
 """)
 
+st.markdown("### 💬 Chat with AISigmaX Assistant")
+
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+user_input = st.chat_input("Ask me anything about stocks, signals, or the dashboard...")
+
+if user_input:
+    # For now, just echo the question. Replace this with your AI logic if desired.
+    ai_response = f"You asked: {user_input}"
+    st.session_state.chat_history.append(("user", user_input))
+    st.session_state.chat_history.append(("ai", ai_response))
+
+for sender, msg in st.session_state.chat_history:
+    if sender == "user":
+        st.markdown(f"**You:** {msg}")
+    else:
+        st.markdown(f"**AISigmaX:** {msg}")
+
+
 st.markdown(
     """
 <div style='text-align:left; color:gray; font-size:14px; line-height:1.5; margin-top:14px;'>
