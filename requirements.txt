@@ -9,4 +9,4 @@ scikit-learn
 requests
 feedparser
 stripe
-
+openai
