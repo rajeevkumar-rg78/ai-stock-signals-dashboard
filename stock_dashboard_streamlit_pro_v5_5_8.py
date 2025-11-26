@@ -50,73 +50,91 @@ def human_fmt(val, kind=None):
     except Exception:
         return "—"
 
-# ------------------------------ Page Config ------------------------------
-st.set_page_config(page_title="AISigmaX AI Stock Signals", layout="wide")
-
-# ------------------------------ Helpers / UI ------------------------------
-def render_header(decision: str = "HOLD"):
-    decision = (decision or "").upper()
-    if "BUY" in decision:
-        grad = "linear-gradient(270deg, #43e97b 0%, #38f9d7 100%)"
-        accent_emoji = "🟢"
-    elif "SELL" in decision:
-        grad = "linear-gradient(270deg, #fa709a 0%, #fee140 100%)"
-        accent_emoji = "🔴"
-    else:
-        grad = "linear-gradient(270deg, #30cfd0 0%, #330867 100%)"
-        accent_emoji = "🟠"
-
     st.markdown(
         f"""
+        <style>
+            @keyframes bannerShift {{
+              0% {{background-position: 0% 50%;}}
+              50% {{background-position: 100% 50%;}}
+              100% {{background-position: 0% 50%;}}
+            }}
+            .glass {{
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }}
+        </style>
+
         <div style="
             position:relative;
             background: {grad};
-            background-size: 400% 400%;
-            animation: bannerShift 8s ease-in-out infinite;
-            padding: 22px 32px 44px 32px;
-            border-radius: 16px;
+            background-size: 350% 350%;
+            animation: bannerShift 9s ease-in-out infinite;
+            padding: 26px 34px 36px 34px;
+            border-radius: 18px;
             color: white;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.13);
-            margin-bottom: 22px;
+            box-shadow: 0 6px 22px rgba(0,0,0,0.20);
+            margin-bottom: 26px;
             overflow: hidden;
+            font-family: 'Helvetica Neue', sans-serif;
         ">
-            <svg width="100%" height="40" viewBox="0 0 800 40" fill="none" xmlns="http://www.w3.org/2000/svg"
-                 style="position:absolute;bottom:0;left:0;z-index:0;">
-                <path d="M0 20 Q 200 60 400 20 T 800 20 V40 H0Z" fill="rgba(255,255,255,0.13)" />
+
+            <!-- Decorative gradient wave -->
+            <svg width="100%" height="50" viewBox="0 0 800 50" fill="none"
+                 style="position:absolute;bottom:0;left:0;opacity:0.25;">
+                <path d="M0 25 Q 200 70 400 25 T 800 25 V50 H0Z" fill="rgba(255,255,255,0.25)" />
             </svg>
-            <div style="position:relative;z-index:1;">
-                <div style="display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:18px;">
-                        <span style="font-size:38px;">🧠</span>
-                        <div>
-                            <div style="font-size:25px;font-weight:800;letter-spacing:0.3px;">
-                                AISigmaX-AI Stock Signal
-                            </div>
-                            <div style="font-size:14.5px;opacity:0.93;">
-                                Technicals • Macro • News • Analyst • AI Forecast
-                            </div>
+
+            <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;">
+
+                <!-- LEFT: Logo + Title -->
+                <div style="display:flex;align-items:center;gap:20px;">
+
+                    <!-- Logo block -->
+                    <div class="glass" style="
+                        width:72px;
+                        height:72px;
+                        background: rgba(255,255,255,0.18);
+                        border-radius: 16px;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        box-shadow: inset 0 0 14px rgba(255,255,255,0.25);
+                    ">
+                        <span style="font-size:42px;">🧬</span>
+                    </div>
+
+                    <!-- Text -->
+                    <div>
+                        <div style="
+                            font-size:30px;
+                            font-weight:800;
+                            letter-spacing:0.4px;
+                            background: linear-gradient(90deg, #ffffff, #ffd6ff);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                        ">
+                            AISigmaX — AI Stock Signals
+                        </div>
+
+                        <div style="font-size:15px;opacity:0.92;margin-top:4px;">
+                            Technical • Macro • News • Analyst • AI Forecasts
                         </div>
                     </div>
-                    <div style="font-size:14px;text-align:right;opacity:0.93;">
-                        <b>© 2025 MarketSignal LLC</b><br>
-                        <span style="font-size:12.5px;opacity:0.88;">{accent_emoji} Smarter Investing</span>
-                    </div>
                 </div>
+
+                <!-- RIGHT: Company Info -->
+                <div style="text-align:right;font-size:14px;opacity:0.95;">
+                    <b>© 2025 MarketSignal LLC</b><br>
+                    <span style="font-size:12.5px;opacity:0.85;">
+                        {accent_emoji} Powered by AISigmaX.com
+                    </span>
+                </div>
+
             </div>
         </div>
-        <style>
-        @keyframes bannerShift {{
-          0% {{background-position: 0% 50%;}}
-          50% {{background-position: 100% 50%;}}
-          100% {{background-position: 0% 50%;}}
-        }}
-        </style>
         """,
         unsafe_allow_html=True
     )
-
-# ------------------------------ Inputs ------------------------------
-render_header("HOLD")
 
 # ============================================================
 # 🎓 Onboarding Tutorial Section — AI Stock Signals PRO
