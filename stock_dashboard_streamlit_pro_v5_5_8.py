@@ -64,7 +64,7 @@ st.markdown("""
         
         <div>
             <div style="font-size:28px;font-weight:800;letter-spacing:0.4px;">
-                AISigmaX — AI Stock Signals PRO
+                AISigmaX — AI Stock Signals
             </div>
             <div style="font-size:15px;opacity:0.92;margin-top:4px;">
                 Next-Gen AI • News Sentiment • Analyst Ratings • Forecast Engine
