@@ -165,7 +165,7 @@ def render_header(decision: str = "HOLD"):
 
 
 # At the top of your app:
-st.set_page_config(page_title="AISigmaX — AI Stock Signals PRO", layout="wide")
+st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
 render_header("HOLD")
 
 
