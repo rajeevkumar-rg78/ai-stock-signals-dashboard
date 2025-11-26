@@ -139,7 +139,7 @@ def render_header(decision: str = "HOLD"):
                     <div class="aisigmax-brand">
                         <span style="font-size:2em;">🧬</span>
                         <div>
-                            <div class="aisigmax-title">AISigmaX AI Stock Signal</div>
+                            <div class="aisigmax-title">AISigmaX</div>
                             <div class="aisigmax-tagline">Next-Gen AI • Macro • News • Analyst • Forecasts</div>
                         </div>
                     </div>
