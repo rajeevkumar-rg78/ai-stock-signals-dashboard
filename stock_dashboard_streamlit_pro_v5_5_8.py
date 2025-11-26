@@ -49,7 +49,7 @@ def human_fmt(val, kind=None):
     except Exception:
         return "—"
 
-"""
+
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
 def render_header(decision: str = "HOLD"):
@@ -115,106 +115,16 @@ def render_header(decision: str = "HOLD"):
 
 st.set_page_config(page_title="AISigmaX — AI Stock Signals PRO", layout="wide")
 render_header("HOLD")
-"""
+
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
 
-def render_banner():
-    st.markdown(
-        """
-        <style>
-        @keyframes bannerShift {
-            0% {background-position: 0% 50%;}
-            50% {background-position: 100% 50%;}
-            100% {background-position: 0% 50%;}
-        }
-        </style>
-
-        <div style="
-            background: linear-gradient(90deg, #4A00E0, #2E62F2, #00C6FB);
-            background-size: 280% 280%;
-            animation: bannerShift 12s ease-in-out infinite;
-
-            padding: 26px 32px;
-            border-radius: 18px;
-            color: white;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
-            margin-bottom: 25px;
-        ">
-        
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:22px;">
-
-                <!-- LOGO BLOCK -->
-                <div style="
-                    width:78px;
-                    height:78px;
-                    background: rgba(255,255,255,0.15);
-                    border-radius: 18px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    box-shadow: inset 0 0 12px rgba(255,255,255,0.15);
-                ">
-                    <svg width="58" height="58" viewBox="0 0 100 100">
-                        <!-- Chart line -->
-                        <polyline points="10,70 35,45 55,55 80,30"
-                            style="fill:none;stroke:white;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;"></polyline>
-
-                        <!-- ΣX -->
-                        <text x="50%" y="88%" text-anchor="middle"
-                            font-size="38" font-weight="900" fill="white"
-                            style="letter-spacing:1px;">ΣX</text>
-                    </svg>
-                </div>
-
-                <!-- CENTER TITLE -->
-                <div style="flex-grow:1; margin-left:10px;">
-                    <div style="font-size:32px;font-weight:900;letter-spacing:0.6px;margin-bottom:2px;">
-                        AISigmaX — AI Stock Signals
-                    </div>
-                    <div style="font-size:15.5px;opacity:0.92;">
-                        AI • Signals • Forecast • Screener • Market Intelligence
-                    </div>
-                </div>
-
-                <!-- COMPANY INFO -->
-                <div style="text-align:right;min-width:160px;">
-                    <div style="font-size:14.5px;font-weight:700;opacity:0.95;">
-                        MarketSignal LLC
-                    </div>
-                    <div style="font-size:13px;opacity:0.85;">
-                        AISigmaX.com
-                    </div>
-                </div>
-            </div>
-
-            <!-- SUBTITLE / TUTORIAL -->
-            <div style="
-                margin-top:18px;
-                background: rgba(255,255,255,0.15);
-                padding: 12px 16px;
-                border-radius: 12px;
-                font-size:15px;
-                font-weight:500;
-                backdrop-filter: blur(4px);
-            ">
-                📘 <b>Welcome to AISigmaX</b> — Your AI-powered stock insights platform.<br>
-                Start by entering a ticker symbol above to explore signals, charts, sentiment, and forecasts.
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-# Render Banner
-render_banner()
 
 
 # ============================================================
 # 🎓 Onboarding Tutorial Section — AISigmaX works
 # ============================================================
-"""
+
 # 👋 Eye-catching gradient banner below header
 st.markdown("""
 <div style="
@@ -233,7 +143,7 @@ st.markdown("""
     <span style="font-size:15px;opacity:0.9;">Start by reading this short guide before exploring your first stock.</span>
 </div>
 """, unsafe_allow_html=True)
-"""
+
 
 # 🧠 Tutorial: expanded on first visit only
 #if "tutorial_shown" not in st.session_state:
