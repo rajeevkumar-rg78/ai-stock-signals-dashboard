@@ -1222,11 +1222,7 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
 - ATR: volatility; used for target/stop bands.  
 """)
 
-import openai
-
-# Get your OpenAI API key from Streamlit secrets
-openai.api_key = st.secrets["OPENAI_API_KEY"]
-
+# --- Chat with AISigmaX Assistant (placeholder, no OpenAI) ---
 st.markdown("### 💬 Chat with AISigmaX Assistant")
 
 if "chat_history" not in st.session_state:
@@ -1235,35 +1231,32 @@ if "chat_history" not in st.session_state:
 user_input = st.chat_input("Ask me anything about stocks, signals, or the dashboard...")
 
 if user_input:
-    # Add user message to history
-    st.session_state.chat_history.append({"role": "user", "content": user_input})
+    # Just echo the question for now (no OpenAI)
+    ai_response = f"You asked: {user_input}"
+    st.session_state.chat_history.append(("user", user_input))
+    st.session_state.chat_history.append(("ai", ai_response))
 
-    # Compose the conversation for OpenAI
-    messages = [
-        {"role": "system", "content": "You are AISigmaX, an AI stock signals assistant. Be concise, helpful, and professional. If asked about financial advice, remind the user this is for educational purposes only."}
-    ] + st.session_state.chat_history
-
-    # Call OpenAI Chat API
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # or "gpt-4" if you have access
-            messages=messages,
-            max_tokens=300,
-            temperature=0.5,
-        )
-        ai_response = response.choices[0].message["content"].strip()
-    except Exception as e:
-        ai_response = f"Sorry, I couldn't get a response from OpenAI: {e}"
-
-    # Add AI response to history
-    st.session_state.chat_history.append({"role": "assistant", "content": ai_response})
-
-# Display chat history
-for msg in st.session_state.chat_history:
-    if msg["role"] == "user":
-        st.markdown(f"**You:** {msg['content']}")
+for sender, msg in st.session_state.chat_history:
+    if sender == "user":
+        st.markdown(f"**You:** {msg}")
     else:
-        st.markdown(f"**AISigmaX:** {msg['content']}")
+        st.markdown(f"**AISigmaX:** {msg}")
+
+# --- If you want to enable OpenAI later, use this code: ---
+# import openai
+# openai.api_key = st.secrets["OPENAI_API_KEY"]
+# if user_input:
+#     st.session_state.chat_history.append({"role": "user", "content": user_input})
+#     messages = [{"role": "system", "content": "You are AISigmaX, an AI stock signals assistant."}] + st.session_state.chat_history
+#     response = openai.ChatCompletion.create(
+#         model="gpt-3.5-turbo",
+#         messages=messages,
+#         max_tokens=300,
+#         temperature=0.5,
+#     )
+#     ai_response = response.choices[0].message["content"].strip()
+#     st.session_state.chat_history.append({"role": "assistant", "content": ai_response})
+
 
 
 
