@@ -28,7 +28,8 @@ def safe_float(x, default=0.0):
         return float(x)
     except Exception:
         return default
- def human_fmt(val, kind=None):
+ 
+def human_fmt(val, kind=None):
     try:
         if val is None or (isinstance(val, float) and np.isnan(val)):
             return "—"
