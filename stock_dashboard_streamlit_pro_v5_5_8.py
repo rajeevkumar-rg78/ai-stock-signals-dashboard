@@ -106,11 +106,6 @@ def render_header(decision: str = "HOLD"):
             opacity: 0.93;
             margin-top: 2px;
         }}
-        .aisigmax-welcome {{
-            font-size: 1em;
-            opacity: 0.93;
-            margin-top: 8px;
-        }}
         .aisigmax-right {{
             font-size: 0.95em;
             text-align: right;
@@ -146,13 +141,10 @@ def render_header(decision: str = "HOLD"):
                         <div>
                             <div class="aisigmax-title">AISigmaX</div>
                             <div class="aisigmax-tagline">Next-Gen AI • Macro • News • Analyst • Forecasts</div>
-                            <div class="aisigmax-welcome">
-                                
-                            </div>
                         </div>
                     </div>
                     <div class="aisigmax-right">
-                        <b>© 2025 MarketSignal LLC</b><br>
+                        <b>&copy; 2025 MarketSignal LLC</b><br>
                         <span style="font-size:0.95em;opacity:0.88;">{accent_emoji} Powered by <a href="https://www.aisigmax.com" style="color:white;text-decoration:underline;" target="_blank">AISigmaX.com</a></span>
                     </div>
                 </div>
@@ -161,6 +153,7 @@ def render_header(decision: str = "HOLD"):
         """,
         unsafe_allow_html=True
     )
+
 
 
 # At the top of your app:
