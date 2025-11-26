@@ -134,7 +134,7 @@ st.markdown("""
     font-size: 17px;
     font-weight: 600;
     letter-spacing: 0.3px;">
-    👋 <b>Welcome to AI Stock Signals PRO</b><br>
+    👋 <b>Welcome to AISigmaX</b><br>
     <span style="font-size:15px;opacity:0.9;">Start by reading this short guide before exploring your first stock.</span>
 </div>
 """, unsafe_allow_html=True)
@@ -144,13 +144,13 @@ st.markdown("""
 #if "tutorial_shown" not in st.session_state:
    #st.session_state.tutorial_shown = False
 
-#with st.expander("🎓 Learn How AI Stock Signals PRO Works", expanded=not st.session_state.tutorial_shown):
+#with st.expander("🎓 Learn How AI Stock Signals Works", expanded=not st.session_state.tutorial_shown):
     #st.markdown("""
-with st.expander("🎓 Learn How AI Stock Signals PRO Works", expanded=False):
+with st.expander("🎓 Learn How AI Stock Signals Works", expanded=False):
     st.markdown("""
    
 
-## 🧠 What Is AI Stock Signals PRO?
+## 🧠 What Is AIStocksX?
 AI Stock Signals PRO is an **AI-powered analytics dashboard** that blends:
 - 📊 Technical indicators (RSI, MACD, ADX, Bollinger, MAs)
 - 📰 News sentiment (via NLP / VADER)
