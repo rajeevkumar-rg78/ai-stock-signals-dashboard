@@ -50,6 +50,22 @@ def human_fmt(val, kind=None):
     except Exception:
         return "—"
 
+# ------------------------------ Page Config ------------------------------
+st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
+
+# ------------------------------ Helpers / UI ------------------------------
+def render_header(decision: str = "HOLD"):
+    decision = (decision or "").upper()
+    if "BUY" in decision:
+        grad = "linear-gradient(270deg, #43e97b 0%, #38f9d7 100%)"
+        accent_emoji = "🟢"
+    elif "SELL" in decision:
+        grad = "linear-gradient(270deg, #fa709a 0%, #fee140 100%)"
+        accent_emoji = "🔴"
+    else:
+        grad = "linear-gradient(270deg, #30cfd0 0%, #330867 100%)"
+        accent_emoji = "🟠"
+
     st.markdown(
         f"""
         <style>
