@@ -49,6 +49,41 @@ def human_fmt(val, kind=None):
         return f"{val:.2f}"
     except Exception:
         return "—"
+
+
+st.markdown("""
+<div style="
+    background: linear-gradient(90deg, #4A00E0 0%, #8E2DE2 100%);
+    color: white;
+    padding: 16px 22px;
+    border-radius: 12px;
+    margin-top: 10px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    font-family: 'Helvetica Neue', sans-serif;
+">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+
+        <div>
+            <div style="font-size:22px;font-weight:800;">
+                👋 Welcome to <span style="color:#FFD6FF;">AISigmaX</span>
+            </div>
+            <div style="font-size:15px;opacity:0.92;margin-top:4px;">
+                Start by reading this short guide before exploring your first stock.
+            </div>
+        </div>
+
+        <div style="text-align:right; font-size:13px; opacity:0.92;">
+            <div><b>MarketSignal LLC</b></div>
+            <div style="opacity:0.85;">Powered by AISigmaX.com</div>
+        </div>
+
+    </div>
+
+</div>
+""", unsafe_allow_html=True)
+
 # ------------------------------ Page Config ------------------------------
 #st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
 
