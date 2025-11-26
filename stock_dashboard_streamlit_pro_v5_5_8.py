@@ -75,6 +75,90 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# ============================================================
+# 🌟 AISigmaX / MarketSignal LLC — Modern Unified Banner
+# ============================================================
+
+st.markdown("""
+<style>
+@keyframes bannerShift {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+</style>
+
+<div style="
+    width: 100%;
+    background: linear-gradient(90deg, #2D00F7 0%, #6A00F4 50%, #A100F2 100%);
+    background-size: 300% 300%;
+    animation: bannerShift 10s ease-in-out infinite;
+    border-radius: 22px;
+    padding: 32px 38px;
+    margin-bottom: 28px;
+    color: white;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.22);
+">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:32px;">
+
+        <!-- LEFT SIDE: Logo + Product Name -->
+        <div style="display:flex;align-items:center;gap:22px;">
+
+            <!-- AISigmaX Logo Circle -->
+            <div style="
+                width:88px;
+                height:88px;
+                background: rgba(255,255,255,0.18);
+                border-radius: 22px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                box-shadow: inset 0 0 18px rgba(0,0,0,0.18);
+            ">
+                <span style="font-size:54px;">🧬</span>
+            </div>
+
+            <!-- Text -->
+            <div>
+                <div style="font-size:38px;font-weight:900;letter-spacing:0.6px;">
+                    AISigmaX — AI Stock Signals
+                </div>
+                <div style="font-size:18px;opacity:0.92;margin-top:6px;">
+                    Next-Gen AI • Macro • Analyst • News • Forecast Engine
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE: Company Identity -->
+        <div style="text-align:right;opacity:0.95;">
+
+            <!-- MarketSignal LLC Logo Styled Box -->
+            <div style="
+                padding:10px 14px;
+                background: rgba(255,255,255,0.15);
+                border-radius: 12px;
+                font-size:15px;
+                font-weight:600;
+                margin-bottom:6px;
+                display:inline-block;
+                backdrop-filter: blur(4px);
+            ">
+                🏛️ MarketSignal LLC
+            </div>
+
+            <div style="font-size:13.5px;opacity:0.85;">
+                © 2025 MarketSignal LLC<br>
+                🔹 Powered by <b>AISigmaX.com</b>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+""", unsafe_allow_html=True)
 
 
 # 🧠 Tutorial: expanded on first visit only
