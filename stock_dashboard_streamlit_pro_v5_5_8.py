@@ -1247,8 +1247,7 @@ for sender, msg in st.session_state.chat_history:
 st.markdown("""
 ---
 
-st.markdown(
-    """
+
 <div style='text-align:left; color:gray; font-size:14px; line-height:1.5; margin-top:14px;'>
 <b>Disclaimer:</b><br>
 AISigmaX is a product of <b>MarketSignal LLC</b>.<br>
