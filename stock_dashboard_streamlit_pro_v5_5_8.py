@@ -111,6 +111,11 @@ def render_header(decision: str = "HOLD"):
         """,
         unsafe_allow_html=True
     )
+st.markdown("""
+<div style="display:inline-block; background:#222; color:#fff; border-radius:8px; padding:8px 22px; font-size:2em; font-family:monospace; font-weight:800; letter-spacing:2px; box-shadow:0 2px 8px rgba(0,0,0,0.10);">
+  AI<span style="color:#43e97b;">Σ</span>igmaX
+</div>
+""", unsafe_allow_html=True)
 
 st.set_page_config(page_title="AISigmaX — AI Stock Signals PRO", layout="wide")
 render_header("HOLD")
