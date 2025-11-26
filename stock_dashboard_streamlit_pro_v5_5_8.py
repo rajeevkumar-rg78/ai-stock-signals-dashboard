@@ -69,11 +69,11 @@ def render_header(decision: str = "HOLD"):
             background: {grad};
             background-size: 400% 400%;
             animation: bannerShift 8s ease-in-out infinite;
-            padding: 28px 32px 48px 32px;
-            border-radius: 18px;
+            padding: 22px 32px 44px 32px;
+            border-radius: 16px;
             color: white;
             box-shadow: 0 4px 16px rgba(0,0,0,0.13);
-            margin-bottom: 24px;
+            margin-bottom: 22px;
             overflow: hidden;
         ">
             <svg width="100%" height="40" viewBox="0 0 800 40" fill="none" xmlns="http://www.w3.org/2000/svg"
@@ -82,25 +82,20 @@ def render_header(decision: str = "HOLD"):
             </svg>
             <div style="position:relative;z-index:1;">
                 <div style="display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:20px;">
-                        <span style="font-size:44px;">🧬</span>
+                    <div style="display:flex;align-items:center;gap:18px;">
+                        <span style="font-size:38px;">🧬</span>
                         <div>
-                            <div style="font-size:28px;font-weight:900;letter-spacing:0.5px;">
-                                <span style="background: linear-gradient(90deg,#1976d2,#43e97b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display:inline-block;">AISigmaX</span>
-                                <span style="font-size:18px;opacity:0.85;font-weight:600;">AI Stock Signals</span>
+                            <div style="font-size:25px;font-weight:800;letter-spacing:0.3px;">
+                                AISigmaX — AI Stock Signals
                             </div>
-                            <div style="font-size:15px;opacity:0.93;">
+                            <div style="font-size:14.5px;opacity:0.93;">
                                 Next-Gen AI • Macro • News • Analyst • Forecasts
-                            </div>
-                            <div style="font-size:15px;opacity:0.93;margin-top:7px;">
-                                👋 <b>Welcome to AISigmaX</b> — Start by entering a stock symbol below.<br>
-                                <span style="font-size:14px;opacity:0.85;">(e.g. <code>AAPL</code>, <code>MSFT</code>, <code>NVDA</code>, <code>TSLA</code>)</span>
                             </div>
                         </div>
                     </div>
                     <div style="font-size:14px;text-align:right;opacity:0.93;">
                         <b>© 2025 MarketSignal LLC</b><br>
-                        <span style="font-size:12.5px;opacity:0.88;">{accent_emoji} Powered by <a href="https://www.aisigmax.com" style="color:white;text-decoration:underline;" target="_blank">AISigmaX.com</a></span>
+                        <span style="font-size:12.5px;opacity:0.88;">{accent_emoji} Powered by AISigmaX.com</span>
                     </div>
                 </div>
             </div>
@@ -115,10 +110,41 @@ def render_header(decision: str = "HOLD"):
         """,
         unsafe_allow_html=True
     )
-
-# At the top of your app:
 st.set_page_config(page_title="AISigmaX — AI Stock Signals PRO", layout="wide")
 render_header("HOLD")
+
+# ============================================================
+# 🎓 Onboarding Tutorial Section — AI Stock Signals PRO
+# ============================================================
+
+# 👋 Eye-catching gradient banner below header
+st.markdown("""
+<div style="
+    background: linear-gradient(90deg, #4A00E0 0%, #8E2DE2 100%);
+    color: white;
+    text-align: left;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.3px;">
+    👋 <b>Welcome to AISigmaX</b><br>
+    <span style="font-size:15px;opacity:0.9;">Start by reading this short guide before exploring your first stock.</span>
+</div>
+""", unsafe_allow_html=True)
+
+
+# 🧠 Tutorial: expanded on first visit only
+#if "tutorial_shown" not in st.session_state:
+   #st.session_state.tutorial_shown = False
+
+#with st.expander("🎓 Learn How AI Stock Signals Works", expanded=not st.session_state.tutorial_shown):
+    #st.markdown("""
+with st.expander("🎓 Learn How AI Stock Signals Works", expanded=False):
+    st.markdown(""". ok can we merge this into 1 banner.
 
 ## 🧠 What Is AISigmaX?
 AI Stock Signals PRO is an **AI-powered analytics dashboard** that blends:
