@@ -150,7 +150,7 @@ with st.expander("🎓 Learn How AI Stock Signals Works", expanded=False):
     st.markdown("""
    
 
-## 🧠 What Is AIStocksX?
+## 🧠 What Is AISigmaX?
 AI Stock Signals PRO is an **AI-powered analytics dashboard** that blends:
 - 📊 Technical indicators (RSI, MACD, ADX, Bollinger, MAs)
 - 📰 News sentiment (via NLP / VADER)
