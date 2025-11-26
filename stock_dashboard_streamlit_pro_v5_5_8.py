@@ -68,23 +68,12 @@ def render_header(decision: str = "HOLD"):
 
 st.markdown(
     """
-<div style='text-align:left; color:#444; font-size:15px; line-height:1.7; margin-top:18px; border-radius:12px; background:linear-gradient(90deg,#f8fafc 60%,#e3f0ff 100%); padding:20px 20px 12px 20px; box-shadow:0 2px 8px rgba(0,0,0,0.04);'>
-<span style="font-size:22px; font-weight:800; letter-spacing:1px; color:#1976d2; font-family:monospace;">
-    <span style="background: linear-gradient(90deg,#1976d2,#43e97b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display:inline-block;">
-        <span style="font-family:monospace; font-size:1.2em;">AI<span style="color:#43e97b;">Sigma</span>X</span>
-    </span>
-    <span style="font-size:15px; color:#888; font-weight:600;">&nbsp;Model</span>
-</span>
-<br>
-<br>
+<div style='text-align:left; color:gray; font-size:14px; line-height:1.5; margin-top:14px;'>
 <b>Disclaimer:</b><br>
-AISigmaX is a product and brand of <b>MarketSignal LLC</b>.<br>
-This platform is for <b>educational and informational purposes only</b> and does not constitute financial advice or trading recommendations.<br>
-All signals, forecasts, and simulations are hypothetical. Investing carries risk—always do your own research or consult a licensed financial advisor.<br><br>
-<b>Support:</b><br>
-<a href="https://www.aisigmax.com" target="_blank" style="color:#1976d2; text-decoration:underline;">www.aisigmax.com</a><br>
-support@aisigmax.com<br>
-&copy; 2025 MarketSignal LLC. All rights reserved.
+AISigmaX is a product of <b>MarketSignal LLC</b>.<br>
+This dashboard is for <b>educational and informational purposes only</b> and does not constitute financial advice.<br>
+Markets carry risk; always do your own research or consult a licensed financial advisor before investing.<br><br>
+&copy; 2025 <b>MarketSignal LLC</b> &mdash; <i>AISigmaX</i>
 </div>
     """,
     unsafe_allow_html=True,
