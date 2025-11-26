@@ -66,56 +66,31 @@ def render_header(decision: str = "HOLD"):
         grad = "linear-gradient(270deg, #30cfd0 0%, #330867 100%)"
         accent_emoji = "🟠"
 
-    st.markdown(
-        f"""
-        <div style="
-            position:relative;
-            background: {grad};
-            background-size: 400% 400%;
-            animation: bannerShift 8s ease-in-out infinite;
-            padding: 22px 32px 44px 32px;
-            border-radius: 16px;
-            color: white;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.13);
-            margin-bottom: 22px;
-            overflow: hidden;
-        ">
-            <svg width="100%" height="40" viewBox="0 0 800 40" fill="none" xmlns="http://www.w3.org/2000/svg"
-                 style="position:absolute;bottom:0;left:0;z-index:0;">
-                <path d="M0 20 Q 200 60 400 20 T 800 20 V40 H0Z" fill="rgba(255,255,255,0.13)" />
-            </svg>
-            <div style="position:relative;z-index:1;">
-                <div style="display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:18px;">
-                        <span style="font-size:38px;">🧠</span>
-                        <div>
-                            <div style="font-size:25px;font-weight:800;letter-spacing:0.3px;">
-                                AI Stock Signals PRO
-                            </div>
-                            <div style="font-size:14.5px;opacity:0.93;">
-                                Technicals • Macro • News • Analyst • AI Forecast
-                            </div>
-                        </div>
-                    </div>
-                    <div style="font-size:14px;text-align:right;opacity:0.93;">
-                        <b>© 2025 MarketSignal LLC</b><br>
-                        <span style="font-size:12.5px;opacity:0.88;">{accent_emoji} Smarter Investing</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <style>
-        @keyframes bannerShift {{
-          0% {{background-position: 0% 50%;}}
-          50% {{background-position: 100% 50%;}}
-          100% {{background-position: 0% 50%;}}
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+st.markdown(
+    """
+<div style='text-align:left; color:#444; font-size:15px; line-height:1.7; margin-top:18px; border-radius:12px; background:linear-gradient(90deg,#f8fafc 60%,#e3f0ff 100%); padding:20px 20px 12px 20px; box-shadow:0 2px 8px rgba(0,0,0,0.04);'>
+<span style="font-size:22px; font-weight:800; letter-spacing:1px;">
+    <span style="background:#1976d2; color:#fff; border-radius:6px; padding:2px 12px; font-family:monospace;">AISigmaX</span>
+    <span style="background:#43e97b; color:#fff; border-radius:6px; padding:2px 8px; font-size:0.8em; margin-left:8px;">MODEL</span>
+</span>
+<br>
+<br>
+<b>Disclaimer:</b><br>
+AISigmaX is a product and brand of <b>MarketSignal LLC</b>.<br>
+This platform is for <b>educational and informational purposes only</b> and does not constitute financial advice or trading recommendations.<br>
+All signals, forecasts, and simulations are hypothetical. Investing carries risk—always do your own research or consult a licensed financial advisor.<br><br>
+<b>Support:</b><br>
+<a href="https://www.aisigmax.com" target="_blank" style="color:#1976d2; text-decoration:underline;">www.aisigmax.com</a><br>
+support@aisigmax.com<br>
+&copy; 2025 MarketSignal LLC. All rights reserved.
+</div>
+    """,
+    unsafe_allow_html=True,
+)
+    
 # ------------------------------ Inputs ------------------------------
 render_header("HOLD")
+
 
 # ============================================================
 # 🎓 Onboarding Tutorial Section — AI Stock Signals PRO
