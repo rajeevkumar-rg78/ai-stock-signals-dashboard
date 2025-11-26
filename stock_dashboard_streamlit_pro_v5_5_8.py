@@ -147,8 +147,8 @@ def render_header(decision: str = "HOLD"):
                             <div class="aisigmax-title">AISigmaX</div>
                             <div class="aisigmax-tagline">Next-Gen AI • Macro • News • Analyst • Forecasts</div>
                             <div class="aisigmax-welcome">
-                                #👋 <b>Welcome to AISigmaX</b> — Enter a stock symbol below.<br>
-                                #<span style="font-size:0.95em;opacity:0.85;">(e.g. <code>AAPL</code>, <code>MSFT</code>, <code>NVDA</code>, <code>TSLA</code>)</span>
+                                👋 <b>Welcome to AISigmaX</b> — Enter a stock symbol below.<br>
+                                <span style="font-size:0.95em;opacity:0.85;">(e.g. <code>AAPL</code>, <code>MSFT</code>, <code>NVDA</code>, <code>TSLA</code>)</span>
                             </div>
                         </div>
                     </div>
@@ -309,7 +309,7 @@ if "success" in query_params:
     st.markdown("""
     <div style='padding:20px;border-radius:10px;background:#E6FFED;border:2px solid #00B871;margin-bottom:15px;'>
         <h3 style='color:#00B871;'>✅ Payment Successful!</h3>
-        <p style='font-size:16px;'>Thank you for subscribing to <strong>AI Stock Signals PRO</strong>.<br>
+        <p style='font-size:16px;'>Thank you for subscribing to <strong>AI Stock Signals</strong>.<br>
         You now have full access to <b>AI-based signals, simulators, and forecasts</b>.</p>
         <p style='font-size:15px;'>You can close this message and start exploring your dashboard.</p>
     </div>
