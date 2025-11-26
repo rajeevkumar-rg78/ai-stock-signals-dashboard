@@ -1246,15 +1246,6 @@ for sender, msg in st.session_state.chat_history:
 # Now put your disclaimer after the chat
 st.markdown("""
 ---
-## Legal Disclaimer
-AISigmaX is a product of MarketSignal LLC.
-This dashboard is for educational and informational purposes only and does not constitute financial advice.
-Markets carry risk; always do your own research or consult a licensed financial advisor before investing.
-
-© 2025 MarketSignal LLC — AISigmaX
-""")
-
-
 
 st.markdown(
     """
