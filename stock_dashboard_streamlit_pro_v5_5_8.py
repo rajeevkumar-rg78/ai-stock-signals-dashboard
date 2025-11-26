@@ -22,87 +22,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import requests, feedparser, time, random
 from io import StringIO
 import matplotlib.pyplot as plt
-# ------------------------------ Page Config ------------------------------
-st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
 
-# ============================================================
-# 🌟 AISigmaX / MarketSignal LLC — Modern Unified Banner
-# ============================================================
-
-header_html = """
-<style>
-@keyframes bannerShift {
-  0% {background-position: 0% 50%;}
-  50% {background-position: 100% 50%;}
-  100% {background-position: 0% 50%;}
-}
-</style>
-
-<div style="width:100%;
-            background: linear-gradient(90deg, #2D00F7 0%, #6A00F4 50%, #A100F2 100%);
-            background-size: 300% 300%;
-            animation: bannerShift 10s ease-in-out infinite;
-            border-radius: 22px;
-            padding: 32px 38px;
-            margin-bottom: 28px;
-            color: white;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.22);">
-
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:32px;">
-
-    <!-- LEFT: AISigmaX logo + name -->
-    <div style="display:flex;align-items:center;gap:22px;">
-
-      <!-- Logo block -->
-      <div style="width:88px;
-                  height:88px;
-                  background: rgba(255,255,255,0.18);
-                  border-radius: 22px;
-                  display:flex;
-                  align-items:center;
-                  justify-content:center;
-                  box-shadow: inset 0 0 18px rgba(0,0,0,0.18);">
-        <span style="font-size:54px;">🧬</span>
-      </div>
-
-      <div>
-        <div style="font-size:38px;font-weight:900;letter-spacing:0.6px;">
-          AISigmaX — AI Stock Signals
-        </div>
-        <div style="font-size:18px;opacity:0.92;margin-top:6px;">
-          Next-Gen AI • Macro • Analyst • News • Forecast Engine
-        </div>
-      </div>
-
-    </div>
-
-    <!-- RIGHT: MarketSignal LLC -->
-    <div style="text-align:right;opacity:0.95;">
-
-      <div style="padding:10px 14px;
-                  background: rgba(255,255,255,0.15);
-                  border-radius: 12px;
-                  font-size:15px;
-                  font-weight:600;
-                  margin-bottom:6px;
-                  display:inline-block;
-                  backdrop-filter: blur(4px);">
-        🏛️ MarketSignal LLC
-      </div>
-
-      <div style="font-size:13.5px;opacity:0.85;">
-        © 2025 MarketSignal LLC<br>
-        🔹 Powered by <b>AISigmaX.com</b>
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-"""
-
-st.markdown(header_html, unsafe_allow_html=True)
 
 def safe_float(x, default=0.0):
     try:
@@ -129,6 +49,33 @@ def human_fmt(val, kind=None):
         return f"{val:.2f}"
     except Exception:
         return "—"
+# ------------------------------ Page Config ------------------------------
+#st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
+
+# ============================================================
+# 🎓 Onboarding Tutorial Section — AISigmaX works
+# ============================================================
+# 👋 Eye-catching gradient banner below header
+
+st.markdown("""
+<div style="
+    background: linear-gradient(90deg, #4A00E0 0%, #8E2DE2 100%);
+    color: white;
+    text-align: left;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.3px;">
+    👋 <b>Welcome to AISigmaX</b><br>
+    <span style="font-size:15px;opacity:0.9;">Start by reading this short guide before exploring your first stock.</span>
+</div>
+""", unsafe_allow_html=True)
+
+
 
 
 # 🧠 Tutorial: expanded on first visit only
