@@ -28,6 +28,26 @@ def safe_float(x, default=0.0):
         return float(x)
     except Exception:
         return default
+ def human_fmt(val, kind=None):
+    try:
+        if val is None or (isinstance(val, float) and np.isnan(val)):
+            return "—"
+        if kind == "vol":
+            if val >= 1e9:  return f"{val/1e9:.2f}B"
+            if val >= 1e6:  return f"{val/1e6:.2f}M"
+            if val >= 1e3:  return f"{val/1e3:.2f}K"
+            return f"{val:.0f}"
+        if kind == "cap":
+            if val >= 1e12: return f"{val/1e12:.3f}T"
+            if val >= 1e9:  return f"{val/1e9:.2f}B"
+            if val >= 1e6:  return f"{val/1e6:.2f}M"
+            return f"{val:.0f}"
+        if kind == "pct":
+            return f"{val*100:.2f}%"
+        return f"{val:.2f}"
+    except Exception:
+        return "—"
+       
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
 def render_header(decision: str = "HOLD"):
