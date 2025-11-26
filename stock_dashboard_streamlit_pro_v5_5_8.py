@@ -51,7 +51,7 @@ def human_fmt(val, kind=None):
         return "—"
 
 # ------------------------------ Page Config ------------------------------
-st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
+st.set_page_config(page_title="AISigmaX AI Stock Signals", layout="wide")
 
 # ------------------------------ Helpers / UI ------------------------------
 def render_header(decision: str = "HOLD"):
