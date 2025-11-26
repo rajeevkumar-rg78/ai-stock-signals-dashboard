@@ -412,7 +412,7 @@ with c3:
 
 if not ticker:
     st.markdown("""
-        ### 👋 Welcome to AI Stock Signals PRO
+        ### 👋 Welcome to AI Stock Signals
         - Enter a symbol above to generate **signals, targets & forecasts**.
         - Example tickers: `AAPL`, `MSFT`, `NVDA`, `TSLA`, `META`, etc.
     """)
