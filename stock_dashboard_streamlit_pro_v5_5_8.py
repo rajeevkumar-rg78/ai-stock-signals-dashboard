@@ -117,7 +117,7 @@ render_header("HOLD")
 
 
 # ============================================================
-# 🎓 Onboarding Tutorial Section — AI Stock Signals PRO
+# 🎓 Onboarding Tutorial Section — AISigmaX works
 # ============================================================
 
 # 👋 Eye-catching gradient banner below header
