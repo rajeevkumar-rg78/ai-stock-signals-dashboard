@@ -50,35 +50,7 @@ def human_fmt(val, kind=None):
         return "—"
 
 
-st.markdown("""
-<div style="
-    background: linear-gradient(90deg, #3A0CA3 0%, #7209B7 50%, #4CC9F0 100%);
-    padding: 26px 32px;
-    border-radius: 14px;
-    margin-top: 5px;
-    margin-bottom: 22px;
-    color: white;
-    box-shadow: 0px 4px 16px rgba(0,0,0,0.15);
-">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-        
-        <div>
-            <div style="font-size:28px;font-weight:800;letter-spacing:0.4px;">
-                AISigmaX — AI Stock Signals
-            </div>
-            <div style="font-size:15px;opacity:0.92;margin-top:4px;">
-                Next-Gen AI • News Sentiment • Analyst Ratings • Forecast Engine
-            </div>
-        </div>
 
-        <div style="text-align:right;font-size:12.5px;opacity:0.90;">
-            © 2025 MarketSignal LLC<br>
-            <span style="opacity:0.85;">Powered by AISigmaX.com</span>
-        </div>
-
-    </div>
-</div>
-""", unsafe_allow_html=True)
 
 
 # ------------------------------ Page Config ------------------------------
