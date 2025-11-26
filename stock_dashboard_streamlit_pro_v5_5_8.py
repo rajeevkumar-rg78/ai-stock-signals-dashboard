@@ -1222,7 +1222,9 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
 - ATR: volatility; used for target/stop bands.  
 """)
 
-# --- Chat with AISigmaX Assistant (placeholder, no OpenAI) ---
+# ... your dashboard code ...
+
+# Place chat block here, before disclaimer
 st.markdown("### 💬 Chat with AISigmaX Assistant")
 
 if "chat_history" not in st.session_state:
@@ -1231,7 +1233,6 @@ if "chat_history" not in st.session_state:
 user_input = st.chat_input("Ask me anything about stocks, signals, or the dashboard...")
 
 if user_input:
-    # Just echo the question for now (no OpenAI)
     ai_response = f"You asked: {user_input}"
     st.session_state.chat_history.append(("user", user_input))
     st.session_state.chat_history.append(("ai", ai_response))
@@ -1242,21 +1243,16 @@ for sender, msg in st.session_state.chat_history:
     else:
         st.markdown(f"**AISigmaX:** {msg}")
 
-# --- If you want to enable OpenAI later, use this code: ---
-# import openai
-# openai.api_key = st.secrets["OPENAI_API_KEY"]
-# if user_input:
-#     st.session_state.chat_history.append({"role": "user", "content": user_input})
-#     messages = [{"role": "system", "content": "You are AISigmaX, an AI stock signals assistant."}] + st.session_state.chat_history
-#     response = openai.ChatCompletion.create(
-#         model="gpt-3.5-turbo",
-#         messages=messages,
-#         max_tokens=300,
-#         temperature=0.5,
-#     )
-#     ai_response = response.choices[0].message["content"].strip()
-#     st.session_state.chat_history.append({"role": "assistant", "content": ai_response})
+# Now put your disclaimer after the chat
+st.markdown("""
+---
+## Legal Disclaimer
+AISigmaX is a product of MarketSignal LLC.
+This dashboard is for educational and informational purposes only and does not constitute financial advice.
+Markets carry risk; always do your own research or consult a licensed financial advisor before investing.
 
+© 2025 MarketSignal LLC — AISigmaX
+""")
 
 
 
