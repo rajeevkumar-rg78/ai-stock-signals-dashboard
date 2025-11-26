@@ -52,10 +52,7 @@ def human_fmt(val, kind=None):
 
 
 # ------------------------------ Page Config ------------------------------
-st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
-
-
-
+#st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
 
 # ============================================================
 # 🎓 Onboarding Tutorial Section — AISigmaX works
