@@ -58,60 +58,6 @@ def human_fmt(val, kind=None):
 # 🌟 AISigmaX Global Header — Single Modern Banner
 # ============================================================
 
-st.markdown("""
-<style>
-@keyframes bannerShift {
-  0% {background-position: 0% 50%;}
-  50% {background-position: 100% 50%;}
-  100% {background-position: 0% 50%;}
-}
-</style>
-
-<div style="
-    background: linear-gradient(90deg, #3A0CA3 0%, #4A00E0 50%, #8E2DE2 100%);
-    background-size: 300% 300%;
-    animation: bannerShift 8s ease-in-out infinite;
-    border-radius: 18px;
-    padding: 26px 32px;
-    margin-bottom: 25px;
-    color: white;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
-">
-
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:22px;">
-
-        <!-- LOGO BLOCK -->
-        <div style="
-            width:78px;
-            height:78px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 18px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-        ">
-            <span style="font-size:48px;">🧬</span>
-        </div>
-
-        <!-- TEXT BLOCK -->
-        <div style="flex-grow:1;">
-            <div style="font-size:32px;font-weight:800;letter-spacing:0.5px;">
-                AISigmaX — AI Stock Signals
-            </div>
-            <div style="font-size:15px;opacity:0.92;margin-top:4px;">
-                Next-Gen AI • Macro • News • Analyst • Forecasts
-            </div>
-        </div>
-
-        <!-- COMPANY INFO -->
-        <div style="text-align:right;font-size:14px;opacity:0.95;">
-            <b>© 2025 MarketSignal LLC</b><br>
-            <span style="font-size:12.5px;opacity:0.85;">Powered by AISigmaX.com</span>
-        </div>
-
-    </div>
-</div>
-""", unsafe_allow_html=True)
 
 # ============================================================
 # 🎓 Onboarding Tutorial Section — AISigmaX works
