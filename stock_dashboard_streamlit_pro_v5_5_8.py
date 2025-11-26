@@ -136,7 +136,7 @@ st.markdown("""
     font-size: 17px;
     font-weight: 600;
     letter-spacing: 0.3px;">
-    👋 <b>Welcome to AI Stock Signals PRO</b><br>
+    👋 <b>Welcome to AISigmaX</b><br>
     <span style="font-size:15px;opacity:0.9;">Start by reading this short guide before exploring your first stock.</span>
 </div>
 """, unsafe_allow_html=True)
