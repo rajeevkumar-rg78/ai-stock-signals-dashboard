@@ -69,9 +69,11 @@ def render_header(decision: str = "HOLD"):
 st.markdown(
     """
 <div style='text-align:left; color:#444; font-size:15px; line-height:1.7; margin-top:18px; border-radius:12px; background:linear-gradient(90deg,#f8fafc 60%,#e3f0ff 100%); padding:20px 20px 12px 20px; box-shadow:0 2px 8px rgba(0,0,0,0.04);'>
-<span style="font-size:22px; font-weight:800; letter-spacing:1px;">
-    <span style="background:#1976d2; color:#fff; border-radius:6px; padding:2px 12px; font-family:monospace;">AISigmaX</span>
-    <span style="background:#43e97b; color:#fff; border-radius:6px; padding:2px 8px; font-size:0.8em; margin-left:8px;">MODEL</span>
+<span style="font-size:22px; font-weight:800; letter-spacing:1px; color:#1976d2; font-family:monospace;">
+    <span style="background: linear-gradient(90deg,#1976d2,#43e97b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display:inline-block;">
+        <span style="font-family:monospace; font-size:1.2em;">AI<span style="color:#43e97b;">Sigma</span>X</span>
+    </span>
+    <span style="font-size:15px; color:#888; font-weight:600;">&nbsp;Model</span>
 </span>
 <br>
 <br>
@@ -87,6 +89,7 @@ support@aisigmax.com<br>
     """,
     unsafe_allow_html=True,
 )
+
     
 # ------------------------------ Inputs ------------------------------
 render_header("HOLD")
