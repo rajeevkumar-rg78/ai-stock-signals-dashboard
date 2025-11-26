@@ -49,7 +49,7 @@ def human_fmt(val, kind=None):
     except Exception:
         return "—"
 
-"""
+
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
 #def render_header(decision: str = "HOLD"):
@@ -63,7 +63,7 @@ st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
     else:
         grad = "linear-gradient(270deg, #30cfd0 0%, #330867 100%)"
         accent_emoji = "🟠"
-"""
+
     st.markdown(
         f"""
         <div style="
@@ -112,10 +112,10 @@ st.set_page_config(page_title="AI Stock Signals — PRO", layout="wide")
         """,
         unsafe_allow_html=True
     )
-"""
+
 st.set_page_config(page_title="AISigmaX — AI Stock Signals PRO", layout="wide")
-#render_header("HOLD")
-"""
+render_header("HOLD")
+
 # ------------------------------ Page Config ------------------------------
 st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
 
