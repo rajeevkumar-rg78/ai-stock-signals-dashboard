@@ -115,6 +115,8 @@ def render_header(decision: str = "HOLD"):
         unsafe_allow_html=True
     )
 
+# ------------------------------ Inputs ------------------------------
+render_header("HOLD")
 
 # ============================================================
 # 🎓 Onboarding Tutorial Section — AI Stock Signals PRO
