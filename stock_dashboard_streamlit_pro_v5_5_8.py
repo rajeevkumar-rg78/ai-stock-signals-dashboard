@@ -1216,130 +1216,200 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
 # ... your dashboard code ...
 
 # ============================================
-# 💬 AISigmaX CHAT ASSISTANT (Crash-Proof)
+# 💬 AISigmaX Ultra Chat (Professional Edition)
 # ============================================
 
+import streamlit as st
 import requests
 import re
-import streamlit as st
+import time
 
 # -------------------------------------------------------
-# 1) SAFE GOOGLE SEARCH WITH FULL ERROR HANDLING
+# GOOGLE SEARCH (with safe fallback)
 # -------------------------------------------------------
 def google_search(query):
-    # Ensure secrets exist
     if "GOOGLE_API_KEY" not in st.secrets or "GOOGLE_CX" not in st.secrets:
-        return "⚠️ Google Search is not configured. Missing API Key or CX."
-
-    api_key = st.secrets["GOOGLE_API_KEY"]
-    cx = st.secrets["GOOGLE_CX"]
+        return "⚠️ Google Search is not configured."
 
     try:
         url = "https://www.googleapis.com/customsearch/v1"
-        params = {"q": query, "key": api_key, "cx": cx}
-
-        resp = requests.get(url, params=params, timeout=5)
-        data = resp.json()
-
-        if "items" not in data:
+        params = {
+            "q": query,
+            "key": st.secrets["GOOGLE_API_KEY"],
+            "cx": st.secrets["GOOGLE_CX"]
+        }
+        r = requests.get(url, params=params, timeout=6).json()
+        if "items" not in r:
             return "⚠️ No Google results found."
 
-        results = []
-        for item in data["items"][:3]:
-            title = item.get("title", "")
+        out = []
+        for item in r["items"][:3]:
+            title = item.get("title", "Info")
             snippet = item.get("snippet", "")
             link = item.get("link", "")
-            results.append(
-                f"🔍 **{title}**\n{snippet}\n➡️ {link}"
-            )
 
-        return "\n\n".join(results)
+            card = f"""
+**🔎 {title}**  
+{snippet}  
+➡️ {link}
+"""
+            out.append(card)
+
+        return "\n".join(out)
 
     except Exception as e:
-        return f"⚠️ Google Search failed: {str(e)}"
+        return f"⚠️ Search error: {str(e)}"
 
 
 # -------------------------------------------------------
-# 2) TICKER + STOCK QUESTION DETECTION
+# TICKER DETECTION
 # -------------------------------------------------------
 def detect_ticker(q):
-    # Detect uppercase tickers like META, AAPL
-    matches = re.findall(r'\b[A-Z]{2,5}\b', q)
-    if matches:
-        return matches[0]  # Take first ticker
-    return None
-
-
-def is_stock_question(q):
-    stock_terms = [
-        "rsi", "macd", "signal", "buy", "sell", "target", "forecast",
-        "trend", "sma", "ema", "moving average", "volume", "support", "resistance"
-    ]
-    q = q.lower()
-    return any(term in q for term in stock_terms)
+    match = re.findall(r"\b[A-Z]{2,5}\b", q)
+    return match[0] if match else None
 
 
 # -------------------------------------------------------
-# 3) YOUR AISIGMAX STOCK INSIGHT LOGIC (SAFE WRAPPER)
+# AISIGMAX STOCK LOGIC
 # -------------------------------------------------------
-def get_stock_insight(query):
-    try:
-        ticker = detect_ticker(query)
+def get_stock_summary(ticker):
+    # Replace this with your real code later
+    return f"""
+📊 **AISigmaX Technical Summary for {ticker}**
 
-        if not ticker:
-            return "📈 Please include a ticker symbol like **AAPL**, **MSFT**, **META**, etc."
+• RSI: 45  
+• MACD: +1.22  
+• Trend: Uptrend (MA50 > MA200)  
+• Momentum: Strong  
+• Signal: **BUY**  
 
-        # TODO: YOUR REAL SIGNAL CALCULATION LOGIC HERE
-        # Example placeholder:
-        return f"""📈 **AISigmaX Signal for {ticker}:**
-- RSI: 46  
-- MACD: +1.22  
-- Trend: Uptrend (MA50 > MA200)  
-- Current Signal: **BUY**  
 """
 
-    except Exception as e:
-        return f"⚠️ AISigmaX stock logic failed: {str(e)}"
+
+# -------------------------------------------------------
+# SMART RESPONSE ROUTER
+# -------------------------------------------------------
+def aisigmax_reply(q):
+    ticker = detect_ticker(q)
+
+    if ticker:  
+        return get_stock_summary(ticker)
+
+    stock_terms = ["rsi", "macd", "trend", "forecast", "moving", "buy", "sell"]
+    if any(t in q.lower() for t in stock_terms):
+        return "📈 Please include a ticker symbol (AAPL, TSLA, META)."
+
+    return google_search(q)
 
 
 # -------------------------------------------------------
-# 4) MAIN CHAT LOGIC
+# UI HEADER
 # -------------------------------------------------------
-st.markdown("### 💬 Chat with AISigmaX Assistant")
+st.markdown("""
+### 💬 Chat with AISigmaX Assistant  
+Feel free to ask about stocks, indicators, or any finance topic.
+""")
 
+# -------------------------------------------------------
+# CLEAR CHAT BUTTON
+# -------------------------------------------------------
+if st.button("🧹 Clear Chat", help="Restart conversation"):
+    st.session_state.chat_history = []
+
+# -------------------------------------------------------
+# CHAT HISTORY INIT
+# -------------------------------------------------------
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-user_input = st.chat_input("Ask about stocks, tickers, or general finance...")
-
-def aisigmax_reply(q):
-    try:
-        # Ticker detected → stock logic
-        if detect_ticker(q) or is_stock_question(q):
-            return get_stock_insight(q)
-
-        # Otherwise → Google Search
-        return google_search(q)
-
-    except Exception as e:
-        return f"⚠️ Unexpected error: {str(e)}"
-
-
 # -------------------------------------------------------
-# 5) CHAT STORAGE + UI OUTPUT (SAFE)
+# USER INPUT FIELD
 # -------------------------------------------------------
+user_input = st.chat_input("Ask anything…")
+
 if user_input:
-    reply = aisigmax_reply(user_input)
-
     st.session_state.chat_history.append(("user", user_input))
-    st.session_state.chat_history.append(("ai", reply))
+    st.session_state.chat_history.append(("ai-thinking", "AI is typing…"))
 
-# Chat history rendering
+    # Simulated typing delay
+    time.sleep(0.3)
+
+    ai_msg = aisigmax_reply(user_input)
+    st.session_state.chat_history[-1] = ("ai", ai_msg)
+
+# -------------------------------------------------------
+# PROFESSIONAL CHAT STYLING
+# -------------------------------------------------------
+chat_css = """
+<style>
+.chat-window {
+    height: 420px;
+    overflow-y: auto;
+    background: #FAFAFA;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid #DDD;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.user-bubble {
+    background: #D9ECFF;
+    color: #003B73;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 12px;
+    max-width: 88%;
+    font-weight: 500;
+}
+
+.ai-bubble {
+    background: #FFFFFF;
+    color: #333;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 12px;
+    border-left: 4px solid #4A90E2;
+    max-width: 88%;
+}
+
+.thinking-bubble {
+    background: #EEE;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 10px;
+    font-style: italic;
+    color: #555;
+}
+</style>
+"""
+st.markdown(chat_css, unsafe_allow_html=True)
+
+# -------------------------------------------------------
+# RENDER CHAT BOX
+# -------------------------------------------------------
+html = '<div class="chat-window">'
+
 for sender, msg in st.session_state.chat_history:
     if sender == "user":
-        st.markdown(f"🧑 **You:** {msg}")
+        html += f'<div class="user-bubble">🧑 <strong>You:</strong><br>{msg}</div>'
+    elif sender == "ai-thinking":
+        html += f'<div class="thinking-bubble">🤖 {msg}</div>'
     else:
-        st.markdown(f"🤖 **AISigmaX:**\n{msg}")
+        html += f'<div class="ai-bubble">🤖 <strong>AISigmaX:</strong><br>{msg}</div>'
+
+html += "</div>"
+
+st.markdown(html, unsafe_allow_html=True)
+
+# -------------------------------------------------------
+# AUTO-SCROLL SCRIPT
+# -------------------------------------------------------
+st.markdown("""
+<script>
+var chatBox = window.parent.document.querySelector('.chat-window');
+if(chatBox){ chatBox.scrollTop = chatBox.scrollHeight; }
+</script>
+""", unsafe_allow_html=True)
 
 
 
