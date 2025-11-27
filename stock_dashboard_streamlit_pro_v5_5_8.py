@@ -1216,15 +1216,13 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
 # ... your dashboard code ...
 
 # -----------------------------------------------------
-# 💬 AISigmaX Assistant – Custom Styled Chat UI
+# 💬 AISigmaX Assistant – Corporate-Safe Chat (No GPT)
 # -----------------------------------------------------
 st.markdown("### 💬 Chat with AISigmaX Assistant")
 
-# --- Inject CSS (force override Streamlit chat defaults) ---
+# ---------- CSS FOR NICE CHAT UI ----------
 st.markdown("""
 <style>
-
-/* Chat container */
 #aisigma_chat {
     max-height: 360px;
     overflow-y: scroll;
@@ -1233,74 +1231,111 @@ st.markdown("""
     border-radius: 12px;
     border: 1px solid #ddd;
 }
-
-/* User bubble */
 .user-bubble {
     background-color: #d8e7ff;
     padding: 10px 14px;
     border-radius: 12px;
-    margin: 6px 0px;
+    margin: 6px 0;
     width: fit-content;
     max-width: 80%;
 }
-
-/* AI bubble */
 .ai-bubble {
     background-color: #eeeeee;
     padding: 10px 14px;
     border-radius: 12px;
-    margin: 6px 0px;
+    margin: 6px 0;
     width: fit-content;
     max-width: 80%;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
-# --- Chat history ---
+
+# ---------- CHAT HISTORY ----------
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# --- Local AI response logic ---
-def aisigmax_reply(q):
-    text = q.lower()
 
-    if "rsi" in text:
+# ---------- GOOGLE SEARCH (CSE) ----------
+import requests
+
+def google_search(query):
+    api_key = st.secrets["GOOGLE_CSE_API_KEY"]
+    cx = st.secrets["GOOGLE_CSE_CX"]
+
+    url = "https://www.googleapis.com/customsearch/v1"
+    params = {"key": api_key, "cx": cx, "q": query}
+
+    r = requests.get(url, params=params).json()
+
+    results = []
+    if "items" in r:
+        for item in r["items"][:3]:  # top 3 results
+            results.append({
+                "title": item.get("title", ""),
+                "snippet": item.get("snippet", ""),
+                "link": item.get("link", "")
+            })
+    return results
+
+
+# ---------- AI REPLY WITHOUT GPT ----------
+def aisigmax_reply(q):
+    m = q.lower()
+
+    # If question is general → use Google search
+    if any(word in m for word in ["what", "how", "why", "when", "explain"]) \
+       and not any(fin in m for fin in ["rsi", "macd", "signal", "trend", "atr", "forecast", "target"]):
+
+        results = google_search(q)
+        if not results:
+            return "I searched Google but couldn't find useful results."
+
+        text = "### 🔍 Google Search Results\n"
+        for r in results:
+            text += f"**{r['title']}**\n{r['snippet']}\n🔗 {r['link']}\n\n"
+        return text
+
+    # Otherwise answer from your stock indicators
+    if "rsi" in m:
         return f"RSI for **{ticker}** is **{last['RSI']:.1f}**."
-    if "macd" in text:
-        return f"MACD is **{last['MACD']:.2f}**, signal line **{last['MACD_Signal']:.2f}**."
-    if "signal" in text or "buy" in text or "sell" in text or "hold" in text:
-        return f"Current signal for **{ticker}** is **{decision}** (score **{score:+.2f}**)."
-    if "forecast" in text:
-        return f"5-day forecast = **{ai['pred_move'] * 100:+.2f}%**, confidence **{ai['conf']*100:.0f}%**."
-    if "trend" in text:
+    if "macd" in m:
+        return f"MACD = **{last['MACD']:.2f}**, Signal = **{last['MACD_Signal']:.2f}**."
+    if "signal" in m or "buy" in m or "sell" in m:
+        return f"Signal: **{decision}** (Score **{score:+.2f}**)."
+    if "forecast" in m:
+        return f"Forecast: **{ai['pred_move']*100:+.2f}%**, Confidence **{ai['conf']*100:.0f}%**."
+    if "trend" in m:
         trend = "Uptrend" if last["MA50"] > last["MA200"] else "Downtrend"
-        return f"{ticker} is in a **{trend}** (MA50 vs MA200)."
-    if "target" in text or "atr" in text or "stop" in text:
+        return f"{ticker} trend: **{trend}** (MA50 vs MA200)."
+    if "atr" in m or "target" in m or "stop" in m:
         return f"ATR **{last['ATR']:.2f}**, Target **${target_up:.2f}**, Buy Zone **${buy_zone:.2f}**, Stop **${stop_loss:.2f}**."
 
-    return "I can explain RSI, MACD, signals, trends, ATR, targets, and forecasts."
+    return "I can show RSI, MACD, signals, forecasts, or search Google for general topics."
 
-# --- User input ---
-user_input = st.chat_input("Ask about RSI, MACD, signals, forecasts...")
 
-if user_input:
-    st.session_state.chat_history.append(("user", user_input))
-    ai_msg = aisigmax_reply(user_input)
-    st.session_state.chat_history.append(("ai", ai_msg))
+# ---------- GET USER MESSAGE ----------
+msg = st.chat_input("Ask about stock indicators or general finance topics…")
 
-# --- Render chat with CSS applied ---
+if msg:
+    st.session_state.chat_history.append(("user", msg))
+    ai_message = aisigmax_reply(msg)
+    st.session_state.chat_history.append(("ai", ai_message))
+
+
+# ---------- DISPLAY CHAT ----------
 chat_html = '<div id="aisigma_chat">'
 
-for role, msg in st.session_state.chat_history:
+for role, txt in st.session_state.chat_history:
     if role == "user":
-        chat_html += f'<div class="user-bubble"><b>You:</b> {msg}</div>'
+        chat_html += f'<div class="user-bubble"><b>You:</b> {txt}</div>'
     else:
-        chat_html += f'<div class="ai-bubble"><b>AISigmaX:</b> {msg}</div>'
+        chat_html += f'<div class="ai-bubble"><b>AISigmaX:</b> {txt}</div>'
 
 chat_html += "</div>"
 
 st.markdown(chat_html, unsafe_allow_html=True)
+
 
 
 
