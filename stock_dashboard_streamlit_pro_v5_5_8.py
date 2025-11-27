@@ -169,7 +169,6 @@ render_header("HOLD")
     #st.markdown("""
 with st.expander("🎓 Learn How AI Stock Signals Works", expanded=False):
      st.markdown("""
-
 ## 🧠 What Is AISigmaX?
 AI Stock Signals is an **AI-powered analytics dashboard** that blends:
 - 📊 Technical indicators (RSI, MACD, ADX, Bollinger, MAs)
