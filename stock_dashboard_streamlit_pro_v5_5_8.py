@@ -402,7 +402,7 @@ with c3:
     invest_amount = st.slider("Allocation for simulations ($)", min_value=500, max_value=50_000, step=500, value=10_000)
 
 if not ticker:
-    #st.markdown("""
+    st.markdown("""
         ### 👋 Welcome to AI Stock Signals
         - Enter a symbol above to generate **signals, targets & forecasts**.
         - Example tickers: `AAPL`, `MSFT`, `NVDA`, `TSLA`, `META`, etc.
