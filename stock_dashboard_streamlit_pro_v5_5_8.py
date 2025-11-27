@@ -1370,12 +1370,6 @@ def aisigmax_reply(user_msg: str) -> str:
 
 
 # ============================================================
-#  UI — CHATBOX DISPLAY (Improved Professional Version)
-# ============================================================
-
-st.markdown("### 💬 Chat with AISigmaX Assistant")
-
-# ============================================================
 #  UI — CHATBOX DISPLAY (With TRUE Auto-Scroll)
 # ============================================================
 
