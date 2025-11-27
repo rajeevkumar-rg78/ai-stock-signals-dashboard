@@ -1370,68 +1370,103 @@ def aisigmax_reply(user_msg: str) -> str:
 
 
 # ============================================================
-#  UI — CHATBOX DISPLAY
+#  UI — CHATBOX DISPLAY (Improved Professional Version)
 # ============================================================
 
 st.markdown("### 💬 Chat with AISigmaX Assistant")
 
-# Styling
+# ------------------------------------------------------------
+# CSS — scrolling, auto-scroll, styling
+# ------------------------------------------------------------
 st.markdown(
     """
 <style>
 .chat-box {
-    max-height: 450px;
+    max-height: 460px;
     overflow-y: auto;
     padding: 12px;
-    border-radius: 10px;
+    border-radius: 12px;
     background-color: #f7f9fc;
-    border: 1px solid #ddd;
-    margin-bottom: 10px;
+    border: 1px solid #d0d7de;
+    margin-bottom: 12px;
 }
+
+/* User message */
 .msg-user {
     background: #dbeafe;
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 6px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    border-left: 4px solid #3b82f6;
 }
+
+/* AI message */
 .msg-ai {
     background: #f1f5f9;
-    padding: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    border-left: 4px solid #9ca3af;
+}
+
+/* Auto scroll to bottom */
+.chat-box::-webkit-scrollbar {
+    width: 8px;
+}
+.chat-box::-webkit-scrollbar-thumb {
+    background: #c5c5c5;
     border-radius: 8px;
-    margin-bottom: 6px;
 }
 </style>
+
+<script>
+var chatBox = window.parent.document.querySelector('.chat-box');
+if (chatBox) {
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+</script>
 """,
     unsafe_allow_html=True,
 )
 
-# State
+# ------------------------------------------------------------
+# State init
+# ------------------------------------------------------------
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# Render history
+# ------------------------------------------------------------
+# Render chat messages
+# ------------------------------------------------------------
 st.markdown("<div class='chat-box'>", unsafe_allow_html=True)
+
 for sender, msg in st.session_state.chat_history:
     if sender == "user":
         st.markdown(f"<div class='msg-user'>🧑 You:<br>{msg}</div>", unsafe_allow_html=True)
     else:
         st.markdown(f"<div class='msg-ai'>🤖 AISigmaX:<br>{msg}</div>", unsafe_allow_html=True)
+
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Input
+# ------------------------------------------------------------
+# Chat input
+# ------------------------------------------------------------
 user_input = st.chat_input("Ask anything about stocks, indicators, or finance…")
+
 if user_input:
     ai_msg = aisigmax_reply(user_input)
     st.session_state.chat_history.append(("user", user_input))
     st.session_state.chat_history.append(("ai", ai_msg))
     st.rerun()
 
-# Clear
+# ------------------------------------------------------------
+# Clear chat
+# ------------------------------------------------------------
 if st.button("🧹 Clear Chat"):
     st.session_state.chat_history = []
     st.rerun()
-
-
 
 
 
