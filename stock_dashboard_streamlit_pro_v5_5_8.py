@@ -160,6 +160,88 @@ def render_header(decision: str = "HOLD"):
 st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
 render_header("HOLD")
 
+# ===========================
+#   Premium AISigmaX Header
+# ===========================
+def render_header(decision: str = "HOLD"):
+    decision = (decision or "").upper()
+    if "BUY" in decision:
+        grad = "linear-gradient(270deg, #43e97b 0%, #38f9d7 100%)"
+        accent_emoji = "🟢"
+    elif "SELL" in decision:
+        grad = "linear-gradient(270deg, #fa709a 0%, #fee140 100%)"
+        accent_emoji = "🔴"
+    else:
+        grad = "linear-gradient(270deg, #30cfd0 0%, #330867 100%)"
+        accent_emoji = "🟠"
+
+st.markdown(
+    """
+    <style>
+    .ais-header {
+        width: 100%;
+        padding: 22px 32px;
+        border-radius: 16px;
+        background: linear-gradient(120deg, #1e3a8a 0%, #2563eb 50%, #0ea5e9 100%);
+        color: white;
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    .ais-title {
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .ais-sub {
+        font-size: 14px;
+        opacity: 0.85;
+        margin-top: 2px;
+    }
+    .ais-right {
+        text-align: right;
+        font-size: 12px;
+        opacity: 0.9;
+    }
+    @media (max-width: 600px) {
+        .ais-header {
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+            gap: 10px;
+        }
+        .ais-right {
+            text-align: center;
+        }
+    }
+    </style>
+
+    <div class="ais-header">
+        <div>
+            <div class="ais-title">
+                🤖 AISigmaX
+            </div>
+            <div class="ais-sub">
+                Next-Gen AI • Macro • Signals • Forecasts
+            </div>
+        </div>
+
+        <div class="ais-right">
+            © 2025 MarketSignal LLC<br>
+            Powered by <strong>AISigmaX.com</strong>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+# At the top of your app:
+st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
+render_header("HOLD")
 
 # 🧠 Tutorial: expanded on first visit only
 #if "tutorial_shown" not in st.session_state:
