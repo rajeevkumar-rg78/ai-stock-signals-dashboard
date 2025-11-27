@@ -1302,44 +1302,78 @@ def extract_ticker(text: str):
 # TECHNICAL SUMMARY FOR CURRENT DASHBOARD TICKER
 # ------------------------------------------------------------
 def analyze_ticker(requested_ticker: str) -> str:
-    """Provides a technical summary for the active dashboard symbol only."""
+    """
+    Return technical summary ONLY IF it's the same ticker as dashboard.
+    Otherwise, return Google Search results (financials, news, etc.).
+    """
+    global_ticker = globals().get("ticker")
+    ind = globals().get("ind")
+    current_decision = globals().get("decision", "HOLD")
 
-    if requested_ticker.upper() != ticker.upper():
+    # If user asks for financials/news of another ticker → Google search
+    financial_words = ["financial", "financials", "news", "revenue", "earnings"]
+    user_lower = st.session_state.get("last_user_msg", "").lower()
+
+    if any(w in user_lower for w in financial_words):
+        # Bypass dashboard technical restriction → Google search
+        return google_search_response(f"{requested_ticker} company financials")
+
+    # Only allow technicals for the active dashboard ticker
+    if requested_ticker.upper() != global_ticker.upper():
         return (
-            f"📊 I can only analyze the live dashboard ticker right now, which is **{ticker}**.\n\n"
-            f"To analyze **{requested_ticker}**, change the symbol at the top of the app."
+            f"📊 I can only show technical indicators for the dashboard symbol **{global_ticker.upper()}**.\n\n"
+            f"To analyze indicators for **{requested_ticker}**, change the ticker at the top."
         )
 
-    try:
-        last = ind.iloc[-1]
-    except Exception:
-        return "⚠️ Technical data not loaded yet. Run a signal first."
+    # Technical analysis section (unchanged)
+    if ind is None or ind.empty:
+        return "⚠️ Technical data not ready."
 
+    last = ind.iloc[-1]
     rsi_val = float(last["RSI"])
     macd_val = float(last["MACD"])
     adx_val = float(last["ADX"])
-    trend = "Uptrend (MA50 > MA200)" if last["MA50"] > last["MA200"] else "Downtrend (MA50 < MA200)"
+    ma50 = float(last["MA50"])
+    ma200 = float(last["MA200"])
+
+    trend = "Uptrend (MA50 > MA200)" if ma50 > ma200 else "Downtrend (MA50 < MA200)"
     momentum = "Strong" if adx_val > 25 else "Weak / Range-bound"
 
     msg = f"""
-📊 **AISigmaX Technical Summary for {ticker.upper()}**
+📊 **AISigmaX Technical Summary for {requested_ticker.upper()}**
 
-• **RSI (14): {rsi_val:.1f}**  
-• **MACD: {macd_val:.2f}**  
-• **ADX: {adx_val:.1f} — {momentum}**  
-• **Trend:** {trend}  
-• **AI Signal:** {decision}
+• RSI: **{rsi_val:.1f}**  
+• MACD: **{macd_val:.2f}**  
+• Trend: **{trend}**  
+• Momentum (ADX): **{momentum} – ADX {adx_val:.1f}**  
+• AI Signal: **{current_decision.upper()}**
 """
 
-    # Extra commentary
-    if rsi_val < 30:
-        msg += "\nRSI indicates **oversold zone**, potential rebound."
-    elif rsi_val > 70:
-        msg += "\nRSI indicates **overbought zone**, caution."
-    else:
-        msg += "\nRSI is **neutral**."
-
     return msg.strip()
+
+
+def aisigmax_reply(user_msg: str) -> str:
+    """Router: decide educational answer, technicals, or news/financials."""
+    st.session_state.last_user_msg = user_msg  # Save for context
+    user_msg_lower = user_msg.lower()
+
+    # 1) If user requests news/financials → skip technical rules → Google
+    if any(k in user_msg_lower for k in ["financial", "financials", "revenue", "earnings", "news"]):
+        t = extract_ticker(user_msg)
+        if t:
+            return google_search_response(f"{t} stock financials earnings news")
+
+    # 2) Educational Q → Google
+    if any(k in user_msg_lower for k in ["what is", "explain", "meaning", "difference", "how does"]):
+        return google_search_response(user_msg)
+
+    # 3) Technical ticker analysis (only if matches dashboard ticker)
+    t = extract_ticker(user_msg)
+    if t:
+        return analyze_ticker(t)
+
+    # 4) Fallback → Google search
+    return google_search_response(user_msg)
 
 
 # ------------------------------------------------------------
