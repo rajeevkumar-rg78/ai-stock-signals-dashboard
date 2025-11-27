@@ -1375,56 +1375,83 @@ def aisigmax_reply(user_msg: str) -> str:
 
 st.markdown("### 💬 Chat with AISigmaX Assistant")
 
+# ============================================================
+#  UI — CHATBOX DISPLAY (With TRUE Auto-Scroll)
+# ============================================================
+
+st.markdown("### 💬 Chat with AISigmaX Assistant")
+
 # ------------------------------------------------------------
-# CSS — scrolling, auto-scroll, styling
+# CSS Styling
 # ------------------------------------------------------------
 st.markdown(
     """
 <style>
 .chat-box {
-    max-height: 460px;
+    max-height: 450px;
     overflow-y: auto;
     padding: 12px;
     border-radius: 12px;
-    background-color: #f7f9fc;
-    border: 1px solid #d0d7de;
-    margin-bottom: 12px;
+    background: #f7f9fc;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
 }
 
-/* User message */
 .msg-user {
     background: #dbeafe;
     padding: 10px 12px;
     border-radius: 10px;
     margin-bottom: 8px;
-    font-size: 0.95rem;
     border-left: 4px solid #3b82f6;
 }
 
-/* AI message */
 .msg-ai {
     background: #f1f5f9;
     padding: 10px 12px;
     border-radius: 10px;
     margin-bottom: 8px;
-    font-size: 0.95rem;
     border-left: 4px solid #9ca3af;
 }
-
-/* Auto scroll to bottom */
-.chat-box::-webkit-scrollbar {
-    width: 8px;
-}
-.chat-box::-webkit-scrollbar-thumb {
-    background: #c5c5c5;
-    border-radius: 8px;
-}
 </style>
+""",
+    unsafe_allow_html=True,
+)
 
+# ------------------------------------------------------------
+# Session State Initialization
+# ------------------------------------------------------------
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+# ------------------------------------------------------------
+# RENDER CHAT HISTORY
+# ------------------------------------------------------------
+chat_box = st.container()
+
+with chat_box:
+    st.markdown("<div class='chat-box'>", unsafe_allow_html=True)
+
+    # display messages
+    for sender, msg in st.session_state.chat_history:
+        if sender == "user":
+            st.markdown(f"<div class='msg-user'>🧑 You:<br>{msg}</div>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<div class='msg-ai'>🤖 AISigmaX:<br>{msg}</div>", unsafe_allow_html=True)
+
+    # invisible anchor for auto-scroll
+    st.markdown("<div id='end-of-chat'></div>", unsafe_allow_html=True)
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# ------------------------------------------------------------
+# Auto-scroll using Streamlit script injection to anchor
+# ------------------------------------------------------------
+st.markdown(
+    """
 <script>
-var chatBox = window.parent.document.querySelector('.chat-box');
-if (chatBox) {
-    chatBox.scrollTop = chatBox.scrollHeight;
+var elem = window.parent.document.getElementById('end-of-chat');
+if (elem) {
+    elem.scrollIntoView({behavior: 'smooth', block: 'end'});
 }
 </script>
 """,
@@ -1432,26 +1459,7 @@ if (chatBox) {
 )
 
 # ------------------------------------------------------------
-# State init
-# ------------------------------------------------------------
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-
-# ------------------------------------------------------------
-# Render chat messages
-# ------------------------------------------------------------
-st.markdown("<div class='chat-box'>", unsafe_allow_html=True)
-
-for sender, msg in st.session_state.chat_history:
-    if sender == "user":
-        st.markdown(f"<div class='msg-user'>🧑 You:<br>{msg}</div>", unsafe_allow_html=True)
-    else:
-        st.markdown(f"<div class='msg-ai'>🤖 AISigmaX:<br>{msg}</div>", unsafe_allow_html=True)
-
-st.markdown("</div>", unsafe_allow_html=True)
-
-# ------------------------------------------------------------
-# Chat input
+# CHAT INPUT BOX
 # ------------------------------------------------------------
 user_input = st.chat_input("Ask anything about stocks, indicators, or finance…")
 
@@ -1462,12 +1470,11 @@ if user_input:
     st.rerun()
 
 # ------------------------------------------------------------
-# Clear chat
+# CLEAR CHAT BUTTON
 # ------------------------------------------------------------
 if st.button("🧹 Clear Chat"):
     st.session_state.chat_history = []
     st.rerun()
-
 
 
 
