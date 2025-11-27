@@ -1216,90 +1216,92 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
 # ... your dashboard code ...
 
 # -----------------------------------------------------
-# 💬 AISigmaX Assistant – Pretty Chat UI (No API needed)
+# 💬 AISigmaX Assistant – Custom Styled Chat UI
 # -----------------------------------------------------
 st.markdown("### 💬 Chat with AISigmaX Assistant")
 
-# --- CSS for chat formatting ---
-chat_ui_css = """
+# --- Inject CSS (force override Streamlit chat defaults) ---
+st.markdown("""
 <style>
-.chat-message {
+
+/* Chat container */
+#aisigma_chat {
+    max-height: 360px;
+    overflow-y: scroll;
+    padding: 12px;
+    background: #f8f8f8;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+}
+
+/* User bubble */
+.user-bubble {
+    background-color: #d8e7ff;
     padding: 10px 14px;
     border-radius: 12px;
-    margin-bottom: 10px;
-    max-width: 85%;
-    line-height: 1.4;
-    font-size: 15px;
+    margin: 6px 0px;
+    width: fit-content;
+    max-width: 80%;
 }
-.user-msg {
-    background-color: #d8e7ff;
-    color: black;
-    align-self: flex-end;
-}
-.ai-msg {
-    background-color: #eeeeee;
-    color: black;
-    align-self: flex-start;
-}
-.chat-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 12px;
-    max-height: 320px;
-    overflow-y: auto;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    background-color: #fafafa;
-}
-</style>
-"""
-st.markdown(chat_ui_css, unsafe_allow_html=True)
 
-# --- Initialize chat history ---
+/* AI bubble */
+.ai-bubble {
+    background-color: #eeeeee;
+    padding: 10px 14px;
+    border-radius: 12px;
+    margin: 6px 0px;
+    width: fit-content;
+    max-width: 80%;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# --- Chat history ---
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# --- Local AI reply logic ---
-def aisigmax_reply(m):
-    msg = m.lower()
+# --- Local AI response logic ---
+def aisigmax_reply(q):
+    text = q.lower()
 
-    if "rsi" in msg:
-        return f"RSI for **{ticker}** is **{last['RSI']:.1f}**. Below 30 = oversold, above 70 = overbought."
-    if "macd" in msg:
-        return f"MACD is **{last['MACD']:.2f}**, signal line is **{last['MACD_Signal']:.2f}**."
-    if "signal" in msg or "buy" in msg or "sell" in msg or "hold" in msg:
-        return f"Current signal for **{ticker}** is **{decision}** with score **{score:+.2f}**."
-    if "forecast" in msg or "predict" in msg:
-        return f"5-day forecast: **{ai['pred_move']*100:+.2f}%**, confidence **{ai['conf']*100:.0f}%**."
-    if "target" in msg or "stop" in msg or "atr" in msg:
+    if "rsi" in text:
+        return f"RSI for **{ticker}** is **{last['RSI']:.1f}**."
+    if "macd" in text:
+        return f"MACD is **{last['MACD']:.2f}**, signal line **{last['MACD_Signal']:.2f}**."
+    if "signal" in text or "buy" in text or "sell" in text or "hold" in text:
+        return f"Current signal for **{ticker}** is **{decision}** (score **{score:+.2f}**)."
+    if "forecast" in text:
+        return f"5-day forecast = **{ai['pred_move'] * 100:+.2f}%**, confidence **{ai['conf']*100:.0f}%**."
+    if "trend" in text:
+        trend = "Uptrend" if last["MA50"] > last["MA200"] else "Downtrend"
+        return f"{ticker} is in a **{trend}** (MA50 vs MA200)."
+    if "target" in text or "atr" in text or "stop" in text:
         return f"ATR **{last['ATR']:.2f}**, Target **${target_up:.2f}**, Buy Zone **${buy_zone:.2f}**, Stop **${stop_loss:.2f}**."
-    if "trend" in msg:
-        tr = "Uptrend" if last["MA50"] > last["MA200"] else "Downtrend"
-        return f"{ticker} is currently in a **{tr}** (MA50 vs MA200)."
 
-    return "I can explain RSI, MACD, signals, trends, ATR, forecasts, and targets."
+    return "I can explain RSI, MACD, signals, trends, ATR, targets, and forecasts."
 
-# --- Chat input ---
+# --- User input ---
 user_input = st.chat_input("Ask about RSI, MACD, signals, forecasts...")
 
 if user_input:
     st.session_state.chat_history.append(("user", user_input))
-    ai_response = aisigmax_reply(user_input)
-    st.session_state.chat_history.append(("ai", ai_response))
+    ai_msg = aisigmax_reply(user_input)
+    st.session_state.chat_history.append(("ai", ai_msg))
 
-# --- Render chat history UI ---
-st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+# --- Render chat with CSS applied ---
+chat_html = '<div id="aisigma_chat">'
 
-for role, message in st.session_state.chat_history:
+for role, msg in st.session_state.chat_history:
     if role == "user":
-        st.markdown(f'<div class="chat-message user-msg"><b>You:</b> {message}</div>',
-                    unsafe_allow_html=True)
+        chat_html += f'<div class="user-bubble"><b>You:</b> {msg}</div>'
     else:
-        st.markdown(f'<div class="chat-message ai-msg"><b>AISigmaX:</b> {message}</div>',
-                    unsafe_allow_html=True)
+        chat_html += f'<div class="ai-bubble"><b>AISigmaX:</b> {msg}</div>'
 
-st.markdown('</div>', unsafe_allow_html=True)
+chat_html += "</div>"
+
+st.markdown(chat_html, unsafe_allow_html=True)
+
 
 
 # Now put your disclaimer after the chat
