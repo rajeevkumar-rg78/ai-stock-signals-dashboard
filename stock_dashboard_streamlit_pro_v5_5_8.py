@@ -1214,26 +1214,23 @@ with st.expander("📘 Learn: Indicators, Patterns & AI Logic", expanded=False):
 """)
 
 # ... your dashboard code ...
-# -------------------------------
-#  CHAT MODULE – AISigmaX Assistant
-# -------------------------------
-import streamlit as st
-import requests
-import re
+# ============================================================
+#  CHAT MODULE – AISigmaX Assistant (Google + Technicals)
+# ============================================================
 
-# ------------------------------------------------
-# GOOGLE SEARCH FUNCTION (Uses your secrets format)
-# ------------------------------------------------
-def google_search_response(q):
+def google_search_response(q: str) -> str:
     """Return summarized Google Search results."""
-    api_key = st.secrets["GOOGLE_API_KEY"]
-    cx = st.secrets["GOOGLE_CX"]
+    api_key = st.secrets.get("GOOGLE_API_KEY")
+    cx = st.secrets.get("GOOGLE_CX")
+
+    if not api_key or not cx:
+        return "⚠️ Google Search is not configured. Please set GOOGLE_API_KEY and GOOGLE_CX in Streamlit secrets."
 
     url = "https://www.googleapis.com/customsearch/v1"
     params = {"key": api_key, "cx": cx, "q": q}
 
     try:
-        response = requests.get(url, params=params).json()
+        response = requests.get(url, params=params, timeout=10).json()
     except Exception as e:
         return f"⚠️ Google Search failed.\n\n{e}"
 
@@ -1245,134 +1242,147 @@ def google_search_response(q):
         title = item.get("title", "")
         snippet = item.get("snippet", "")
         link = item.get("link", "")
-
         msg += f"🔎 **{title}**\n{snippet}\n👉 <{link}>\n\n"
-
     return msg.strip()
 
 
-# ------------------------------------------------
-#  DETECT TICKER IN QUESTION (e.g., AAPL, TSLA)
-# ------------------------------------------------
-def extract_ticker(text):
-    """Attempt to find a ticker symbol in user text."""
-    tokens = re.findall(r"\b[A-Z]{2,5}\b", text.upper())
+def extract_ticker(text: str):
+    """Try to find a ticker in the user message."""
+    text_up = text.upper()
+    tokens = re.findall(r"\b[A-Z]{2,5}\b", text_up)
 
-    # Filter out common non-tickers
-    blacklist = {"WHAT", "HOW", "WHY", "IS", "THE", "AND", "YOU", "RSI",
-                 "MACD", "BUY", "SELL", "META", "MSFT", "TSLA", "NFLX",
-                 "AMZN", "GOOG", "NVDA"}
+    # Prefer the current dashboard ticker if mentioned
+    if ticker and ticker.upper() in tokens:
+        return ticker.upper()
 
-    # If a real ticker: return it
-    for t in tokens:
-        if t in ["AAPL", "TSLA", "AMZN", "MSFT", "META", "GOOG", "NVDA", "NFLX"]:
-            return t
+    # Common large-cap tickers we support
+    watchlist = {"AAPL","TSLA","AMZN","MSFT","META","GOOG","GOOGL","NVDA","NFLX","IBM","AMD"}
 
-    # If they typed a stock name instead of ticker:
+    for tkn in tokens:
+        if tkn in watchlist:
+            return tkn
+
+    # Map company names to symbols
     name_map = {
         "TESLA": "TSLA",
         "APPLE": "AAPL",
         "AMAZON": "AMZN",
         "MICROSOFT": "MSFT",
-        "META": "META",
         "GOOGLE": "GOOG",
         "NETFLIX": "NFLX",
         "NVIDIA": "NVDA",
+        "META": "META",
     }
-    for name, symbol in name_map.items():
-        if name in text.upper():
-            return symbol
+    for name, sym in name_map.items():
+        if name in text_up:
+            return sym
 
-    return None  # No ticker found
+    return None
 
 
-# ------------------------------------------------
-#  STOCK ANALYSIS MODULE (Your real logic goes here)
-# ------------------------------------------------
-def analyze_ticker(t):
-    """Return stock RSI / MACD summary using your existing dashboard data."""
-    # This function assumes you have:
-    # rsi_df, macd_df, trend_df, signal_df created earlier in your app.
+def analyze_ticker(requested_ticker: str) -> str:
+    """
+    Technical summary using the *current* dashboard data.
+    If user asks for a different ticker, tell them how to switch.
+    """
+    if requested_ticker.upper() != ticker.upper():
+        return (
+            f"📊 I can only use live data for the dashboard ticker, which is **{ticker}** right now.\n\n"
+            f"To analyze **{requested_ticker}**, change the main symbol at the top of the app and re-run."
+        )
 
     try:
-        rsi_val = rsi_df.loc[t, "RSI"]
-        macd_val = macd_df.loc[t, "MACD"]
-        trend = trend_df.loc[t, "Trend"]
-        signal = signal_df.loc[t, "Signal"]
-    except:
-        return "⚠️ Unable to fetch technicals for that ticker."
+        last = ind.iloc[-1]
+    except Exception:
+        return "⚠️ Technical data not available yet. Try running a signal first."
+
+    rsi_val = float(last["RSI"])
+    macd_val = float(last["MACD"])
+    adx_val = float(last["ADX"])
+    trend = "Uptrend (MA50 > MA200)" if last["MA50"] > last["MA200"] else "Downtrend (MA50 < MA200)"
+    momentum = "Strong" if adx_val > 25 else "Weak / Range-bound"
+    sig = decision
 
     msg = f"""
-📊 **AISigmaX Technical Summary for {t}**
+📊 **AISigmaX Technical Summary for {requested_ticker.upper()}**
 
-• RSI: **{rsi_val}**  
-• MACD: **{macd_val}**  
+• RSI (14): **{rsi_val:.1f}**  
+• MACD: **{macd_val:.2f}**  
 • Trend: **{trend}**  
-• Momentum: Strong  
-• Signal: **{signal.upper()}**
+• Momentum (ADX): **{momentum} – ADX {adx_val:.1f}**  
+• Current AI Signal: **{sig.upper()}**
 """
-    return msg
+    if rsi_val < 30:
+        msg += "\nRSI suggests the stock is **oversold** (below 30)."
+    elif rsi_val > 70:
+        msg += "\nRSI suggests the stock is **overbought** (above 70)."
+    else:
+        msg += "\nRSI is in a **neutral** zone (30–70)."
+
+    return msg.strip()
 
 
-# ------------------------------------------------
-#  INTELLIGENT ROUTER: Decide what user wants
-# ------------------------------------------------
-def aisigmax_reply(user_msg):
+def aisigmax_reply(user_msg: str) -> str:
+    """Router: decide between Google explain vs technical summary."""
     user_msg_lower = user_msg.lower()
 
-    # 1️⃣ If asking about general finance concepts → Google search
+    # 1) General educational questions → Google
     general_keywords = [
         "what is", "explain", "how does", "how to", "meaning",
         "define", "difference", "guide", "help me understand"
     ]
     if any(k in user_msg_lower for k in general_keywords):
-        # check if ticker exists
         t = extract_ticker(user_msg)
         if t:
             return analyze_ticker(t)
         return google_search_response(user_msg)
 
-    # 2️⃣ If asking about a ticker directly → Analyze ticker
+    # 2) If they mention a ticker directly → technical summary
     t = extract_ticker(user_msg)
     if t:
         return analyze_ticker(t)
 
-    # 3️⃣ Otherwise → General Google search fallback
+    # 3) Fallback → Google search
     return google_search_response(user_msg)
 
 
-# ------------------------------------------------
-#  UI – STREAMLIT CHAT COMPONENT
-# ------------------------------------------------
-
+# ---------------- Chat UI ----------------
 st.markdown("### 💬 Chat with AISigmaX Assistant")
 
-# Make chat scrollable
-chat_container = st.container()
-with chat_container:
-    st.markdown(
-        """
-        <style>
-        .chat-box {
-            max-height: 450px;
-            overflow-y: auto;
-            padding: 10px;
-            border-radius: 10px;
-            background-color: #f7f9fc;
-            border: 1px solid #ddd;
-        }
-        .msg-user { background-color: #dbeafe; padding:10px; border-radius:8px; margin-bottom:6px; }
-        .msg-ai { background-color: #f1f5f9; padding:10px; border-radius:8px; margin-bottom:6px; }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+st.markdown(
+    """
+    <style>
+    .chat-box {
+        max-height: 420px;
+        overflow-y: auto;
+        padding: 10px;
+        border-radius: 10px;
+        background-color: #f7f9fc;
+        border: 1px solid #ddd;
+        margin-bottom: 8px;
+    }
+    .msg-user {
+        background-color: #dbeafe;
+        padding:10px;
+        border-radius:8px;
+        margin-bottom:6px;
+        font-size: 0.95rem;
+    }
+    .msg-ai {
+        background-color: #f1f5f9;
+        padding:10px;
+        border-radius:8px;
+        margin-bottom:6px;
+        font-size: 0.95rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-# Maintain chat history
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# Display history inside scroll box
 st.markdown("<div class='chat-box'>", unsafe_allow_html=True)
 for sender, msg in st.session_state.chat_history:
     if sender == "user":
@@ -1381,16 +1391,13 @@ for sender, msg in st.session_state.chat_history:
         st.markdown(f"<div class='msg-ai'>🤖 AISigmaX:<br>{msg}</div>", unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Input box
-user_input = st.chat_input("Ask anything…")
-
+user_input = st.chat_input("Ask anything about stocks, indicators, or general finance…")
 if user_input:
     ai_msg = aisigmax_reply(user_input)
     st.session_state.chat_history.append(("user", user_input))
     st.session_state.chat_history.append(("ai", ai_msg))
     st.rerun()
 
-# Clear chat
 if st.button("🧹 Clear Chat"):
     st.session_state.chat_history = []
     st.rerun()
