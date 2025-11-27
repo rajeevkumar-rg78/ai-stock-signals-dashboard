@@ -1265,27 +1265,33 @@ def google_search(query):
 # TICKER DETECTION
 # -------------------------------------------------------
 import yfinance as yf
+import re
 
-# List of common English words to block
+# Do NOT treat these as tickers (indicators & English words)
 blocked_words = {
-    "HOW","WHAT","ABOUT","THIS","THAT","YOU","ARE","THE","AND","WHY",
-    "WILL","CAN","DO","IS","FOR","WITH","FROM","YOUR"
+    "HOW", "WHAT", "ABOUT", "THIS", "THAT", "YOU", "ARE", "THE", "AND", "WHY",
+    "WILL", "CAN", "DO", "IS", "FOR", "WITH", "FROM", "YOUR",
+    "RSI", "MACD", "ATR", "EMA", "SMA", "VWAP", "ADX", "ROC", "BB", "VIX"
 }
 
 def detect_ticker(q):
-    # Extract ALL capitalized 2–5 letter words
+    # Find all caps words 2–5 letters
     words = re.findall(r"\b[A-Z]{2,5}\b", q)
 
     for w in words:
         if w in blocked_words:
-            continue  # skip English words
+            continue  # skip indicators and common words
 
-        # Validate using yfinance
-        stock = yf.Ticker(w).history(period="1d")
-        if not stock.empty:
-            return w  # Valid ticker
+        # Validate ticker with yfinance
+        try:
+            data = yf.Ticker(w).history(period="1d")
+            if not data.empty:
+                return w
+        except:
+            pass
 
     return None
+
 
 
 
