@@ -61,7 +61,6 @@ st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
 def render_header(decision: str = "HOLD"):
     decision = (decision or "").upper()
 
-    # SIMPLE NON-ANIMATED GRADIENTS
     if "BUY" in decision:
         grad = "linear-gradient(120deg, #43e97b 0%, #38f9d7 100%)"
         accent_emoji = "🟢"
@@ -74,87 +73,89 @@ def render_header(decision: str = "HOLD"):
 
     st.markdown(
         f"""
-        <style>
-        .aisigmax-banner {{
-            background: {grad};
-            padding: 20px 18px;
-            border-radius: 16px;
-            color: white;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-            margin-bottom: 20px;
-        }}
+<style>
+.aisigmax-banner {{
+    background: {grad};
+    padding: 20px 18px;
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    margin-bottom: 20px;
+}}
 
-        .aisigmax-flex {{
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 14px;
-        }}
+.aisigmax-flex {{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+}}
 
-        .aisigmax-brand {{
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }}
+.aisigmax-brand {{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}}
 
-        .aisigmax-title {{
-            font-size: 1.8em;
-            font-weight: 800;
-            letter-spacing: 1px;
-        }}
+.aisigmax-title {{
+    font-size: 1.8em;
+    font-weight: 800;
+    letter-spacing: 1px;
+}}
 
-        .aisigmax-tagline {{
-            font-size: 0.95em;
-            opacity: 0.95;
-        }}
+.aisigmax-tagline {{
+    font-size: 0.95em;
+    opacity: 0.95;
+}}
 
-        .aisigmax-right {{
-            text-align: right;
-            font-size: 0.9em;
-            opacity: 0.95;
-        }}
+.aisigmax-right {{
+    text-align: right;
+    font-size: 0.9em;
+    opacity: 0.95;
+}}
 
-        @media (max-width: 700px) {{
-            .aisigmax-flex {{
-                flex-direction: column;
-                align-items: flex-start;
-            }}
-            .aisigmax-right {{
-                text-align: left;
-                width: 100%;
-                margin-top: 6px;
-            }}
-        }}
-        </style>
+@media (max-width: 700px) {{
+    .aisigmax-flex {{
+        flex-direction: column;
+        align-items: flex-start;
+    }}
+    .aisigmax-right {{
+        text-align: left;
+        width: 100%;
+        margin-top: 6px;
+    }}
+}}
+</style>
 
-        <div class="aisigmax-banner">
-            <div class="aisigmax-flex">
+<div class="aisigmax-banner">
+    <div class="aisigmax-flex">
 
-                <div class="aisigmax-brand">
-                    <span style="font-size:2em;">🧬</span>
-                    <div>
-                        <div class="aisigmax-title">AISigmaX</div>
-                        <div class="aisigmax-tagline">
-                            Next-Gen AI • Macro • News • Analyst • Forecasts
-                        </div>
-                    </div>
+        <div class="aisigmax-brand">
+            <span style="font-size:2em;">🧬</span>
+            <div>
+                <div class="aisigmax-title">AISigmaX</div>
+                <div class="aisigmax-tagline">
+                    Next-Gen AI • Macro • News • Analyst • Forecasts
                 </div>
-
-                <div class="aisigmax-right">
-                    <b>© 2025 MarketSignal LLC</b><br>
-                    <span>{accent_emoji} Powered by 
-                        <a href="https://www.aisigmax.com" style="color:white;text-decoration:underline;" target="_blank">
-                        AISigmaX.com</a>
-                    </span>
-                </div>
-
             </div>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
 
+        <div class="aisigmax-right">
+            <b>© 2025 MarketSignal LLC</b><br>
+            <span>{accent_emoji} Powered by 
+                <a href="https://www.aisigmax.com"
+                   style="color:white;text-decoration:underline;"
+                   target="_blank">
+                   AISigmaX.com
+                </a>
+            </span>
+        </div>
+
+    </div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
 
 # At the top of your app:
