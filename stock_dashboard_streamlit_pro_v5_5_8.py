@@ -57,7 +57,6 @@ def human_fmt(val, kind=None):
 
 st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
 
-
 def render_header(decision: str = "HOLD"):
     decision = (decision or "").upper()
 
