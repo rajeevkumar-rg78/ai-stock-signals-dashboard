@@ -1496,7 +1496,6 @@ def render_header(decision: str = "HOLD"):
 
     html = f"""
 <style>
-
 .aisigmax-banner {{
     position: relative;
     background: {grad};
@@ -1517,11 +1516,6 @@ def render_header(decision: str = "HOLD"):
     gap: 14px;
 }}
 
-.aisigmax-brand {{
-    display: flex;
-    flex-direction: column;
-}}
-
 .aisigmax-title {{
     font-size: 1.65em;
     font-family: monospace, 'Fira Mono', 'Menlo', 'Consolas', sans-serif;
@@ -1538,6 +1532,11 @@ def render_header(decision: str = "HOLD"):
     margin-top: 2px;
 }}
 
+.aisigmax-brand {{
+    display: flex;
+    flex-direction: column;
+}}
+
 .aisigmax-right {{
     font-size: 0.9em;
     text-align: right;
@@ -1549,30 +1548,24 @@ def render_header(decision: str = "HOLD"):
     .aisigmax-banner {{
         padding: 18px 16px 26px 16px;
     }}
-
     .aisigmax-title {{
         font-size: 1.45em;
     }}
-
     .aisigmax-tagline {{
         font-size: 0.95em;
     }}
-
     .aisigmax-right {{
         text-align: left;
         margin-top: 8px;
         font-size: 0.85em;
     }}
 }}
-
 </style>
 
-
 <div class="aisigmax-banner">
-
     <svg width="100%" height="40" viewBox="0 0 800 40" fill="none"
-         xmlns="http://www.w3.org/2000/svg"
-         style="position:absolute;bottom:0;left:0;z-index:0;">
+        xmlns="http://www.w3.org/2000/svg"
+        style="position:absolute;bottom:0;left:0;z-index:0;">
         <path d="M0 20 Q 200 60 400 20 T 800 20 V40 H0Z"
               fill="rgba(255,255,255,0.13)" />
     </svg>
@@ -1599,7 +1592,6 @@ def render_header(decision: str = "HOLD"):
 
         </div>
     </div>
-
 </div>
 """
 
@@ -1607,6 +1599,7 @@ def render_header(decision: str = "HOLD"):
 
 
 render_header("HOLD")
+
 
 
 
