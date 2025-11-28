@@ -1477,6 +1477,136 @@ Markets carry risk; always do your own research or consult a licensed financial 
     unsafe_allow_html=True,
 )
 
+import streamlit as st
+
+st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
+
+def render_header(decision: str = "HOLD"):
+    decision = (decision or "").upper()
+
+    if "BUY" in decision:
+        grad = "linear-gradient(270deg, #43e97b 0%, #38f9d7 100%)"
+        accent_emoji = "🟢"
+    elif "SELL" in decision:
+        grad = "linear-gradient(270deg, #fa709a 0%, #fee140 100%)"
+        accent_emoji = "🔴"
+    else:
+        grad = "linear-gradient(270deg, #30cfd0 0%, #330867 100%)"
+        accent_emoji = "🟠"
+
+    html = f"""
+<style>
+
+.aisigmax-banner {{
+    position: relative;
+    background: {grad};
+    padding: 22px 18px 32px 18px;
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+    margin-bottom: 18px;
+    overflow: hidden;
+    max-width: 100%;
+}}
+
+.aisigmax-flex {{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}}
+
+.aisigmax-brand {{
+    display: flex;
+    flex-direction: column;
+}}
+
+.aisigmax-title {{
+    font-size: 1.65em;
+    font-family: monospace, 'Fira Mono', 'Menlo', 'Consolas', sans-serif;
+    font-weight: 900;
+    letter-spacing: 1.3px;
+    background: linear-gradient(90deg,#1976d2,#43e97b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}}
+
+.aisigmax-tagline {{
+    font-size: 1em;
+    opacity: 0.93;
+    margin-top: 2px;
+}}
+
+.aisigmax-right {{
+    font-size: 0.9em;
+    text-align: right;
+    opacity: 0.93;
+    min-width: 140px;
+}}
+
+@media (max-width: 700px) {{
+    .aisigmax-banner {{
+        padding: 18px 16px 26px 16px;
+    }}
+
+    .aisigmax-title {{
+        font-size: 1.45em;
+    }}
+
+    .aisigmax-tagline {{
+        font-size: 0.95em;
+    }}
+
+    .aisigmax-right {{
+        text-align: left;
+        margin-top: 8px;
+        font-size: 0.85em;
+    }}
+}}
+
+</style>
+
+
+<div class="aisigmax-banner">
+
+    <svg width="100%" height="40" viewBox="0 0 800 40" fill="none"
+         xmlns="http://www.w3.org/2000/svg"
+         style="position:absolute;bottom:0;left:0;z-index:0;">
+        <path d="M0 20 Q 200 60 400 20 T 800 20 V40 H0Z"
+              fill="rgba(255,255,255,0.13)" />
+    </svg>
+
+    <div style="position:relative;z-index:1;">
+        <div class="aisigmax-flex">
+
+            <div class="aisigmax-brand">
+                <div class="aisigmax-title">AISigmaX</div>
+                <div class="aisigmax-tagline">
+                    Next-Gen AI • Macro • News • Analyst • Forecasts
+                </div>
+            </div>
+
+            <div class="aisigmax-right">
+                <b>&copy; 2025 MarketSignal LLC</b><br>
+                <span style="opacity:0.88;">
+                    {accent_emoji} Powered by
+                    <a href="https://www.aisigmax.com"
+                       style="color:white;text-decoration:underline;"
+                       target="_blank">AISigmaX.com</a>
+                </span>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+"""
+
+    st.markdown(html, unsafe_allow_html=True)
+
+
+render_header("HOLD")
 
 
 
