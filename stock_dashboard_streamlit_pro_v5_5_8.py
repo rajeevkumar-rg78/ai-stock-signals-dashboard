@@ -76,8 +76,7 @@ def render_header(decision: str = "HOLD"):
         .aisigmax-banner {{
             position:relative;
             background: {grad};
-            background-size: 400% 400%;
-            animation: bannerShift 8s ease-in-out infinite;
+            /* animation removed */
             padding: 20px 16px 36px 16px;
             border-radius: 16px;
             color: white;
@@ -130,11 +129,6 @@ def render_header(decision: str = "HOLD"):
                 margin-top: 10px;
             }}
         }}
-        @keyframes bannerShift {{
-          0% {{background-position: 0% 50%;}}
-          50% {{background-position: 100% 50%;}}
-          100% {{background-position: 0% 50%;}}
-        }}
         </style>
         <div class="aisigmax-banner">
             <svg width="100%" height="40" viewBox="0 0 800 40" fill="none" xmlns="http://www.w3.org/2000/svg"
@@ -144,7 +138,7 @@ def render_header(decision: str = "HOLD"):
             <div style="position:relative;z-index:1;">
                 <div class="aisigmax-flex">
                     <div class="aisigmax-brand">
-                        <span style="font-size:2em;">🧬</span>
+                        <!-- removed funky icon span here -->
                         <div>
                             <div class="aisigmax-title">AISigmaX</div>
                             <div class="aisigmax-tagline">Next-Gen AI • Macro • News • Analyst • Forecasts</div>
@@ -152,7 +146,12 @@ def render_header(decision: str = "HOLD"):
                     </div>
                     <div class="aisigmax-right">
                         <b>&copy; 2025 MarketSignal LLC</b><br>
-                        <span style="font-size:0.95em;opacity:0.88;">{accent_emoji} Powered by <a href="https://www.aisigmax.com" style="color:white;text-decoration:underline;" target="_blank">AISigmaX.com</a></span>
+                        <span style="font-size:0.95em;opacity:0.88;">
+                            {accent_emoji} Powered by
+                            <a href="https://www.aisigmax.com"
+                               style="color:white;text-decoration:underline;"
+                               target="_blank">AISigmaX.com</a>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -160,12 +159,6 @@ def render_header(decision: str = "HOLD"):
         """,
         unsafe_allow_html=True
     )
-
-
-
-
-
-# At the top of your app:
 st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
 render_header("HOLD")
 
