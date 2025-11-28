@@ -169,7 +169,129 @@ def render_header(decision: str = "HOLD"):
 st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
 render_header("HOLD")
 
+def render_header(decision: str = "HOLD"):
+    decision = (decision or "").upper()
 
+    # Same color logic you already had
+    if "BUY" in decision:
+        grad = "linear-gradient(270deg, #43e97b 0%, #38f9d7 100%)"
+        accent_emoji = "🟢"
+    elif "SELL" in decision:
+        grad = "linear-gradient(270deg, #fa709a 0%, #fee140 100%)"
+        accent_emoji = "🔴"
+    else:
+        grad = "linear-gradient(270deg, #30cfd0 0%, #330867 100%)"
+        accent_emoji = "🟠"
+
+    st.markdown(
+        f"""
+<style>
+.aisigmax-banner {{
+    position: relative;
+    background: {grad};
+    padding: 20px 16px 36px 16px;
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+    margin-bottom: 18px;
+    overflow: hidden;
+    max-width: 100vw;
+}}
+
+.aisigmax-flex {{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}}
+
+.aisigmax-brand {{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}}
+
+.aisigmax-title {{
+    font-size: 1.7em;
+    font-family: monospace, 'Fira Mono', 'Menlo', 'Consolas', sans-serif;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    background: linear-gradient(90deg,#1976d2,#43e97b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}}
+
+.aisigmax-tagline {{
+    font-size: 1em;
+    opacity: 0.93;
+    margin-top: 2px;
+}}
+
+.aisigmax-right {{
+    font-size: 0.95em;
+    text-align: right;
+    opacity: 0.93;
+    min-width: 120px;
+}}
+
+@media (max-width: 700px) {{
+    .aisigmax-flex {{
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }}
+    .aisigmax-right {{
+        text-align: left;
+        margin-top: 10px;
+    }}
+}}
+</style>
+
+<div class="aisigmax-banner">
+
+    <!-- Subtle white wave at bottom -->
+    <svg width="100%" height="40" viewBox="0 0 800 40" fill="none"
+         xmlns="http://www.w3.org/2000/svg"
+         style="position:absolute;bottom:0;left:0;z-index:0;">
+        <path d="M0 20 Q 200 60 400 20 T 800 20 V40 H0Z"
+              fill="rgba(255,255,255,0.13)" />
+    </svg>
+
+    <div style="position:relative;z-index:1;">
+        <div class="aisigmax-flex">
+
+            <!-- Brand Section (🔬 Removed the funky icon!) -->
+            <div class="aisigmax-brand">
+                <div>
+                    <div class="aisigmax-title">AISigmaX</div>
+                    <div class="aisigmax-tagline">
+                        Next-Gen AI • Macro • News • Analyst • Forecasts
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Corner Info -->
+            <div class="aisigmax-right">
+                <b>&copy; 2025 MarketSignal LLC</b><br>
+                <span style="font-size:0.95em;opacity:0.88;">
+                    {accent_emoji} Powered by 
+                    <a href="https://www.aisigmax.com"
+                       style="color:white;text-decoration:underline;"
+                       target="_blank">AISigmaX.com</a>
+                </span>
+            </div>
+
+        </div>
+    </div>
+</div>
+""",
+        unsafe_allow_html=True
+    )
+
+# At the top of your app:
+st.set_page_config(page_title="AISigmaX — AI Stock Signals", layout="wide")
+render_header("HOLD")
 
 # 🧠 Tutorial: expanded on first visit only
 #if "tutorial_shown" not in st.session_state:
