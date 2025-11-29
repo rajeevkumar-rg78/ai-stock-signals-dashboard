@@ -395,24 +395,12 @@ pricing_html = """
 </div>
 """
 st.markdown(pricing_html, unsafe_allow_html=True)
-if "typed_ticker" not in st.session_state:
-    st.session_state.typed_ticker = ""
 
 
 c1, c2, c3 = st.columns([2,2,3])
 with c1:
-    #ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
-    new_ticker = st.text_input(
-    "Ticker",
-    value=st.session_state.typed_ticker,
-    placeholder="Enter a stock symbol (e.g., MSFT)"
-).upper().strip()
-
-# Update state only when user actually types something
-if new_ticker != st.session_state.typed_ticker:
-    st.session_state.typed_ticker = new_ticker
-
-ticker = st.session_state.typed_ticker
+    ticker = st.text_input("Ticker", "msft", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
+    
 
 with c2:
     horizon = st.radio("Mode", ["Short-term (Swing)", "Long-term (Investor)"], index=1, horizontal=True)
