@@ -10,6 +10,15 @@
 # - Silent fallbacks on Yahoo News/FRED where appropriate.F
 # - Keep your core logic intact; UI is restructured for business use.
 # ----------------------------------------------------------------------
+from supabase import create_client, Client
+import hashlib
+
+# Load credentials using your exact Streamlit secret names
+SUPABASE_URL = st.secrets["SUPABASE_URL"]
+SUPABASE_KEY = st.secrets["SUPABASE_ANON_KEY"]
+
+# Initialize Supabase client
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 import streamlit as st
