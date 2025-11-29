@@ -11,3 +11,4 @@ feedparser
 stripe
 openai
 supabase==2.5.1
+websockets==10.4
