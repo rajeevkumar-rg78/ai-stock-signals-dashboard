@@ -10,8 +10,6 @@
 # - Silent fallbacks on Yahoo News/FRED where appropriate.F
 # - Keep your core logic intact; UI is restructured for business use.
 # ----------------------------------------------------------------------
-from supabase import create_client, Client
-import hashlib
 
 
 
