@@ -12,9 +12,9 @@
 # ----------------------------------------------------------------------
 
 
-from supabase import create_client
+from supabase.client import create_client
 
-import hashlib
+import hashli.b
 import streamlit as st
 
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
