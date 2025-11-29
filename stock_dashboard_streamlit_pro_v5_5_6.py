@@ -290,71 +290,82 @@ Runs 1,000 Monte Carlo simulations of recent 120-day returns to estimate:
 # mark tutorial as shown for current session
 st.session_state.tutorial_shown = True
 
+st.set_page_config(...)
+render_header(...)
+# ⬇ Add login system here
 
 
-# ===========================================
-# LOGIN / SIGNUP UI (STEP 4B)
-# ===========================================
+# ============================================================
+# 4C — LOGIN / SIGNUP GATE (Pricing is public)
+# ============================================================
 
+# Keep user session alive
 if "user" not in st.session_state:
     st.session_state.user = None
 
-def login_ui():
-    st.markdown("### 🔐 Login or Create Account to Continue")
 
-    tab_login, tab_signup = st.tabs(["Login", "Create Account"])
+def show_auth_box():
+    """Displays the login + signup tabs."""
+    st.markdown("## 🔐 Login or Create Account")
 
-    # ----------------------
-    # LOGIN TAB
-    # ----------------------
+    tab_login, tab_signup = st.tabs(["Login", "Sign Up"])
+
+    # -------------------- LOGIN --------------------
     with tab_login:
-        login_email = st.text_input("Email", key="login_email")
-        login_password = st.text_input("Password", type="password", key="login_password")
+        email = st.text_input("Email", key="login_email")
+        password = st.text_input("Password", type="password", key="login_pass")
 
         if st.button("Login"):
-            hashed_pw = hash_password(login_password)
-
-            result = supabase.table("users") \
-                .select("*") \
-                .eq("email", login_email) \
-                .eq("password_hash", hashed_pw) \
-                .execute()
-
-            if result.data:
-                st.session_state.user = result.data[0]
+            user = login_user(email, password)
+            if user:
+                st.session_state.user = user
                 st.success("Logged in successfully!")
                 st.rerun()
             else:
-                st.error("Invalid email or password.")
+                st.error("❌ Incorrect email or password.")
 
-    # ----------------------
-    # SIGNUP TAB
-    # ----------------------
+    # -------------------- SIGNUP --------------------
     with tab_signup:
-        signup_email = st.text_input("Create Email", key="signup_email")
-        signup_password = st.text_input("Create Password", type="password", key="signup_password")
+        email_new = st.text_input("Email", key="signup_email")
+        pass_new = st.text_input("Password", type="password", key="signup_pass")
 
         if st.button("Create Account"):
-            if not signup_email or not signup_password:
-                st.error("Email and password required.")
-            else:
-                hashed_pw = hash_password(signup_password)
+            try:
+                register_user(email_new, pass_new)
+                st.success("🎉 Account created! Please log in.")
+            except Exception as e:
+                st.error(f"Signup failed: {e}")
 
-                # Check for existing user
-                existing = supabase.table("users") \
-                    .select("*") \
-                    .eq("email", signup_email) \
-                    .execute()
 
-                if existing.data:
-                    st.error("Account already exists.")
-                else:
-                    supabase.table("users").insert({
-                        "email": signup_email,
-                        "password_hash": hashed_pw,
-                        "plan": "FREE"
-                    }).execute()
-                    st.success("Account created! Please login.")
+# ============================================================
+# ACCESS CONTROL (Pricing is public, Dashboard is locked)
+# ============================================================
+
+def require_login():
+    """If not logged in → show login UI and stop."""
+    if st.session_state.user is None:
+        show_auth_box()
+        st.stop()  # prevent dashboard from rendering
+
+
+# ================================
+# YOUR APP SECTIONS
+# ================================
+
+# --- Section 1: Pricing (PUBLIC) ---
+show_pricing_section = True    # <-- Keep as is
+if show_pricing_section:
+    render_pricing_cards()     # your existing pricing_html
+
+
+# --- Section 2: Dashboard (LOCKED) ---
+st.markdown("## 📊 AI Dashboard")
+
+require_login()  # <-- This blocks until logged in
+
+# (From here down, dashboard will only show if logged in)
+# Your charts, buy/sell indicators, simulators, etc.
+
 
 
 
