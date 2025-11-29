@@ -11,10 +11,6 @@
 # - Keep your core logic intact; UI is restructured for business use.
 # ----------------------------------------------------------------------
 
-
-
-
-
 import streamlit as st
 import hashlib
 import yfinance as yf
