@@ -11,7 +11,9 @@
 # - Keep your core logic intact; UI is restructured for business use.
 # ----------------------------------------------------------------------
 
-from supabase import create_client
+
+from supabase.client import create_client
+
 import hashlib
 import streamlit as st
 
