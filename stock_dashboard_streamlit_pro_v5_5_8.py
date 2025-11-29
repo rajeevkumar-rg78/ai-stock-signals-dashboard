@@ -395,38 +395,12 @@ pricing_html = """
 </div>
 """
 st.markdown(pricing_html, unsafe_allow_html=True)
-# =============================
-#  BLOCK USER MUST ENTER TICKER
-# =============================
-
-if "typed_ticker" not in st.session_state:
-    st.session_state.typed_ticker = ""
-
-new_ticker = st.text_input(
-    "Ticker",
-    value=st.session_state.typed_ticker,
-    placeholder="Enter a stock symbol (e.g., MSFT)"
-).upper().strip()
-
-if new_ticker != st.session_state.typed_ticker:
-    st.session_state.typed_ticker = new_ticker
-
-ticker = st.session_state.typed_ticker
-
-# 🔥 STOP ENTIRE PROGRAM IF USER HAS NOT ENTERED TICKER
-if ticker == "":
-    st.markdown("""
-        ### 👋 Welcome to AI Stock Signals
-        Enter a ticker above to begin.
-    """)
-    st.stop()
 
 
 c1, c2, c3 = st.columns([2,2,3])
 with c1:
     ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
     
-
 with c2:
     horizon = st.radio("Mode", ["Short-term (Swing)", "Long-term (Investor)"], index=1, horizontal=True)
 with c3:
