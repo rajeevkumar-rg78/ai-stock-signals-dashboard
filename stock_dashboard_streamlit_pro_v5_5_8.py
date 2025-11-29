@@ -399,7 +399,7 @@ st.markdown(pricing_html, unsafe_allow_html=True)
 
 c1, c2, c3 = st.columns([2,2,3])
 with c1:
-    ticker = st.text_input("Ticker", "msft", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
+    ticker = st.text_input("Ticker", " ", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
     
 
 with c2:
