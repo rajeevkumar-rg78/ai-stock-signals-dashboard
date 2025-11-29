@@ -12,18 +12,11 @@
 # ----------------------------------------------------------------------
 
 
-from supabase import create_client
 
+
+
+import streamlit as st
 import hashli.b
-import streamlit as st
-
-SUPABASE_URL = st.secrets["SUPABASE_URL"]
-SUPABASE_ANON_KEY = st.secrets["SUPABASE_ANON_KEY"]
-
-supabase = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
-
-
-import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -34,6 +27,11 @@ import requests, feedparser, time, random
 from io import StringIO
 import matplotlib.pyplot as plt
 
+from supabase import create_client
+SUPABASE_URL = st.secrets["SUPABASE_URL"]
+SUPABASE_ANON_KEY = st.secrets["SUPABASE_ANON_KEY"]
+
+supabase = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 
 def safe_float(x, default=0.0):
