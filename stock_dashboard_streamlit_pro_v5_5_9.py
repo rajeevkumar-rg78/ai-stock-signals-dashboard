@@ -16,7 +16,7 @@
 
 
 import streamlit as st
-import hashli.b
+import hashlib
 import yfinance as yf
 import pandas as pd
 import numpy as np
