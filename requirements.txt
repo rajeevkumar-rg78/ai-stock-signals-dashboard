@@ -10,5 +10,5 @@ requests
 feedparser
 stripe
 openai
-supabase==2.5.1
+supabase-py
 
