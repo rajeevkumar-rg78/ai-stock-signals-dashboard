@@ -12,7 +12,7 @@
 # ----------------------------------------------------------------------
 
 
-from supabase.client import create_client
+from supabase import create_client
 
 import hashli.b
 import streamlit as st
