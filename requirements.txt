@@ -1,6 +1,6 @@
 matplotlib
 streamlit
-yfinance==0.2.37
+yfinance
 pandas
 numpy
 plotly
@@ -10,5 +10,4 @@ requests
 feedparser
 stripe
 openai
-supabase==2.5.1
-websockets==10.4
+
