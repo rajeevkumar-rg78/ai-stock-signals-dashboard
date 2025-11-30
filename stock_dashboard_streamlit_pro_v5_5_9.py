@@ -462,15 +462,7 @@ if "user" not in st.session_state:
     # ⛔ stop the rest of the app (ticker, signals, etc.)
     st.stop()
 
-st.sidebar.title("Account")
 
-if "user" in st.session_state:
-    st.sidebar.success(f"Logged in as {st.session_state.user['email']}")
-    if st.sidebar.button("Logout"):
-        st.session_state.clear()
-        st.rerun()
-else:
-    st.sidebar.info("Not logged in")
 
 
 
