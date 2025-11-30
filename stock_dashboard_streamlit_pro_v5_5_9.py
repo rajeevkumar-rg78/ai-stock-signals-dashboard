@@ -1045,17 +1045,15 @@ st.plotly_chart(plot_dashboard(ind, ticker, zones=True), use_container_width=Tru
 st.markdown("### 🧩 Why this signal")
 st.markdown(explain_signal_verbose(ind, news_sent, decision, horizon))
 
-"""
 # ------------------------------ Forecast AI ------------------------------
-st.markdown("### 🤖 Forecast AI (5-day)")
-st.write(f"Predicted Move (avg): {ai['pred_move']*100:+.2f}%")
-if ai["range"] is not None and not any(np.isnan(ai["range"])):
-    lo, mu, hi = ai["range"]
-    st.write(f"Expected range in 5d: {lo*100:+.2f}% — {mu*100:+.2f}% — {hi*100:+.2f}%")
-else:
-    st.info("Not enough recent data for a reliable range forecast.")
-st.metric("AI Confidence", f"{int(ai['conf']*100)}%")
-"""
+#st.markdown("### 🤖 Forecast AI (5-day)")
+#st.write(f"Predicted Move (avg): {ai['pred_move']*100:+.2f}%")
+#if ai["range"] is not None and not any(np.isnan(ai["range"])):
+    #lo, mu, hi = ai["range"]
+    #st.write(f"Expected range in 5d: {lo*100:+.2f}% — {mu*100:+.2f}% — {hi*100:+.2f}%")
+#else:
+    #st.info("Not enough recent data for a reliable range forecast.")
+#st.metric("AI Confidence", f"{int(ai['conf']*100)}%")
 
 st.markdown("### 🤖 Forecast AI (5-day)")
 
