@@ -11,5 +11,5 @@ feedparser
 stripe
 openai
 supabase
-
+bcrypt
 
