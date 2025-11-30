@@ -24,6 +24,10 @@ from io import StringIO
 import matplotlib.pyplot as plt
 import bcrypt
 
+if "user" not in st.session_state:
+    st.session_state.user = None
+
+
 from supabase import create_client
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_ANON_KEY = st.secrets["SUPABASE_ANON_KEY"]
@@ -407,7 +411,9 @@ st.markdown(pricing_html, unsafe_allow_html=True)
 # 🔐 Require login BEFORE user can use Ticker / signals
 # (But AFTER banner, pricing, etc.)
 # ============================================================
-if "user" not in st.session_state:
+#if "user" not in st.session_state:
+if st.session_state.user is None:
+   
     st.markdown("### 🔐 Login or Create an Account to Use AISigmaX")
 
     tab_login, tab_signup = st.tabs(["Login", "Signup"])
