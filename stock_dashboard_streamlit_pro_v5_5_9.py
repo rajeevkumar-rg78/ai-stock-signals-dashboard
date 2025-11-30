@@ -22,6 +22,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import requests, feedparser, time, random
 from io import StringIO
 import matplotlib.pyplot as plt
+import bcrypt
 
 from supabase import create_client
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
@@ -33,7 +34,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
 #  AUTH MODULE (Signup + Login + Logout)
 # ==========================================
 
-import bcrypt
+
 
 # Initialize session
 if "user" not in st.session_state:
