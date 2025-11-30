@@ -470,6 +470,22 @@ if st.session_state.user is None:
     # ⛔ stop the rest of the app (ticker, signals, etc.)
     st.stop()
 
+# ============================================================
+# 👤 Logged-in user + plan flags
+# ============================================================
+user = st.session_state.user
+current_plan = (user.get("plan") or "free").lower()
+
+is_free  = (current_plan == "free")
+is_pro   = (current_plan == "pro")
+is_elite = (current_plan == "elite")
+
+st.caption(f"👤 Logged in as **{user['email']}**  •  Plan: **{current_plan.upper()}**")
+
+# Optional logout button (shows once logged in)
+if st.button("Logout"):
+    st.session_state.user = None
+    st.rerun()
 
 
 
