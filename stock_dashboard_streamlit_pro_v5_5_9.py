@@ -1070,8 +1070,15 @@ else:
 
 
 # ------------------------------ Simulators (Tabs) ------------------------------
+#st.markdown("### 🧪 Simulation Tools")
+#tab1, tab2, tab3 = st.tabs(["Daily Action", "Adaptive DCA", "Monte Carlo"])
+
 st.markdown("### 🧪 Simulation Tools")
-tab1, tab2, tab3 = st.tabs(["Daily Action", "Adaptive DCA", "Monte Carlo"])
+
+if is_free:
+    st.info("Simulators (Daily Action, Adaptive DCA, Monte Carlo) are available on PRO and ELITE plans.")
+else:
+    tab1, tab2, tab3 = st.tabs(["Daily Action", "Adaptive DCA", "Monte Carlo"])
 
 with tab1:
     st.write("One-day action suggestion (for learning/demo):")
