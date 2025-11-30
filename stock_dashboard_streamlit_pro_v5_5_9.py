@@ -1269,10 +1269,13 @@ render_analyst_pulse(pulse)
 
 # ------------------------------ Tech Screener ------------------------------
 st.markdown("## 📋 Today's Top Tech Stock Buy Candidates")
-tech_watchlist = [
-    "AAPL","MSFT","GOOGL","GOOG","META","AMZN","NVDA","TSLA","CRM",
-    "ADBE","ORCL","INTC","AMD","CSCO","NFLX","AVGO","QCOM","IBM","SHOP","UBER"
-]
+if not is_elite:
+    st.info("Elite plan unlocks the full AI tech screener. Upgrade to ELITE to view daily candidates.")
+else:
+    tech_watchlist = [
+        "AAPL","MSFT","GOOGL","GOOG","META","AMZN","NVDA","TSLA","CRM",
+        "ADBE","ORCL","INTC","AMD","CSCO","NFLX","AVGO","QCOM","IBM","SHOP","UBER"
+    ]
 buy_candidates = []
 for scan_t in tech_watchlist:
     try:
