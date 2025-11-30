@@ -1276,37 +1276,37 @@ else:
         "AAPL","MSFT","GOOGL","GOOG","META","AMZN","NVDA","TSLA","CRM",
         "ADBE","ORCL","INTC","AMD","CSCO","NFLX","AVGO","QCOM","IBM","SHOP","UBER"
     ]
-buy_candidates = []
-for scan_t in tech_watchlist:
-    try:
-        scan_df = fetch_prices_tf(scan_t, period, interval)
-        if scan_df is None or len(scan_df) < 30: continue
-        scan_ind = compute_indicators(scan_df)
-        _, scan_sent = fetch_news_and_sentiment(scan_t)
-        sig, _, sc = generate_signal(scan_ind, scan_sent, horizon)
-        last_s = scan_ind.iloc[-1]; price_s = last_s["Close"]
-        buy_z   = price_s - 1.5 * last_s["ATR"]
-        target_ = price_s + 2.0 * last_s["ATR"]
-        stop_   = price_s - 2.5 * last_s["ATR"]
-        earn_dt = fetch_earnings_date(scan_t)
-        if sig == "BUY" and price_s <= buy_z * 1.05:
-            buy_candidates.append({
-                "Ticker": scan_t,
-                "Price": f"${price_s:.2f}",
-                "Score": sc,
-                "Buy Zone": f"${buy_z:.2f}",
-                "Target": f"${target_:.2f}",
-                "Stop": f"${stop_:.2f}",
-                "Earnings": earn_dt,
-                "News Sentiment": f"{scan_sent:+.2f}"
-            })
-    except Exception:
-        continue
-buy_candidates = sorted(buy_candidates, key=lambda x: x["Score"], reverse=True)
-if buy_candidates:
-    st.dataframe(pd.DataFrame(buy_candidates), use_container_width=True)
-else:
-    st.info("No strong tech stock buy candidates found today based on your criteria.")
+    buy_candidates = []
+    for scan_t in tech_watchlist:
+        try:
+            scan_df = fetch_prices_tf(scan_t, period, interval)
+            if scan_df is None or len(scan_df) < 30: continue
+            scan_ind = compute_indicators(scan_df)
+            _, scan_sent = fetch_news_and_sentiment(scan_t)
+            sig, _, sc = generate_signal(scan_ind, scan_sent, horizon)
+            last_s = scan_ind.iloc[-1]; price_s = last_s["Close"]
+            buy_z   = price_s - 1.5 * last_s["ATR"]
+            target_ = price_s + 2.0 * last_s["ATR"]
+            stop_   = price_s - 2.5 * last_s["ATR"]
+            earn_dt = fetch_earnings_date(scan_t)
+            if sig == "BUY" and price_s <= buy_z * 1.05:
+                buy_candidates.append({
+                    "Ticker": scan_t,
+                    "Price": f"${price_s:.2f}",
+                    "Score": sc,
+                    "Buy Zone": f"${buy_z:.2f}",
+                    "Target": f"${target_:.2f}",
+                    "Stop": f"${stop_:.2f}",
+                    "Earnings": earn_dt,
+                    "News Sentiment": f"{scan_sent:+.2f}"
+                })
+        except Exception:
+            continue
+    buy_candidates = sorted(buy_candidates, key=lambda x: x["Score"], reverse=True)
+    if buy_candidates:
+        st.dataframe(pd.DataFrame(buy_candidates), use_container_width=True)
+    else:
+        st.info("No strong tech stock buy candidates found today based on your criteria.")
 
 # ------------------------------ News ------------------------------
 with st.expander("🗞️ Latest Headlines", expanded=False):
