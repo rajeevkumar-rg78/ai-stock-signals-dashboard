@@ -1078,127 +1078,127 @@ else:
 
 
 
-with tab1:
-    st.write("One-day action suggestion (for learning/demo):")
-    day_action = daily_action_strategy(price, buy_zone, target_up, stop_loss, decision, invest_amount, shares_held=0, cash=invest_amount)
-    st.markdown(day_action["msg"])
-
-with tab2:
-    st.write("Adaptive DCA (oversold/momentum-aware with partial take-profit):")
-    def adaptive_dca_simulator(df: pd.DataFrame, ind: pd.DataFrame, cash_start: float):
-        df, ind = df.align(ind, join="inner", axis=0)
-        cash, shares = float(cash_start), 0.0
-        trades, equity_curve = [], []
-        peak_equity, halt_buys = cash_start, False
-
-        for dt in df.index:
-            px = float(df.loc[dt, "Close"])
-            rsi, macd, macds = float(ind.loc[dt, "RSI"]), float(ind.loc[dt, "MACD"]), float(ind.loc[dt, "MACD_Signal"])
-            ma20, ma50 = float(ind.loc[dt, "MA20"]), float(ind.loc[dt, "MA50"])
-            bb_low, atr = float(ind.loc[dt, "BB_Low"]), float(ind.loc[dt, "ATR"])
-
-            if not halt_buys:
-                momentum_buy = (macd > macds and ma20 > ma50)
-                oversold_buy = (rsi < 45) or (px < bb_low)
-                alloc = 0.0
-                if momentum_buy or oversold_buy:
-                    if rsi < 25: alloc = 0.30
-                    elif rsi < 35: alloc = 0.20
-                    elif rsi < 45: alloc = 0.10
-                invest = cash * alloc
-                if invest > 0:
-                    buy_shares = invest / px
-                    shares += buy_shares
-                    cash -= invest
-                    trades.append({"date": dt.strftime("%Y-%m-%d"), "side": "BUY", "price": round(px,2),
-                                   "invested": round(invest,2), "shares": round(buy_shares,6)})
-
-            target_price = float(ind["Close"].iloc[-1] + 2*ind["ATR"].iloc[-1])
-            if shares > 0 and px >= target_price:
-                sell_shares = shares * 0.20
-                proceeds = sell_shares * px
-                shares -= sell_shares
-                cash += proceeds
-                trades.append({"date": dt.strftime("%Y-%m-%d"), "side": "SELL", "price": round(px,2),
-                               "invested": -round(proceeds,2), "shares": -round(sell_shares,6)})
-
-            equity = float(shares * px + cash)
-            equity_curve.append(equity)
-            peak_equity = max(peak_equity, equity)
-            dd_pct = (equity - peak_equity) / (peak_equity if peak_equity else 1)
-            if dd_pct < -0.30:
-                halt_buys = True
-
-        final_value = shares * df["Close"].iloc[-1] + cash
-        total_invested = cash_start - cash if cash_start >= cash else cash_start
-        pnl = final_value - total_invested
-        roi_pct = (pnl / total_invested * 100) if total_invested > 0 else 0.0
-        ec = np.array(equity_curve, dtype=float)
-        running_max = np.maximum.accumulate(ec) if ec.size else np.array([0])
-        dd = (ec - running_max) / np.where(running_max == 0, 1, running_max)
-        max_dd = float(np.min(dd)) if dd.size else 0.0
-        trades_df = pd.DataFrame(trades)
-        return dict(final_value=final_value, total_invested=total_invested,
-                    roi_pct=roi_pct, max_drawdown_pct=round(100*max_dd,2), trades=trades_df)
-
-    sim = adaptive_dca_simulator(df, ind, invest_amount)
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Final Portfolio Value", f"${safe_float(sim.get('final_value')):,.2f}")
-    c2.metric("Total Invested", f"${safe_float(sim.get('total_invested')):,.2f}")
-    c3.metric("ROI", f"{safe_float(sim.get('roi_pct')):.1f}%")
-    c4.metric("Max Drawdown", f"{safe_float(sim.get('max_drawdown_pct')):.1f}%")
-    if not sim["trades"].empty:
-        st.dataframe(sim["trades"], use_container_width=True)
-    else:
-        st.info("No trades executed in this period by adaptive rules.")
-
-with tab3:
-    st.write("Monte Carlo forward outcomes (bootstrap past returns):")
-    periods_map = {"1D":1,"1W":5,"1M":21,"3M":63,"6M":126,"YTD":180,"1Y":252,"2Y":504,"5Y":1260,"10Y":2520,"ALL":252}
-    days = periods_map.get(tf, 21)
-
-    def simulate_future_prices(df, days=10, n_sims=1000):
-        returns_series = df["Close"].pct_change().dropna()
-        if isinstance(returns_series, pd.DataFrame): returns_series = returns_series.iloc[:, 0]
-        elif isinstance(returns_series, np.ndarray) and returns_series.ndim > 1:
-            returns_series = pd.Series(returns_series.flatten())
-        elif not isinstance(returns_series, pd.Series):
-            returns_series = pd.Series(returns_series)
-        returns = pd.to_numeric(returns_series, errors="coerce").values
-        returns = returns[~np.isnan(returns)]
-        if len(returns) < max(10, days // 3):
-            return None
-        last_price = float(df["Close"].iloc[-1])
-        sims = []
-        for _ in range(n_sims):
-            sampled_returns = np.random.choice(returns, size=days, replace=True)
-            price_path = [last_price]
-            for r in sampled_returns:
-                price_path.append(price_path[-1] * (1 + r))
-            sims.append(price_path[1:])
-        return np.array(sims)
-
-    sim_prices = simulate_future_prices(df, days=days, n_sims=1000)
-    if sim_prices is None:
-        st.info("Not enough data for reliable simulation at this timeframe.")
-    else:
-        predicted_prices = sim_prices[:, -1]
-        mean_price = np.mean(predicted_prices); median_price = np.median(predicted_prices)
-        low_price  = np.percentile(predicted_prices, 2.5); high_price = np.percentile(predicted_prices, 97.5)
-        buy_price = float(df["Close"].iloc[-1])
-        expected_gain = mean_price - buy_price
-        expected_gain_pct = (expected_gain / buy_price) * 100 if buy_price != 0 else 0
-        st.markdown(f"**Current price:** ${buy_price:.2f}  |  **Mean:** ${mean_price:.2f}  |  **Median:** ${median_price:.2f}  |  **95% range:** ${low_price:.2f} — ${high_price:.2f}")
-        st.write(f"**Expected gain/loss per share:** ${expected_gain:+.2f} ({expected_gain_pct:+.2f}%)")
-
-        # Small histogram
-        fig, ax = plt.subplots(figsize=(5, 2.5))
-        ax.hist(predicted_prices, bins=30, alpha=0.8)
-        ax.set_title(f"Distribution of Simulated {days}-Day Prices")
-        ax.set_xlabel("Price")
-        ax.set_ylabel("Sims")
-        plt.tight_layout()
-        st.pyplot(fig)
+    with tab1:
+        st.write("One-day action suggestion (for learning/demo):")
+        day_action = daily_action_strategy(price, buy_zone, target_up, stop_loss, decision, invest_amount, shares_held=0, cash=invest_amount)
+        st.markdown(day_action["msg"])
+    
+    with tab2:
+        st.write("Adaptive DCA (oversold/momentum-aware with partial take-profit):")
+        def adaptive_dca_simulator(df: pd.DataFrame, ind: pd.DataFrame, cash_start: float):
+            df, ind = df.align(ind, join="inner", axis=0)
+            cash, shares = float(cash_start), 0.0
+            trades, equity_curve = [], []
+            peak_equity, halt_buys = cash_start, False
+    
+            for dt in df.index:
+                px = float(df.loc[dt, "Close"])
+                rsi, macd, macds = float(ind.loc[dt, "RSI"]), float(ind.loc[dt, "MACD"]), float(ind.loc[dt, "MACD_Signal"])
+                ma20, ma50 = float(ind.loc[dt, "MA20"]), float(ind.loc[dt, "MA50"])
+                bb_low, atr = float(ind.loc[dt, "BB_Low"]), float(ind.loc[dt, "ATR"])
+    
+                if not halt_buys:
+                    momentum_buy = (macd > macds and ma20 > ma50)
+                    oversold_buy = (rsi < 45) or (px < bb_low)
+                    alloc = 0.0
+                    if momentum_buy or oversold_buy:
+                        if rsi < 25: alloc = 0.30
+                        elif rsi < 35: alloc = 0.20
+                        elif rsi < 45: alloc = 0.10
+                    invest = cash * alloc
+                    if invest > 0:
+                        buy_shares = invest / px
+                        shares += buy_shares
+                        cash -= invest
+                        trades.append({"date": dt.strftime("%Y-%m-%d"), "side": "BUY", "price": round(px,2),
+                                       "invested": round(invest,2), "shares": round(buy_shares,6)})
+    
+                target_price = float(ind["Close"].iloc[-1] + 2*ind["ATR"].iloc[-1])
+                if shares > 0 and px >= target_price:
+                    sell_shares = shares * 0.20
+                    proceeds = sell_shares * px
+                    shares -= sell_shares
+                    cash += proceeds
+                    trades.append({"date": dt.strftime("%Y-%m-%d"), "side": "SELL", "price": round(px,2),
+                                   "invested": -round(proceeds,2), "shares": -round(sell_shares,6)})
+    
+                equity = float(shares * px + cash)
+                equity_curve.append(equity)
+                peak_equity = max(peak_equity, equity)
+                dd_pct = (equity - peak_equity) / (peak_equity if peak_equity else 1)
+                if dd_pct < -0.30:
+                    halt_buys = True
+    
+            final_value = shares * df["Close"].iloc[-1] + cash
+            total_invested = cash_start - cash if cash_start >= cash else cash_start
+            pnl = final_value - total_invested
+            roi_pct = (pnl / total_invested * 100) if total_invested > 0 else 0.0
+            ec = np.array(equity_curve, dtype=float)
+            running_max = np.maximum.accumulate(ec) if ec.size else np.array([0])
+            dd = (ec - running_max) / np.where(running_max == 0, 1, running_max)
+            max_dd = float(np.min(dd)) if dd.size else 0.0
+            trades_df = pd.DataFrame(trades)
+            return dict(final_value=final_value, total_invested=total_invested,
+                        roi_pct=roi_pct, max_drawdown_pct=round(100*max_dd,2), trades=trades_df)
+    
+        sim = adaptive_dca_simulator(df, ind, invest_amount)
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Final Portfolio Value", f"${safe_float(sim.get('final_value')):,.2f}")
+        c2.metric("Total Invested", f"${safe_float(sim.get('total_invested')):,.2f}")
+        c3.metric("ROI", f"{safe_float(sim.get('roi_pct')):.1f}%")
+        c4.metric("Max Drawdown", f"{safe_float(sim.get('max_drawdown_pct')):.1f}%")
+        if not sim["trades"].empty:
+            st.dataframe(sim["trades"], use_container_width=True)
+        else:
+            st.info("No trades executed in this period by adaptive rules.")
+    
+    with tab3:
+        st.write("Monte Carlo forward outcomes (bootstrap past returns):")
+        periods_map = {"1D":1,"1W":5,"1M":21,"3M":63,"6M":126,"YTD":180,"1Y":252,"2Y":504,"5Y":1260,"10Y":2520,"ALL":252}
+        days = periods_map.get(tf, 21)
+    
+        def simulate_future_prices(df, days=10, n_sims=1000):
+            returns_series = df["Close"].pct_change().dropna()
+            if isinstance(returns_series, pd.DataFrame): returns_series = returns_series.iloc[:, 0]
+            elif isinstance(returns_series, np.ndarray) and returns_series.ndim > 1:
+                returns_series = pd.Series(returns_series.flatten())
+            elif not isinstance(returns_series, pd.Series):
+                returns_series = pd.Series(returns_series)
+            returns = pd.to_numeric(returns_series, errors="coerce").values
+            returns = returns[~np.isnan(returns)]
+            if len(returns) < max(10, days // 3):
+                return None
+            last_price = float(df["Close"].iloc[-1])
+            sims = []
+            for _ in range(n_sims):
+                sampled_returns = np.random.choice(returns, size=days, replace=True)
+                price_path = [last_price]
+                for r in sampled_returns:
+                    price_path.append(price_path[-1] * (1 + r))
+                sims.append(price_path[1:])
+            return np.array(sims)
+    
+        sim_prices = simulate_future_prices(df, days=days, n_sims=1000)
+        if sim_prices is None:
+            st.info("Not enough data for reliable simulation at this timeframe.")
+        else:
+            predicted_prices = sim_prices[:, -1]
+            mean_price = np.mean(predicted_prices); median_price = np.median(predicted_prices)
+            low_price  = np.percentile(predicted_prices, 2.5); high_price = np.percentile(predicted_prices, 97.5)
+            buy_price = float(df["Close"].iloc[-1])
+            expected_gain = mean_price - buy_price
+            expected_gain_pct = (expected_gain / buy_price) * 100 if buy_price != 0 else 0
+            st.markdown(f"**Current price:** ${buy_price:.2f}  |  **Mean:** ${mean_price:.2f}  |  **Median:** ${median_price:.2f}  |  **95% range:** ${low_price:.2f} — ${high_price:.2f}")
+            st.write(f"**Expected gain/loss per share:** ${expected_gain:+.2f} ({expected_gain_pct:+.2f}%)")
+    
+            # Small histogram
+            fig, ax = plt.subplots(figsize=(5, 2.5))
+            ax.hist(predicted_prices, bins=30, alpha=0.8)
+            ax.set_title(f"Distribution of Simulated {days}-Day Prices")
+            ax.set_xlabel("Price")
+            ax.set_ylabel("Sims")
+            plt.tight_layout()
+            st.pyplot(fig)
 
 # ------------------------------ Macro & Fundamentals ------------------------------
 st.markdown("### 🌎 Market & Fundamentals")
