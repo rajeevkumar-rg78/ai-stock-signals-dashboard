@@ -415,7 +415,8 @@ if "user" not in st.session_state:
     # ---------- LOGIN ----------
     with tab_login:
         login_email = st.text_input("Email", key="login_email")
-        login_pass = st.text_input("Password", type="password", key="login_pass", type="password")
+        login_pass = st.text_input("Password", key="login_pass", type="password")
+
 
         if st.button("Login"):
             try:
@@ -443,7 +444,8 @@ if "user" not in st.session_state:
     # ---------- SIGNUP ----------
     with tab_signup:
         signup_email = st.text_input("Signup Email", key="signup_email")
-        signup_pass = st.text_input("Signup Password", key="signup_pass", type="password")
+        signup_pass = st.text_input("New Password", key="signup_pass", type="password")
+
 
         if st.button("Create Account"):
             try:
