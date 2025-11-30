@@ -1071,6 +1071,9 @@ else:
 
 # ------------------------------ Simulators (Tabs) ------------------------------
 st.markdown("### 🧪 Simulation Tools")
+if is_free:
+    st.info("Simulators (Daily Action, Adaptive DCA, Monte Carlo) are available on PRO and ELITE plans.")
+else:
 tab1, tab2, tab3 = st.tabs(["Daily Action", "Adaptive DCA", "Monte Carlo"])
 
 
