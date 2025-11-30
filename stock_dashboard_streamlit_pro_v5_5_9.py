@@ -403,6 +403,78 @@ pricing_html = """
 st.markdown(pricing_html, unsafe_allow_html=True)
 
 
+# ============================================================
+# 🔐 Require login BEFORE user can use Ticker / signals
+# (But AFTER banner, pricing, etc.)
+# ============================================================
+if "user" not in st.session_state:
+    st.markdown("### 🔐 Login or Create an Account to Use AISigmaX")
+
+    tab_login, tab_signup = st.tabs(["Login", "Signup"])
+
+    # ---------- LOGIN ----------
+    with tab_login:
+        login_email = st.text_input("Email", key="login_email")
+        login_pass = st.text_input("Password", type="password", key="login_pass", type="password")
+
+        if st.button("Login"):
+            try:
+                # fetch user by email
+                res = supabase.table("users") \
+                    .select("*") \
+                    .eq("email", login_email.lower()) \
+                    .execute()
+
+                if res.data:
+                    user_row = res.data[0]
+                    stored_hash = user_row["password_hash"]
+
+                    if bcrypt.checkpw(login_pass.encode(), stored_hash.encode()):
+                        st.session_state.user = user_row
+                        st.success("✅ Logged in!")
+                        st.rerun()
+                    else:
+                        st.error("❌ Incorrect password.")
+                else:
+                    st.error("❌ No account found for that email.")
+            except Exception as e:
+                st.error(f"Login failed: {e}")
+
+    # ---------- SIGNUP ----------
+    with tab_signup:
+        signup_email = st.text_input("Signup Email", key="signup_email")
+        signup_pass = st.text_input("Signup Password", key="signup_pass", type="password")
+
+        if st.button("Create Account"):
+            try:
+                pw_hash = bcrypt.hashpw(signup_pass.encode(), bcrypt.gensalt()).decode()
+
+                res = supabase.table("users").insert({
+                    "email": signup_email.lower(),
+                    "password_hash": pw_hash,
+                    "plan": "free"
+                }).execute()
+
+                st.success("🎉 Account created! Please go to Login tab and sign in.")
+            except Exception as e:
+                st.error(f"Signup failed: {e}")
+
+    # ⛔ stop the rest of the app (ticker, signals, etc.)
+    st.stop()
+
+st.sidebar.title("Account")
+
+if "user" in st.session_state:
+    st.sidebar.success(f"Logged in as {st.session_state.user['email']}")
+    if st.sidebar.button("Logout"):
+        st.session_state.clear()
+        st.rerun()
+else:
+    st.sidebar.info("Not logged in")
+
+
+
+
 c1, c2, c3 = st.columns([2,2,3])
 with c1:
     ticker = st.text_input("Ticker", "", placeholder="Enter a stock symbol (e.g., MSFT)").upper().strip()
